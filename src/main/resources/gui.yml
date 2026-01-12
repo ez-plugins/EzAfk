@@ -1,0 +1,32 @@
+# GUI configuration for EzAfk's player actions menu.
+# Supported action types:
+# - KICK: Kick the AFK player using the optional target-message.
+# - MESSAGE: Send the optional target-message to the AFK player.
+# - TELEPORT: Teleport the staff member to the AFK player.
+# - COMMAND: Run the configured command as console (supports placeholders).
+# Available placeholders:
+# %player%   - Name of the AFK player the GUI was opened for.
+# %executor% - Name of the player who clicked the GUI item.
+# Total number of slots must be a multiple of 9 and between 9 and 54.
+inventory-size: 9
+actions:
+  kick:
+    slot: 0
+    material: IRON_BOOTS
+    display-name: "&cKick Player"
+    type: KICK
+    target-message: "&cYou were kicked for being AFK too long."
+    feedback-message: "&aSuccessfully kicked %player%"
+  alert:
+    slot: 1
+    material: PAPER
+    display-name: "&eSend Alert"
+    type: MESSAGE
+    target-message: "&eYou are marked as AFK. Keep active to prevent getting kicked!"
+    feedback-message: "&aSent alert to %player%"
+  teleport:
+    slot: 2
+    material: COMPASS
+    display-name: "&aTeleport to Player"
+    type: TELEPORT
+    feedback-message: "&aTeleported to %player%"

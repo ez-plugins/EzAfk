@@ -1,0 +1,140 @@
+# Config for EzAfk 2.0.0
+# GUI settings have moved to gui.yml.
+# MySQL settings have moved to mysql.yml.
+messages:
+  # Default language for the generated messages file. Supported values: en, es, nl, ru, zh
+  # Language files are located in the messages/ directory.
+  language: en
+afk:
+  # Timeout in seconds
+  timeout: 300
+  # Enabling this will activate the function of the permission "ezafk.bypass"
+  # By default OP players have this permission.
+  bypass:
+    enabled: true
+  broadcast:
+    # Enable broadcast message to all online players when player is AFK
+    enabled: true
+    # Placeholders:
+    # %player% - Display name of player
+    # %afk_count% - Current number of players marked as AFK
+    # %active_count% - Current number of online players not marked as AFK
+  title:
+    enabled: true
+  hide-screen:
+    # Apply a blindness effect to AFK players to hide their screen until they return.
+    enabled: false
+  animation:
+    enabled: true
+  storage:
+    # Interval in seconds between asynchronous flushes of AFK time data to disk.
+    # Lower values write more frequently while higher values reduce disk activity.
+    flush-interval-seconds: 30
+  # Prevent players from bypassing AFK
+  anti:
+    # Toggle the infinite water flow protection
+    infinite-waterflow: false
+    infinite-vehicle: false
+    bubble-column: false
+    # When true, bypass attempts silently mark the player as AFK instead of alerting them.
+    flag-only: false
+  # TAB integration
+  # Requires: https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
+  tab-prefix:
+    enabled: false
+    # Strategy for applying AFK names when the TAB plugin is installed.
+    # Options:
+    #   auto   - Use TAB when available, otherwise fall back to EzAfk's custom list handling.
+    #   tab    - Require TAB for name changes. Falls back to the custom implementation if the plugin is missing.
+    #   custom - Always use EzAfk's built-in implementation, even if TAB is installed.
+    mode: auto
+    prefix: "&7[AFK] "
+    # Text to append to the end of the player's name while AFK.
+    suffix: ""
+    # Full format for the displayed name. Available placeholders: %prefix%, %player%, %suffix%
+    format: "%prefix%%player%%suffix%"
+  # Change the in-game display name (e.g., chat) while the player is AFK.
+  display-name:
+    enabled: false
+    prefix: "&7[AFK] "
+    suffix: ""
+    format: "%prefix%%player%%suffix%"
+unafk:
+  broadcast:
+    # Broadcast a message when a player is not longer AFK
+    enabled: true
+    # Placeholders:
+    # %player% - Display name of player
+    # %afk_count% - Current number of players marked as AFK
+    # %active_count% - Current number of online players not marked as AFK
+  title:
+    enabled: true
+  animation:
+    enabled: true
+economy:
+  # Enable economy-based costs for going AFK. Requires Vault with an economy provider installed.
+  enabled: false
+  # Players with this permission bypass all AFK costs.
+  bypass-permission: "ezafk.economy.bypass"
+  # Players inside a WorldGuard region with the afk-bypass flag will also skip costs.
+  cost:
+    enter:
+      # Charge a player when they are marked as AFK (either manually or automatically).
+      enabled: true
+      amount: 25.0
+      # When true, the AFK toggle is cancelled if the player cannot afford the cost.
+      # When false, the charge is skipped and the player still becomes AFK.
+      require-funds: true
+      # Seconds to wait before attempting to automatically toggle a player AFK again after a failed charge.
+      retry-delay: 60
+    recurring:
+      # Continuously charge AFK players while they remain AFK.
+      enabled: false
+      amount: 5.0
+      # Time between recurring charges in seconds.
+      interval: 300
+      # When true, the player must have enough funds for the charge to succeed.
+      # Failing to pay while this is true always removes their AFK state.
+      require-funds: true
+      # Controls optional charges (when require-funds is false): true removes the AFK state on failure, false retries later.
+      kick-on-fail: false
+kick:
+  # Enable the kick function after being AFK for x amount of time
+  enabled: false
+  # Enable the kick function when the lobby is full
+  enabledWhenFull: false
+  # Timeout in seconds
+  timeout: 600
+  # Warning system before kicking for AFK
+  warnings:
+    enabled: true
+    # List of warning intervals (in seconds before kick) to send warnings at.
+    # Example: [60, 30, 10] will warn at 60s, 30s, and 10s before kick.
+    intervals: [60, 30, 10]
+    # How to send warnings: 'chat', 'title', or 'both'.
+    # - chat: Sends a chat message only.
+    # - title: Sends a title/subtitle only.
+    # - both: Sends both chat and title/subtitle.
+    mode: both
+    # Messages are configurable in messages.yml under kick.warning
+    # Warnings are only sent once per interval per AFK session.
+    # If a player returns from AFK or is kicked, the warning state resets.
+integration:
+  # https://dev.bukkit.org/projects/worldguard
+  # Automatically skipped when WorldGuard is not installed.
+  worldguard: true
+  # https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
+  tab: true
+  # https://www.spigotmc.org/resources/playtime-%C2%BB-1-17-1-21-10.44852/
+  # When enabled, EzAfk registers additional placeholders that subtract tracked AFK
+  # time from the configured Playtime placeholder value.
+  # EXPERIMENTAL through PlaceholderAPI integration
+  playtime:
+    enabled: false
+    # Placeholder that resolves to the player's total playtime **in seconds**.
+    # The default matches the Playtime plugin's %playtime_time_total_seconds% placeholder.
+    placeholder: "%playtime_time_total_seconds%"
+  # Check for EzAfk updates while startup server
+  # This is being done async and will not affect the startup time of your server
+  spigot:
+    check-for-update: true

@@ -1,0 +1,74 @@
+anti:
+  vehicle: "&c骑乘交通工具时无法切换 AFK 状态。"
+  infinite-waterflow: "&c利用流水也无法绕过 AFK 检测。"
+  bubble-column: "&c你不能利用气泡柱来逃避挂机检测。"
+afk:
+  now: "&e你现在被标记为 AFK。请活动一下保持在线！"
+  broadcast: "&c玩家&a %player% &c现在处于 AFK 状态"
+  no-longer: "&a欢迎回来！你已不再 AFK。"
+  title:
+    title: "&eAFK"
+    subtitle: "&7你现在处于 AFK 状态"
+command:
+  usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&c只有在线玩家才能管理自己的 AFK 状态。"
+      failed: "&c无法更新你的 AFK 状态。"
+    no-permission: "&c你没有权限切换其他玩家的 AFK 状态。"
+    now-afk: "&a%target% 现在已被标记为 AFK。"
+    no-longer-afk: "&a%target% 不再被标记为 AFK。"
+    failed: "&c无法更改 %target% 的 AFK 状态。"
+  reload:
+    no-permission: "&c你没有权限重新加载配置。"
+    success: "&a配置重新加载成功。"
+  gui:
+    players-only: "&c只有在线玩家才能打开 AFK 界面。"
+    no-permission: "&c你没有权限打开 AFK 界面。"
+  bypass:
+    no-permission: "&c你没有权限更改 AFK 检测的绕过状态。"
+    enabled: "&a%target% 将会绕过 AFK 检测。"
+    enabled-target: "&a你现在可以绕过 AFK 检测。"
+    disabled: "&a%target% 将不再绕过 AFK 检测。"
+    disabled-target: "&c你不再绕过 AFK 检测。"
+  time:
+    players-only: "&cOnly players can view their own AFK time."
+    no-permission: "&cYou don't have permission to view your AFK time."
+    others-no-permission: "&cYou don't have permission to view other players' AFK time."
+    self: "&aYou have been AFK for %duration% in total."
+    other: "&a%player% has been AFK for %duration% in total."
+  top:
+    no-permission: "&cYou don't have permission to view the AFK leaderboard."
+    empty: "&eNo AFK time has been recorded yet."
+    header: "&6Top AFK players:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&c无法找到该玩家。"
+economy:
+  enter:
+    charged: "&e你支付了 %amount% 以进入 AFK 状态。"
+    insufficient: "&c进入 AFK 状态至少需要 %amount%。"
+    failed: "&c无法扣款以让你进入 AFK 状态。"
+    skipped: "&e由于无法扣款，已跳过 AFK 状态的入场费用。"
+  recurring:
+    charged: "&e你支付了 %amount% 以保持 AFK 状态。"
+    revoked-insufficient: "&c你没有足够的资金继续 AFK，因此 AFK 状态已被移除。"
+    revoked-failed: "&c无法扣款以保持 AFK 状态，因此你的 AFK 状态已被移除。"
+    skipped: "&e由于无法扣款，已跳过 AFK 状态的周期费用。我们稍后会再尝试。"
+    failed: "&c无法扣款以保持 AFK 状态。我们稍后会再尝试。"
+gui:
+  overview:
+    active:
+      no-permission: "&c你没有权限查看在线玩家。"
+  actions:
+    no-permission: "&c你没有权限使用玩家操作。"
+    error:
+      player-not-found: "&c无法找到与该动作关联的玩家。"
+      no-command: "&c尚未为此动作配置指令。"
+    default-kick-message: "&c由于长时间 AFK，你已被踢出。"
+unafk:
+  broadcast: "&a玩家&7 %player% &a不再 AFK"
+  title:
+    title: "&a欢迎回来！"
+    subtitle: "&7你已不再 AFK"
+kick:
+  message: "&c由于长时间 AFK，你已被服务器踢出！"

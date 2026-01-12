@@ -1,0 +1,88 @@
+anti:
+  vehicle: "&cYou can't toggle AFK while riding in a vehicle."
+  infinite-waterflow: "&cWater flow tricks won't bypass AFK detection."
+  bubble-column: "&cYou cannot use bubble columns to avoid AFK detection."
+afk:
+  now: "&eYou are now marked as AFK. Move around to stay active!"
+  broadcast: "&cPlayer&a %player% &cis now AFK"
+  no-longer: "&aWelcome back! You're no longer AFK."
+  title:
+    title: "&eAFK"
+    subtitle: "&7You are now AFK"
+command:
+  usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&cOnly in-game players can manage their own AFK status."
+      failed: "&cYour AFK status could not be updated."
+    no-permission: "&cYou don't have permission to toggle another player's AFK state."
+    now-afk: "&a%target% is now marked as AFK."
+    no-longer-afk: "&a%target% is no longer marked as AFK."
+    failed: "&c%target%'s AFK status could not be changed."
+  reload:
+    no-permission: "&cYou don't have permission to reload the configuration."
+    success: "&aConfiguration reloaded successfully."
+  gui:
+    players-only: "&cOnly players in-game can open the AFK GUI."
+    no-permission: "&cYou don't have permission to open the AFK GUI."
+  bypass:
+    no-permission: "&cYou don't have permission to change AFK bypass status."
+    enabled: "&a%target% will now bypass AFK detection."
+    enabled-target: "&aAFK detection is now bypassed for you."
+    disabled: "&a%target% will no longer bypass AFK detection."
+    disabled-target: "&cAFK detection is no longer bypassed for you."
+  info:
+    no-permission: "&cYou don't have permission to view AFK reports."
+    not-afk: "&e%target% is not currently marked as AFK."
+    header: "&6AFK report for &e%player%&6:"
+    reason: "&7Reason: &f%reason%"
+    detail: "&7Details: &f%detail%"
+    no-detail: "&7Details: &fNo additional details were recorded."
+    duration: "&7AFK for: &f%duration%"
+    last-activity: "&7Last activity: &f%last% ago"
+  time:
+    players-only: "&cOnly players can view their own AFK time."
+    no-permission: "&cYou don't have permission to view your AFK time."
+    others-no-permission: "&cYou don't have permission to view other players' AFK time."
+    self: "&aYou have been AFK for %duration% in total."
+    other: "&a%player% has been AFK for %duration% in total."
+  top:
+    no-permission: "&cYou don't have permission to view the AFK leaderboard."
+    empty: "&eNo AFK time has been recorded yet."
+    header: "&6Top AFK players:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cThat player couldn't be found."
+economy:
+  enter:
+    charged: "&eYou paid %amount% to go AFK."
+    insufficient: "&cYou need at least %amount% to go AFK."
+    failed: "&cWe couldn't charge your account to go AFK."
+    skipped: "&eThe AFK entry fee was skipped because your account couldn't be charged."
+  recurring:
+    charged: "&eYou paid %amount% to remain AFK."
+    revoked-insufficient: "&cYou don't have enough funds to remain AFK, so your AFK status has been removed."
+    revoked-failed: "&cWe couldn't charge your account to remain AFK, so your AFK status has been removed."
+    skipped: "&eThe recurring AFK fee was skipped because your account couldn't be charged. We'll try again later."
+    failed: "&cWe couldn't charge your account to remain AFK. We'll try again later."
+gui:
+  overview:
+    active:
+      no-permission: "&cYou don't have permission to view active players."
+  actions:
+    no-permission: "&cYou don't have permission to use player actions."
+    error:
+      player-not-found: "&cWe couldn't find the player linked to that action."
+      no-command: "&cNo command has been configured for this action."
+    default-kick-message: "&cYou've been kicked for staying AFK too long."
+unafk:
+  broadcast: "&aPlayer&7 %player% &ais no longer AFK"
+  title:
+    title: "&aWelcome back!"
+    subtitle: "&7You are no longer AFK"
+kick:
+  message: "&cYou have been kicked from this server for being AFK too long!"
+  warning:
+    chat: "&eYou will be kicked for being AFK in &c%seconds% &eseconds!"
+    title:
+      title: "&cAFK Warning"
+      subtitle: "&eKicked in &c%seconds% &esec!"

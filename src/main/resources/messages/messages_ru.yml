@@ -1,0 +1,74 @@
+anti:
+  vehicle: "&cВы не можете переключить режим AFK, находясь в транспорте."
+  infinite-waterflow: "&cХитрости с потоками воды не помогут обойти обнаружение AFK."
+  bubble-column: "&cВы не можете использовать пузырьковые столбы, чтобы обойти обнаружение AFK."
+afk:
+  now: "&eТеперь вы отмечены как AFK. Двигайтесь, чтобы оставаться активным!"
+  broadcast: "&cИгрок&a %player% &cтеперь AFK"
+  no-longer: "&aС возвращением! Вы больше не AFK."
+  title:
+    title: "&eAFK"
+    subtitle: "&7Вы теперь AFK"
+command:
+  usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&cТолько игроки в игре могут управлять своим статусом AFK."
+      failed: "&cНе удалось обновить ваш статус AFK."
+    no-permission: "&cУ вас нет прав переключать статус AFK другого игрока."
+    now-afk: "&a%target% теперь помечен как AFK."
+    no-longer-afk: "&a%target% больше не помечен как AFK."
+    failed: "&cНе удалось изменить статус AFK игрока %target%."
+  reload:
+    no-permission: "&cУ вас нет прав перезагружать конфигурацию."
+    success: "&aКонфигурация успешно перезагружена."
+  gui:
+    players-only: "&cОткрыть AFK-интерфейс могут только игроки в игре."
+    no-permission: "&cУ вас нет прав открывать AFK-интерфейс."
+  bypass:
+    no-permission: "&cУ вас нет прав изменять обход обнаружения AFK."
+    enabled: "&a%target% теперь будет обходить обнаружение AFK."
+    enabled-target: "&aДля вас теперь включён обход обнаружения AFK."
+    disabled: "&a%target% больше не будет обходить обнаружение AFK."
+    disabled-target: "&cОбход обнаружения AFK для вас выключен."
+  time:
+    players-only: "&cOnly players can view their own AFK time."
+    no-permission: "&cYou don't have permission to view your AFK time."
+    others-no-permission: "&cYou don't have permission to view other players' AFK time."
+    self: "&aYou have been AFK for %duration% in total."
+    other: "&a%player% has been AFK for %duration% in total."
+  top:
+    no-permission: "&cYou don't have permission to view the AFK leaderboard."
+    empty: "&eNo AFK time has been recorded yet."
+    header: "&6Top AFK players:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cНе удалось найти этого игрока."
+economy:
+  enter:
+    charged: "&eВы заплатили %amount%, чтобы перейти в режим AFK."
+    insufficient: "&cЧтобы перейти в режим AFK, нужно как минимум %amount%."
+    failed: "&cНе удалось списать средства за переход в режим AFK."
+    skipped: "&eПлата за переход в режим AFK пропущена, так как не удалось списать средства."
+  recurring:
+    charged: "&eВы заплатили %amount%, чтобы оставаться в режиме AFK."
+    revoked-insufficient: "&cНедостаточно средств, чтобы оставаться AFK, поэтому статус снят."
+    revoked-failed: "&cНе удалось списать средства, чтобы оставаться AFK, поэтому статус снят."
+    skipped: "&eПериодический платёж за режим AFK пропущен, так как не удалось списать средства. Мы попробуем позже."
+    failed: "&cНе удалось списать средства за пребывание в режиме AFK. Мы попробуем позже."
+gui:
+  overview:
+    active:
+      no-permission: "&cУ вас нет прав просматривать активных игроков."
+  actions:
+    no-permission: "&cУ вас нет прав использовать действия с игроками."
+    error:
+      player-not-found: "&cНе удалось найти игрока, связанного с этим действием."
+      no-command: "&cДля этого действия не настроена команда."
+    default-kick-message: "&cВы были кикнуты за слишком долгое пребывание AFK."
+unafk:
+  broadcast: "&aИгрок&7 %player% &aбольше не AFK"
+  title:
+    title: "&aС возвращением!"
+    subtitle: "&7Вы больше не AFK"
+kick:
+  message: "&cВы были кикнуты с сервера за слишком долгое пребывание AFK!"

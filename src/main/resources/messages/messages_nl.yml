@@ -1,0 +1,72 @@
+anti:
+  vehicle: "&cJe kunt AFK niet toggelen terwijl je in een voertuig zit."
+  infinite-waterflow: "&cWaterstroomtrucs omzeilen de AFK-detectie niet."
+  bubble-column: "&cJe kunt geen bubbelkolommen gebruiken om AFK-detectie te omzeilen."
+afk:
+  now: "&eJe staat nu als AFK gemarkeerd. Beweeg om actief te blijven!"
+  broadcast: "&cSpeler&a %player% &cis nu AFK"
+  no-longer: "&aWelkom terug! Je bent niet langer AFK."
+  title:
+    title: "&eAFK"
+    subtitle: "&7Je bent nu AFK"
+command:
+  usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&cAlleen spelers in het spel kunnen hun eigen AFK-status beheren."
+    no-permission: "&cJe hebt geen toestemming om de AFK-status van een andere speler te wijzigen."
+    now-afk: "&a%target% staat nu als AFK gemarkeerd."
+    no-longer-afk: "&a%target% staat niet langer als AFK gemarkeerd."
+  reload:
+    no-permission: "&cJe hebt geen toestemming om de configuratie te herladen."
+    success: "&aConfiguratie is succesvol herladen."
+  gui:
+    players-only: "&cAlleen spelers in het spel kunnen de AFK-GUI openen."
+    no-permission: "&cJe hebt geen toestemming om de AFK-GUI te openen."
+  bypass:
+    no-permission: "&cJe hebt geen toestemming om de AFK-bypassstatus te wijzigen."
+    enabled: "&a%target% zal AFK-detectie nu omzeilen."
+    enabled-target: "&aAFK-detectie wordt nu voor jou omzeild."
+    disabled: "&a%target% zal AFK-detectie niet langer omzeilen."
+    disabled-target: "&cAFK-detectie wordt niet langer voor jou omzeild."
+  time:
+    players-only: "&cOnly players can view their own AFK time."
+    no-permission: "&cYou don't have permission to view your AFK time."
+    others-no-permission: "&cYou don't have permission to view other players' AFK time."
+    self: "&aYou have been AFK for %duration% in total."
+    other: "&a%player% has been AFK for %duration% in total."
+  top:
+    no-permission: "&cYou don't have permission to view the AFK leaderboard."
+    empty: "&eNo AFK time has been recorded yet."
+    header: "&6Top AFK players:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cDie speler kon niet worden gevonden."
+economy:
+  enter:
+    charged: "&eJe hebt %amount% betaald om AFK te gaan."
+    insufficient: "&cJe hebt minstens %amount% nodig om AFK te gaan."
+    failed: "&cWe konden je account niet belasten om AFK te gaan."
+    skipped: "&eDe AFK-invoerprijs is overgeslagen omdat je account niet kon worden belast."
+  recurring:
+    charged: "&eJe hebt %amount% betaald om AFK te blijven."
+    revoked-insufficient: "&cJe hebt niet genoeg saldo om AFK te blijven, daarom is je AFK-status verwijderd."
+    revoked-failed: "&cWe konden je account niet belasten om AFK te blijven, daarom is je AFK-status verwijderd."
+    skipped: "&eDe terugkerende AFK-kost is overgeslagen omdat je account niet kon worden belast. We proberen het later opnieuw."
+    failed: "&cWe konden je account niet belasten om AFK te blijven. We proberen het later opnieuw."
+gui:
+  overview:
+    active:
+      no-permission: "&cJe hebt geen toestemming om actieve spelers te bekijken."
+  actions:
+    no-permission: "&cJe hebt geen toestemming om speleracties te gebruiken."
+    error:
+      player-not-found: "&cWe konden de speler die aan die actie gekoppeld is niet vinden."
+      no-command: "&cEr is geen commando geconfigureerd voor deze actie."
+    default-kick-message: "&cJe bent gekickt omdat je te lang AFK was."
+unafk:
+  broadcast: "&aSpeler&7 %player% &ais niet langer AFK"
+  title:
+    title: "&aWelkom terug!"
+    subtitle: "&7Je bent niet langer AFK"
+kick:
+  message: "&cJe bent van deze server gekickt omdat je te lang AFK was!"

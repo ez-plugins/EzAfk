@@ -1,0 +1,142 @@
+package com.gyvex.ezafk.runnable;
+
+import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.integration.WorldGuardIntegration;
+import com.gyvex.ezafk.manager.EconomyManager;
+import com.gyvex.ezafk.manager.IntegrationManager;
+import com.gyvex.ezafk.manager.MessageManager;
+import com.gyvex.ezafk.state.AfkReason;
+import com.gyvex.ezafk.state.AfkState;
+import com.gyvex.ezafk.state.LastActiveState;
+import com.gyvex.ezafk.util.DurationFormatter;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerKickEvent;
+import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.*;
+
+public class AfkCheckTask extends BukkitRunnable {
+    // Tracks which warnings have been sent to each player: Map<UUID, Set<Integer>>
+    private static final Map<UUID, Set<Integer>> warnedPlayers = new HashMap<>();
+
+    @Override
+    public void run() {
+        EzAfk plugin = EzAfk.getInstance();
+        long kickTimeoutMs = plugin.config.getLong("kick.timeout") * 1000;
+        long afkTimeoutMs = plugin.config.getLong("afk.timeout") * 1000;
+        boolean kickEnabled = plugin.config.getBoolean("kick.enabled");
+        boolean kickEnabledWhenFull = plugin.config.getBoolean("kick.enabledWhenFull");
+        long currentTime = System.currentTimeMillis();
+
+        // Warning configuration
+        boolean warningsEnabled = plugin.config.getBoolean("kick.warnings.enabled", true);
+        List<Integer> warningIntervals = plugin.config.getIntegerList("kick.warnings.intervals");
+        String warningMode = plugin.config.getString("kick.warnings.mode", "both");
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            UUID playerId = player.getUniqueId();
+            long lastActive = LastActiveState.getLastActive(player);
+
+            if (shouldBypassAfkCheck(player, playerId)) {
+                continue;
+            }
+
+            if (shouldBypassWorldGuard(player)) {
+                continue;
+            }
+
+            handleWarnings(player, playerId, lastActive, currentTime, afkTimeoutMs, kickTimeoutMs,
+                    warningsEnabled, warningIntervals, warningMode);
+
+            if (shouldKick(player, playerId, lastActive, currentTime, afkTimeoutMs, kickTimeoutMs, kickEnabled, kickEnabledWhenFull)) {
+                kickPlayer(player, playerId);
+            } else if (shouldMarkAfk(player, playerId, lastActive, currentTime, afkTimeoutMs)) {
+                markPlayerAfk(player, playerId, lastActive, afkTimeoutMs, currentTime);
+            }
+        }
+
+        EconomyManager.processRecurringCharges();
+    }
+
+    private boolean shouldBypassAfkCheck(Player player, UUID playerId) {
+        EzAfk plugin = EzAfk.getInstance();
+        return plugin.config.getBoolean("afk.bypass.enabled")
+                && (player.hasPermission("ezafk.bypass") || AfkState.isBypassed(playerId));
+    }
+
+    private boolean shouldBypassWorldGuard(Player player) {
+        return IntegrationManager.hasIntegration("worldguard")
+                && WorldGuardIntegration.isInAfkBypassSection(player);
+    }
+
+    private void handleWarnings(Player player, UUID playerId, long lastActive, long currentTime,
+                                long afkTimeoutMs, long kickTimeoutMs, boolean warningsEnabled,
+                                List<Integer> warningIntervals, String warningMode) {
+        long timeAfk = currentTime - lastActive - afkTimeoutMs;
+        if (!warningsEnabled || !AfkState.isAfk(playerId) || timeAfk < 0 || timeAfk >= kickTimeoutMs) {
+            return;
+        }
+
+        long secondsUntilKick = (kickTimeoutMs - timeAfk) / 1000L;
+        Set<Integer> sent = warnedPlayers.computeIfAbsent(playerId, k -> new HashSet<>());
+        for (int interval : warningIntervals) {
+            if (secondsUntilKick == interval && !sent.contains(interval)) {
+                sendWarning(player, interval, warningMode);
+                sent.add(interval);
+            }
+        }
+    }
+
+    private void sendWarning(Player player, int seconds, String warningMode) {
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("seconds", String.valueOf(seconds));
+        if (warningMode.equalsIgnoreCase("chat") || warningMode.equalsIgnoreCase("both")) {
+            MessageManager.sendMessage(player, "kick.warning.chat",
+                    "&eYou will be kicked for being AFK in &c%seconds% &eseconds!", placeholders);
+        }
+        if (warningMode.equalsIgnoreCase("title") || warningMode.equalsIgnoreCase("both")) {
+            String title = MessageManager.getMessage("kick.warning.title.title", "&cAFK Warning", placeholders);
+            String subtitle = MessageManager.getMessage("kick.warning.title.subtitle", "&eKicked in &c%seconds% &esec!", placeholders);
+            CompatibilityUtil.sendTitle(player, title, subtitle, 10, 40, 10);
+        }
+    }
+
+    private boolean shouldKick(Player player, UUID playerId, long lastActive, long currentTime,
+                               long afkTimeoutMs, long kickTimeoutMs,
+                               boolean kickEnabled, boolean kickEnabledWhenFull) {
+        boolean timeoutExceeded = currentTime - lastActive > (kickTimeoutMs + afkTimeoutMs);
+        boolean canKick = kickEnabled
+                || (kickEnabledWhenFull && Bukkit.getOnlinePlayers().size() == Bukkit.getMaxPlayers());
+        return timeoutExceeded && canKick && AfkState.isAfk(playerId);
+    }
+
+    private void kickPlayer(Player player, UUID playerId) {
+        String message = MessageManager.getMessage(
+                "kick.message",
+                "&cYou have been kicked from this server for being AFK too long!"
+        );
+        if (message == null) {
+            message = "";
+        }
+        CompatibilityUtil.kickPlayer(player, message);
+        LastActiveState.lastActive.remove(playerId);
+        warnedPlayers.remove(playerId); // Reset warnings after kick
+    }
+
+    private boolean shouldMarkAfk(Player player, UUID playerId, long lastActive, long currentTime, long afkTimeoutMs) {
+        return currentTime - lastActive > afkTimeoutMs
+                && !AfkState.isAfk(playerId)
+                && !EconomyManager.isEconomyBlocked(player);
+    }
+
+    private void markPlayerAfk(Player player, UUID playerId, long lastActive, long afkTimeoutMs, long currentTime) {
+        long inactivitySeconds = (currentTime - lastActive) / 1000L;
+        long timeoutSeconds = afkTimeoutMs / 1000L;
+        String detail = "Inactive for " + DurationFormatter.formatDuration(inactivitySeconds)
+                + " (threshold " + DurationFormatter.formatDuration(timeoutSeconds) + ")";
+        AfkState.toggle(EzAfk.getInstance(), player, false, AfkReason.INACTIVITY, detail);
+        warnedPlayers.remove(playerId); // Reset warnings if player returns from AFK
+    }
+}

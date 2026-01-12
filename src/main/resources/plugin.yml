@@ -1,0 +1,50 @@
+name: "EzAfk"
+description: "Manage your AFK players easily"
+main: com.gyvex.ezafk.EzAfk
+version: "2.0.2"
+api-version: 1.13
+commands:
+  ezafk:
+    description: "Manage AFK states and EzAfk configuration"
+    aliases: ["afk", "ea", "afktime", "afktop"]
+    usage: "/afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+permissions:
+  ezafk.reload:
+    description: "Allows reloading the EzAfk configuration"
+    default: op
+  ezafk.gui:
+    description: "Allows opening the AFK player overview GUI"
+    default: op
+  ezafk.gui.view-active:
+    description: "Allows viewing active (online) players in the AFK GUI"
+    default: op
+  ezafk.gui.actions:
+    description: "Allows using player actions in the AFK GUI"
+    default: op
+  ezafk.toggle:
+    description: "Allows toggling other players' AFK state"
+    default: op
+  ezafk.bypass.manage:
+    description: "Allows toggling AFK bypass mode for players"
+    default: op
+  ezafk.info:
+    description: "Allows viewing AFK reports for players"
+    default: op
+  ezafk.time:
+    description: "Allows viewing your own total AFK time"
+    default: true
+  ezafk.time.others:
+    description: "Allows viewing other players' total AFK time"
+    default: op
+  ezafk.top:
+    description: "Allows viewing the AFK time leaderboard"
+    default: true
+  ezafk.economy.bypass:
+    description: "Bypass the economy cost for going AFK"
+    default: false
+softdepend:
+  - "TAB"
+  - "WorldGuard"
+  - "Vault"
+  - "PlaceholderAPI"
+  - "EzEconomy"

@@ -1,0 +1,72 @@
+anti:
+  vehicle: "&cNo puedes alternar AFK mientras vas en un vehículo."
+  infinite-waterflow: "&cLos trucos con el flujo de agua no evitarán la detección AFK."
+  bubble-column: "&cNo puedes usar columnas de burbujas para evitar la detección AFK."
+afk:
+  now: "&eAhora estás marcado como AFK. ¡Muévete para permanecer activo!"
+  broadcast: "&cEl jugador&a %player% &cahora está AFK"
+  no-longer: "&a¡Bienvenido de nuevo! Ya no estás AFK."
+  title:
+    title: "&eAFK"
+    subtitle: "&7Ahora estás AFK"
+command:
+  usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&cSolo los jugadores en el juego pueden gestionar su propio estado AFK."
+    no-permission: "&cNo tienes permiso para cambiar el estado AFK de otro jugador."
+    now-afk: "&a%target% ahora está marcado como AFK."
+    no-longer-afk: "&a%target% ya no está marcado como AFK."
+  reload:
+    no-permission: "&cNo tienes permiso para recargar la configuración."
+    success: "&aConfiguración recargada correctamente."
+  gui:
+    players-only: "&cSolo los jugadores en el juego pueden abrir la interfaz AFK."
+    no-permission: "&cNo tienes permiso para abrir la interfaz AFK."
+  bypass:
+    no-permission: "&cNo tienes permiso para cambiar el estado de bypass AFK."
+    enabled: "&a%target% ahora omitirá la detección AFK."
+    enabled-target: "&aLa detección AFK ahora se omite para ti."
+    disabled: "&a%target% ya no omitirá la detección AFK."
+    disabled-target: "&cLa detección AFK ya no se omite para ti."
+  time:
+    players-only: "&cOnly players can view their own AFK time."
+    no-permission: "&cYou don't have permission to view your AFK time."
+    others-no-permission: "&cYou don't have permission to view other players' AFK time."
+    self: "&aYou have been AFK for %duration% in total."
+    other: "&a%player% has been AFK for %duration% in total."
+  top:
+    no-permission: "&cYou don't have permission to view the AFK leaderboard."
+    empty: "&eNo AFK time has been recorded yet."
+    header: "&6Top AFK players:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cNo se pudo encontrar a ese jugador."
+economy:
+  enter:
+    charged: "&eHas pagado %amount% para ponerte AFK."
+    insufficient: "&cNecesitas al menos %amount% para ponerte AFK."
+    failed: "&cNo hemos podido cobrar tu cuenta para ponerte AFK."
+    skipped: "&eSe omitió la cuota de entrada AFK porque no se pudo cobrar tu cuenta."
+  recurring:
+    charged: "&eHas pagado %amount% para seguir AFK."
+    revoked-insufficient: "&cNo tienes suficientes fondos para seguir AFK, por lo que tu estado AFK ha sido revocado."
+    revoked-failed: "&cNo hemos podido cobrar tu cuenta para seguir AFK, por lo que tu estado AFK ha sido revocado."
+    skipped: "&eSe omitió la cuota AFK recurrente porque no se pudo cobrar tu cuenta. Lo intentaremos de nuevo más tarde."
+    failed: "&cNo hemos podido cobrar tu cuenta para seguir AFK. Lo intentaremos de nuevo más tarde."
+gui:
+  overview:
+    active:
+      no-permission: "&cNo tienes permiso para ver a los jugadores activos."
+  actions:
+    no-permission: "&cNo tienes permiso para usar las acciones de jugadores."
+    error:
+      player-not-found: "&cNo pudimos encontrar al jugador asociado a esa acción."
+      no-command: "&cNo se ha configurado ningún comando para esta acción."
+    default-kick-message: "&cHas sido expulsado por permanecer AFK demasiado tiempo."
+unafk:
+  broadcast: "&aEl jugador&7 %player% &aya no está AFK"
+  title:
+    title: "&a¡Bienvenido de nuevo!"
+    subtitle: "&7Ya no estás AFK"
+kick:
+  message: "&cHas sido expulsado de este servidor por permanecer AFK demasiado tiempo!"

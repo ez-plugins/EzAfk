@@ -1,0 +1,7 @@
+# Database configuration for storing AFK players.
+enabled: false
+host: "localhost"
+port: 3306
+database: "ezafk"
+username: "root"
+password: ""

@@ -1,0 +1,57 @@
+# EzAfk
+
+EzAfk is a powerful and flexible AFK (Away From Keyboard) management plugin for Minecraft servers. It provides advanced AFK detection, player management, and integration with popular plugins and server features.
+
+## Features
+- Automatic AFK detection and management
+- AFK kick warnings and configurable actions
+- GUI for AFK player overview and actions
+- Integration with Economy, Tab, PlaceholderAPI, WorldGuard, and more
+- Multi-language support (EN, ES, NL, RU, ZH)
+- MySQL support for persistent data
+- Highly configurable via YAML files
+
+## Installation
+1. Download the latest EzAfk jar from the releases page.
+2. Place the jar in your server's `plugins` directory.
+3. Start or reload your server.
+4. Edit the configuration files in the `plugins/EzAfk` folder as needed.
+
+## Configuration
+- `config.yml`: Main plugin settings
+- `gui.yml`: GUI layout and options
+- `mysql.yml`: Database connection settings
+- `messages/`: Language files for plugin messages
+
+## Documentation
+Comprehensive documentation is available in the [`docs/`](docs/) folder:
+
+- [Configuration](docs/configuration.md): Detailed guide for all configuration options.
+- [Commands](docs/commands.md): Full list of commands and usage examples.
+- [Events](docs/api/events.md): Information on custom events for plugin developers.
+- [API Reference](docs/api/AfkReasons.md): All possible AFK reasons and their usage.
+- [Integrations](docs/integrations/README.md): Guides for integrating with Economy, Tab, PlaceholderAPI, WorldGuard, and more.
+- [FAQ](docs/faq.md): Frequently asked questions and troubleshooting tips.
+- [Permissions](docs/permissions.md): Complete list of permissions and their descriptions.
+- [Messages](docs/messages.md): Customization of plugin messages and language support.
+
+Refer to these documents for setup, customization, and advanced usage.
+
+## Commands
+- `/afk` — Toggle your AFK status
+- `/afk reload` — Reload configuration
+- `/afk gui` — Open AFK player overview GUI
+- `/afk toggle <player>` — Toggle AFK for another player
+- `/afk bypass <player>` — Toggle AFK bypass for a player
+- `/afk info <player>` — Show AFK info for a player
+- `/afk time [player]` — Show total AFK time
+- `/afk top` — Show AFK leaderboard
+
+## Permissions
+See the documentation for a full list of permissions.
+
+## Contributing
+Contributions are welcome! Please see CONTRIBUTING.md for guidelines.
+
+## License
+This project is licensed under the MIT License. See LICENSE for details.
