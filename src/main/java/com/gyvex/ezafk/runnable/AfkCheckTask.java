@@ -74,6 +74,11 @@ public class AfkCheckTask extends BukkitRunnable {
     private void handleWarnings(Player player, UUID playerId, long lastActive, long currentTime,
                                 long afkTimeoutMs, long kickTimeoutMs, boolean warningsEnabled,
                                 List<Integer> warningIntervals, String warningMode) {
+        EzAfk plugin = EzAfk.getInstance();
+        boolean kickEnabled = plugin.config.getBoolean("kick.enabled");
+        if (!kickEnabled) {
+            return;
+        }
         long timeAfk = currentTime - lastActive - afkTimeoutMs;
         if (!warningsEnabled || !AfkState.isAfk(playerId) || timeAfk < 0 || timeAfk >= kickTimeoutMs) {
             return;
