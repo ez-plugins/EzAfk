@@ -29,19 +29,35 @@ public class CompatibilityUtil {
 
     /**
      * Kicks a player using the most compatible method for the server version.
-     * Uses Player.kick(String, Cause) if available, otherwise falls back to Player.kickPlayer(String).
+     * Uses Player.kick(String, Cause) if available and PlayerKickEvent.Cause exists, otherwise falls back to Player.kickPlayer(String).
      * @param player The player to kick.
      * @param message The kick message to display to the player.
      */
     public static void kickPlayer(Player player, String message) {
         try {
-            player.getClass().getMethod("kick", String.class, PlayerKickEvent.Cause.class)
-                .invoke(player, message, PlayerKickEvent.Cause.PLUGIN);
-        } catch (NoSuchMethodException e) {
-            player.kickPlayer(message);
-        } catch (Exception e) {
-            player.kickPlayer(message);
+            // Check if PlayerKickEvent.Cause exists
+            Class<?> causeClass = null;
+            try {
+                causeClass = Class.forName("org.bukkit.event.player.PlayerKickEvent$Cause");
+            } catch (ClassNotFoundException e) {
+                // Cause class does not exist, fallback
+            }
+            if (causeClass != null) {
+                // Try to use Player.kick(String, Cause)
+                Object pluginCause = null;
+                try {
+                    pluginCause = Enum.valueOf((Class<Enum>) causeClass, "PLUGIN");
+                } catch (Exception ignored) {}
+                if (pluginCause != null) {
+                    player.getClass().getMethod("kick", String.class, causeClass)
+                        .invoke(player, message, pluginCause);
+                    return;
+                }
+            }
+        } catch (Exception ignored) {
+            // Fallback to kickPlayer below
         }
+        player.kickPlayer(message);
     }
 
     /**

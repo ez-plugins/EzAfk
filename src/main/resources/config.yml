@@ -108,6 +108,8 @@ kick:
   # Warning system before kicking for AFK
   warnings:
     enabled: true
+    # Enable debug logging for kick warnings (default: false)
+    debug: false
     # List of warning intervals (in seconds before kick) to send warnings at.
     # Example: [60, 30, 10] will warn at 60s, 30s, and 10s before kick.
     intervals: [60, 30, 10]
