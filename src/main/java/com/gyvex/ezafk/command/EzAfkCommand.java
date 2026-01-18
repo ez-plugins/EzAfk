@@ -13,6 +13,7 @@ import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.AfkStatusDetails;
 import com.gyvex.ezafk.state.LastActiveState;
 import com.gyvex.ezafk.state.ToggleResult;
+import com.gyvex.ezafk.util.CommandUtil;
 import com.gyvex.ezafk.util.DurationFormatter;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -27,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EzAfkCommand implements CommandExecutor {
+    private static final int TOP_LEADERBOARD_SIZE = 10;
     private final EzAfk plugin;
 
     public EzAfkCommand(EzAfk plugin) {
@@ -113,29 +115,23 @@ public class EzAfkCommand implements CommandExecutor {
     }
 
     private void handleGui(CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            MessageManager.sendMessage(sender, "command.gui.players-only", "&cOnly players can use the GUI.");
+        if (!(sender instanceof Player player)) {
+            MessageManager.sendMessage(sender, "command.gui.player-only", "&cOnly players can use this command.");
             return;
         }
-
-        Player player = (Player) sender;
         if (!player.hasPermission("ezafk.gui") && !player.isOp()) {
-            MessageManager.sendMessage(player, "command.gui.no-permission", "&cYou don't have permission to use this command.");
+            MessageManager.sendMessage(sender, "command.gui.no-permission", "&cYou don't have permission to use this command.");
             return;
         }
-
         AfkPlayerOverviewGUI gui = new AfkPlayerOverviewGUI();
         gui.openGUI(player, 1);
     }
 
     private void handleToggle(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("ezafk.toggle")) {
-            MessageManager.sendMessage(sender, "command.toggle.no-permission", "&cYou don't have permission to toggle other players.");
-            return;
-        }
+        if (!CommandUtil.checkPermission(sender, "ezafk.toggle", "command.toggle.no-permission", "&cYou don't have permission to use this command.")) return;
 
         if (args.length < 2) {
-            MessageManager.sendMessage(sender, "command.usage", getUsageFallback());
+            MessageManager.sendMessage(sender, "command.toggle.usage", "&cUsage: /afk toggle <player>");
             return;
         }
 
@@ -147,19 +143,30 @@ public class EzAfkCommand implements CommandExecutor {
 
         boolean initiatedByTarget = sender instanceof Player && sender.equals(target);
         AfkReason reason = initiatedByTarget ? AfkReason.MANUAL : AfkReason.COMMAND_FORCED;
-        String detail = initiatedByTarget ? null : "Triggered by " + sender.getName();
+        // Sanitize sender name for detail
+        String senderName = sender.getName().replaceAll("[^a-zA-Z0-9_\-]", "");
+        String detail = initiatedByTarget ? null : "Triggered by " + senderName;
 
         ToggleResult result = AfkState.toggle(this.plugin, target, initiatedByTarget, reason, detail);
 
         switch (result) {
             case NOW_AFK:
-                MessageManager.sendMessage(sender, "command.toggle.now-afk", "&a%target% is now AFK.", Map.of("target", target.getName()));
+                MessageManager.sendMessage(sender, "command.toggle.now-afk", "&a%player% is now AFK.", Map.of("player", target.getName()));
+                if (initiatedByTarget) {
+                    MessageManager.sendMessage(target, "command.toggle.self-now-afk", "&aYou are now AFK.");
+                }
                 break;
             case NO_LONGER_AFK:
-                MessageManager.sendMessage(sender, "command.toggle.no-longer-afk", "&a%target% is no longer AFK.", Map.of("target", target.getName()));
+                MessageManager.sendMessage(sender, "command.toggle.no-longer-afk", "&a%player% is no longer AFK.", Map.of("player", target.getName()));
+                if (initiatedByTarget) {
+                    MessageManager.sendMessage(target, "command.toggle.self-no-longer-afk", "&aYou are no longer AFK.");
+                }
                 break;
             case FAILED:
-                MessageManager.sendMessage(sender, "command.toggle.failed", "&c%target%'s AFK status could not be changed.", Map.of("target", target.getName()));
+                MessageManager.sendMessage(sender, "command.toggle.failed", "&cFailed to toggle AFK status for %player%.", Map.of("player", target.getName()));
+                if (initiatedByTarget) {
+                    MessageManager.sendMessage(target, "command.toggle.self.failed", "&cYour AFK status could not be updated.");
+                }
                 break;
         }
     }
@@ -196,35 +203,23 @@ public class EzAfkCommand implements CommandExecutor {
     }
 
     private void handleInfo(CommandSender sender, String[] args) {
-        if (!sender.hasPermission("ezafk.info")) {
-            MessageManager.sendMessage(sender, "command.info.no-permission", "&cYou don't have permission to view AFK reports.");
-            return;
-        }
+        if (!CommandUtil.checkPermission(sender, "ezafk.info", "command.info.no-permission", "&cYou don't have permission to use this command.")) return;
 
         if (args.length < 2) {
-            MessageManager.sendMessage(sender, "command.usage", getUsageFallback());
+            MessageManager.sendMessage(sender, "command.info.usage", "&cUsage: /afk info <player>");
             return;
         }
 
         String nameArg = args[1];
-        Player onlineTarget = Bukkit.getPlayer(nameArg);
-        OfflinePlayer target;
-        if (onlineTarget != null) {
-            target = onlineTarget;
-        } else {
-            // Fallback: unavoidable for legacy, but safe
-            target = Bukkit.getOfflinePlayer(nameArg);
-        }
-        if (target == null || (target.getName() == null && !target.hasPlayedBefore() && !target.isOnline())) {
+        OfflinePlayer target = CommandUtil.findPlayer(nameArg);
+        if (target.getName() == null && !target.hasPlayedBefore() && !target.isOnline()) {
             MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
             return;
         }
 
         UUID targetId = target.getUniqueId();
         if (!AfkState.isAfk(targetId)) {
-            String notAfkName = target.getName() != null ? target.getName() : targetId.toString();
-            MessageManager.sendMessage(sender, "command.info.not-afk", "&e%target% is not currently marked as AFK.",
-                    Map.of("target", notAfkName));
+            MessageManager.sendMessage(sender, "command.info.not-afk", "&a%player% is not currently AFK.", Map.of("player", target.getName() != null ? target.getName() : targetId.toString()));
             return;
         }
 
@@ -234,23 +229,17 @@ public class EzAfkCommand implements CommandExecutor {
         long afkSeconds = AfkState.getSecondsSinceAfk(targetId);
         long lastActivity = LastActiveState.getSecondsSinceLastActive(targetId);
 
-        MessageManager.sendMessage(sender, "command.info.header", "&6AFK report for &e%player%&6:",
-                Map.of("player", targetName));
-        MessageManager.sendMessage(sender, "command.info.reason", "&7Reason: &f%reason%",
-                Map.of("player", targetName, "reason", reasonText));
+        MessageManager.sendMessage(sender, "command.info.header", "&6AFK report for &e%player%&6:", Map.of("player", targetName));
+        MessageManager.sendMessage(sender, "command.info.reason", "&7Reason: &f%reason%", Map.of("player", targetName, "reason", reasonText));
 
         if (details != null && details.hasDetail()) {
-            MessageManager.sendMessage(sender, "command.info.detail", "&7Details: &f%detail%",
-                    Map.of("player", targetName, "detail", details.detail()));
+            MessageManager.sendMessage(sender, "command.info.detail", "&7Detail: &f%detail%", Map.of("player", targetName, "detail", details.getDetail()));
         } else {
-            MessageManager.sendMessage(sender, "command.info.no-detail", "&7Details: &fNo additional details were recorded.",
-                    Map.of("player", targetName));
+            MessageManager.sendMessage(sender, "command.info.no-detail", "&7No additional details.", Map.of("player", targetName));
         }
 
-        MessageManager.sendMessage(sender, "command.info.duration", "&7AFK for: &f%duration%",
-                Map.of("player", targetName, "duration", DurationFormatter.formatDuration(afkSeconds)));
-        MessageManager.sendMessage(sender, "command.info.last-activity", "&7Last activity: &f%last% ago",
-                Map.of("player", targetName, "last", DurationFormatter.formatDuration(lastActivity)));
+        MessageManager.sendMessage(sender, "command.info.duration", "&7AFK for: &f%duration%", Map.of("player", targetName, "duration", DurationFormatter.formatDuration(afkSeconds)));
+        MessageManager.sendMessage(sender, "command.info.last-activity", "&7Last activity: &f%last% ago", Map.of("player", targetName, "last", DurationFormatter.formatDuration(lastActivity)));
     }
 
     private void handleTime(CommandSender sender, String[] args, int startIndex) {
@@ -306,14 +295,11 @@ public class EzAfkCommand implements CommandExecutor {
     }
 
     private void handleTop(CommandSender sender) {
-        if (!sender.hasPermission("ezafk.top")) {
-            MessageManager.sendMessage(sender, "command.top.no-permission", "&cYou don't have permission to view the AFK leaderboard.");
-            return;
-        }
+        if (!CommandUtil.checkPermission(sender, "ezafk.top", "command.top.no-permission", "&cYou don't have permission to use this command.")) return;
 
-        List<Map.Entry<UUID, Long>> topEntries = AfkTimeManager.getTopPlayers(10);
+        List<Map.Entry<UUID, Long>> topEntries = AfkTimeManager.getTopPlayers(TOP_LEADERBOARD_SIZE);
         if (topEntries.isEmpty()) {
-            MessageManager.sendMessage(sender, "command.top.empty", "&eNo AFK time has been recorded yet.");
+            MessageManager.sendMessage(sender, "command.top.empty", "&cNo AFK data available.");
             return;
         }
 
@@ -321,15 +307,10 @@ public class EzAfkCommand implements CommandExecutor {
 
         int position = 1;
         for (Map.Entry<UUID, Long> entry : topEntries) {
-            UUID playerId = entry.getKey();
-            OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(playerId);
-            String playerName = offlinePlayer != null && offlinePlayer.getName() != null
-                    ? offlinePlayer.getName()
-                    : playerId.toString();
+            String playerName = Bukkit.getOfflinePlayer(entry.getKey()).getName();
+            String name = playerName != null ? playerName : entry.getKey().toString();
             String duration = DurationFormatter.formatDuration(entry.getValue());
-
-            MessageManager.sendMessage(sender, "command.top.entry", "&e#%position% &7%player% - &f%duration%",
-                    Map.of("position", String.valueOf(position), "player", playerName, "duration", duration));
+            MessageManager.sendMessage(sender, "command.top.entry", "&e#%pos% &f%player%: &b%duration%", Map.of("pos", String.valueOf(position), "player", name, "duration", duration));
             position++;
         }
     }
@@ -337,4 +318,5 @@ public class EzAfkCommand implements CommandExecutor {
     private String getUsageFallback() {
         return "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]";
     }
+
 }
