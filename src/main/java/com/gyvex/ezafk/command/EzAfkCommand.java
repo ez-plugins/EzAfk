@@ -144,7 +144,7 @@ public class EzAfkCommand implements CommandExecutor {
         boolean initiatedByTarget = sender instanceof Player && sender.equals(target);
         AfkReason reason = initiatedByTarget ? AfkReason.MANUAL : AfkReason.COMMAND_FORCED;
         // Sanitize sender name for detail
-        String senderName = sender.getName().replaceAll("[^a-zA-Z0-9_\-]", "");
+        String senderName = sender.getName().replaceAll("[^a-zA-Z0-9_\\-]", "");
         String detail = initiatedByTarget ? null : "Triggered by " + senderName;
 
         ToggleResult result = AfkState.toggle(this.plugin, target, initiatedByTarget, reason, detail);
