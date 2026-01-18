@@ -1,6 +1,7 @@
 package com.gyvex.ezafk;
 
 import com.gyvex.ezafk.command.EzAfkCommand;
+import com.gyvex.ezafk.command.EzAfkTabCompleter;
 import com.gyvex.ezafk.event.MoveListener;
 import com.gyvex.ezafk.event.PlayerActivityListener;
 import com.gyvex.ezafk.event.PlayerQuitListener;
@@ -83,6 +84,7 @@ public class EzAfk extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
 
         getCommand("ezafk").setExecutor(new EzAfkCommand(this));
+        getCommand("ezafk").setTabCompleter(new EzAfkTabCompleter());
 
         startAFKCheckTask();
     }
