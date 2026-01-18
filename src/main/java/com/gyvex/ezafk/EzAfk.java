@@ -10,8 +10,10 @@ import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.EconomyIntegration;
 import com.gyvex.ezafk.integration.MetricsIntegration;
 import com.gyvex.ezafk.integration.PlaceholderApiIntegration;
+import com.gyvex.ezafk.integration.SimpleVoiceChatAfkListener;
 import com.gyvex.ezafk.integration.SpigotIntegration;
 import com.gyvex.ezafk.integration.TabIntegration;
+import com.gyvex.ezafk.integration.VoiceChatIntegration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MySQLManager;
@@ -41,6 +43,8 @@ import java.util.logging.Level;
 
 public class EzAfk extends JavaPlugin {
     public FileConfiguration config;
+    private boolean afkSoundEnabled;
+    private String afkSoundFile;
     private FileConfiguration messagesConfig;
     private FileConfiguration guiConfig;
     private FileConfiguration mysqlConfig;
@@ -62,13 +66,32 @@ public class EzAfk extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        loadConfig();
         logStartupBanner();
+        // Copy default AFK sound to the EzAfk plugin folder (plugins/EzAfk/mp3/ezafk-sound.mp3)
+        String afkSoundPath = config.getString("afk.sound.file", "mp3/ezafk-sound.mp3");
+        java.io.File afkSoundFile = new java.io.File(getDataFolder(), afkSoundPath); // plugins/EzAfk/mp3/ezafk-sound.mp3
+        // Use Bukkit's saveResource to copy the mp3 file safely
+        saveResource("mp3/ezafk-sound.mp3", true);
 
         IntegrationManager.addIntegration("metrics", new MetricsIntegration());
         IntegrationManager.addIntegration("tab", new TabIntegration());
         IntegrationManager.addIntegration("spigot", new SpigotIntegration());
         IntegrationManager.addIntegration("economy", new EconomyIntegration());
         IntegrationManager.addIntegration("placeholderapi", new PlaceholderApiIntegration());
+
+        String voicechatConfig = config.getString("integration.voicechat", "auto").trim().toLowerCase();
+        boolean voicechatAvailable = getServer().getPluginManager().getPlugin("voicechat") != null;
+        boolean enableVoicechatIntegration = false;
+        if ("true".equals(voicechatConfig)) {
+            enableVoicechatIntegration = true;
+        } else if ("auto".equals(voicechatConfig)) {
+            enableVoicechatIntegration = voicechatAvailable;
+        } // false disables integration
+
+        if (enableVoicechatIntegration) {
+            IntegrationManager.addIntegration("voicechat", new VoiceChatIntegration(this));
+        }
         IntegrationManager.load();
 
         MySQLManager.setup();
@@ -82,6 +105,11 @@ public class EzAfk extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new AfkPlayerOverviewGUI(), this);
         getServer().getPluginManager().registerEvents(new AfkPlayerActionsGUI(), this);
         getServer().getPluginManager().registerEvents(new PlayerQuitListener(), this);
+
+        // Register Simple Voice Chat AFK listener
+        if (enableVoicechatIntegration) {
+            getServer().getPluginManager().registerEvents(new SimpleVoiceChatAfkListener(this), this);
+        }
 
         getCommand("ezafk").setExecutor(new EzAfkCommand(this));
         getCommand("ezafk").setTabCompleter(new EzAfkTabCompleter());
@@ -144,6 +172,17 @@ public class EzAfk extends JavaPlugin {
         saveDefaultMessages();
         reloadMessages();
         EconomyManager.reset();
+
+        // Load AFK sound config
+        afkSoundEnabled = config.getBoolean("afk.sound.enabled", true);
+        afkSoundFile = config.getString("afk.sound.file", "plugins/EzAfk/afk-sound.mp3");
+    }
+    public boolean isAfkSoundEnabled() {
+        return afkSoundEnabled;
+    }
+
+    public String getAfkSoundFile() {
+        return afkSoundFile;
     }
 
     public static EzAfk getInstance() {

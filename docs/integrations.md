@@ -48,6 +48,19 @@ Register your listener as usual in your plugin to receive these events.
   - Set `integration.playtime.enabled: true` in `config.yml`.
   - Configure the playtime placeholder as needed.
 
+### Simple Voice Chat
+- **Purpose:** Plays a custom MP3 sound to the player when they go AFK using Simple Voice Chat.
+- **Setup:**
+  - Install the Simple Voice Chat plugin on your server and mod on your client.
+  - Set `afk.sound.enabled: true` and specify the MP3 file path in `config.yml` (default: `mp3/ezafk-sound.mp3`).
+  - Set `integration.voicechat: auto` (or `true`/`false`) in `config.yml`.
+  - Place your MP3 file in `plugins/EzAfk/mp3/` or use the default provided.
+- **Troubleshooting:**
+  - Ensure Simple Voice Chat is installed and enabled on both server and client.
+  - The MP3 file must be valid and compatible (48kHz recommended).
+  - Check server logs for any errors related to sound playback or decoding.
+  - Verify you are connected to voice chat and the config is correct.
+
 ---
 
 ## General Troubleshooting

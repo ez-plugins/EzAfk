@@ -17,4 +17,8 @@ public record AfkStatusDetails(AfkReason reason, String detail) {
     public boolean hasDetail() {
         return detail != null && !detail.isBlank();
     }
+
+    public String getDetail() {
+        return detail;
+    }
 }
