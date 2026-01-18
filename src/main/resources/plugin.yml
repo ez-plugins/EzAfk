@@ -3,6 +3,7 @@ description: "Manage your AFK players easily"
 main: com.gyvex.ezafk.EzAfk
 version: "${project.version}"
 api-version: 1.13
+depend: [ voicechat ]
 commands:
   ezafk:
     description: "Manage AFK states and EzAfk configuration"

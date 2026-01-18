@@ -38,22 +38,10 @@ afk:
     bubble-column: false
     # When true, bypass attempts silently mark the player as AFK instead of alerting them.
     flag-only: false
-  # TAB integration
-  # Requires: https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
-  tab-prefix:
-    enabled: false
-    # Strategy for applying AFK names when the TAB plugin is installed.
-    # Options:
-    #   auto   - Use TAB when available, otherwise fall back to EzAfk's custom list handling.
-    #   tab    - Require TAB for name changes. Falls back to the custom implementation if the plugin is missing.
-    #   custom - Always use EzAfk's built-in implementation, even if TAB is installed.
-    mode: auto
-    prefix: "&7[AFK] "
-    # Text to append to the end of the player's name while AFK.
-    suffix: ""
-    # Full format for the displayed name. Available placeholders: %prefix%, %player%, %suffix%
-    format: "%prefix%%player%%suffix%"
-  # Change the in-game display name (e.g., chat) while the player is AFK.
+  sound:
+    enabled: true # Enable playing a sound when going AFK (requires Simple Voice Chat integration)
+    # Path to the MP3 file to play (relative to plugin folder). Must be a valid MP3 file, 48kHz recommended.
+    file: "mp3/ezafk-sound.mp3"
   display-name:
     enabled: false
     prefix: "&7[AFK] "
@@ -140,3 +128,20 @@ integration:
   # This is being done async and will not affect the startup time of your server
   spigot:
     check-for-update: true
+  voicechat: auto # Options: true, false, auto. 'auto' will detect if Simple Voice Chat is available
+  # TAB integration
+  # Requires: https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
+  tab-prefix:
+    enabled: false
+    # Strategy for applying AFK names when the TAB plugin is installed.
+    # Options:
+    #   auto   - Use TAB when available, otherwise fall back to EzAfk's custom list handling.
+    #   tab    - Require TAB for name changes. Falls back to the custom implementation if the plugin is missing.
+    #   custom - Always use EzAfk's built-in implementation, even if TAB is installed.
+    mode: auto
+    prefix: "&7[AFK] "
+    # Text to append to the end of the player's name while AFK.
+    suffix: ""
+    # Full format for the displayed name. Available placeholders: %prefix%, %player%, %suffix%
+    format: "%prefix%%player%%suffix%"
+  # Change the in-game display name (e.g., chat) while the player is AFK.

@@ -1,4 +1,3 @@
-
 # EzAfk Configuration Guide (Advanced)
 
 This document provides advanced documentation for every configuration option in EzAfk's main configuration files.
@@ -35,6 +34,8 @@ This document provides advanced documentation for every configuration option in 
 - `display-name`:
 	- `enabled`: (bool) Change in-game display name for AFK players.
 	- `prefix`, `suffix`, `format`: As above, but for chat/display name.
+- `sound.enabled`: (bool) Enable playing a sound when going AFK (requires Simple Voice Chat integration).
+- `sound.file`: (string) Path to the MP3 file to play (relative to the EzAfk plugin folder). Example: `afk-sound.mp3` for `EzAfk/afk-sound.mp3`. Must be a valid MP3 file, 48kHz recommended.
 
 ### unafk
 - `broadcast.enabled`: (bool) Broadcasts a message when a player is no longer AFK.
@@ -68,6 +69,11 @@ This document provides advanced documentation for every configuration option in 
 - `playtime.enabled`: (bool) Enable Playtime plugin integration.
 - `playtime.placeholder`: (string) Placeholder for total playtime in seconds.
 - `spigot.check-for-update`: (bool) Check for plugin updates on startup.
+
+- `voicechat`: (string) Enable Simple Voice Chat integration. Options:
+	- `true`: Always enable integration (requires Simple Voice Chat plugin)
+	- `false`: Always disable integration
+	- `auto`: Enable only if Simple Voice Chat plugin is detected
 
 ---
 
