@@ -93,7 +93,9 @@ Enable the integration in `config.yml` to unlock the custom `afk-bypass` flag, a
 [B]MySQL storage (> v1.3)[/B]
 Store AFK player state in a central database. EzAfk automatically handles inserts, updates, and cleanup based on player UUIDs.
 
-[B]Simple Voice Chat (> v1.8)[/B]
+[B]Simple Voice Chat integration (> v2.2)[/B]: Optionally play a custom MP3 sound to players when they go AFK, using the Simple Voice Chat mod and its API. Enable in `config.yml` under `integration.voicechat`, and place your sound file in `plugins/EzAfk/mp3/ezafk-sound.mp3`. The plugin will automatically detect and use the sound if Simple Voice Chat is installed. See the documentation for setup and troubleshooting tips.
+
+
 [B]Metrics & updates[/B]
 Anonymous usage statistics are collected via bStats, and the plugin optionally checks SpigotMC for updates during startup. Both features can be disabled through `config.yml`.
 
