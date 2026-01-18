@@ -7,10 +7,16 @@
 
 [B][SIZE=6]Keep AFK management simple[/SIZE][/B]
 
-[B]EzAfk[/B] is a modern, lightweight AFK management plugin that keeps your staff informed while gently nudging idle players back into the action. Built for Paper and Spigot servers (1.7 – 1.21.*), it automates AFK detection, provides configurable staff tools, and integrates with the systems you already use — all without sacrificing performance.
+[B]EzAfk[/B] is a modern, lightweight AFK management plugin that keeps your staff informed while gently nudging idle players back into the action. Built for contemporary Paper and Spigot servers (1.7.0 - 1.21.*) and Java 21, it automates AFK detection, provides configurable staff tools, and integrates with the systems you already use, all without sacrificing performance.
 
-[IMG]https://img.shields.io/badge/Latest%20version-2.0.0-blue[/IMG]
-[IMG]https://img.shields.io/badge/Minecraft%20version-1.7%20to%201.21.*-blue[/IMG]
+[IMG]https://img.shields.io/github/v/release/ez-plugins/EzAfk[/IMG]
+[IMG]https://img.shields.io/github/issues/ez-plugins/EzAfk[/IMG]
+[IMG]https://img.shields.io/badge/Minecraft%20version-1.7.0%20to%201.21.*-blue[/IMG]
+
+Found an issue or have a question? Please contact me through [URL='https://discord.gg/yWP95XfmBS']the EzPlugins Discord server[/URL].
+Advanced documentation can be found in the [URL='https://github.com/ez-plugins/EzAfk']Github repository[/URL]
+
+[IMG]https://i.ibb.co/ch6q5J0X/image.png[/IMG]
 
 [SIZE=5][B]Feature highlights[/B][/SIZE]
 [LIST]
@@ -20,7 +26,7 @@
 [*][B]Automatic punishments[/B]: Kick AFK players after configurable grace periods or only when the server is full, with personalized kick reasons.
 [*][B]AFK kick warnings[/B]: Send configurable chat and/or title warnings at multiple intervals before a player is kicked for being AFK, giving them a chance to return.
 [*][B]Economy-aware AFK[/B]: Optionally charge players using Vault-supported economies when they go or stay AFK, with recurring billing plus bypass permissions or WorldGuard regions.
-[*][URL=https://www.spigotmc.org/resources/1-21-ezeconomy-modern-vault-economy-plugin-for-minecraft-servers.130975/][B]EzEconomy integration[/B][/URL]: For best results, pair EzAfk with [B]EzEconomy[/B] for modern, reliable Vault economy support!
+[*][URL='https://www.spigotmc.org/resources/1-21-ezeconomy-modern-vault-economy-plugin-for-minecraft-servers.130975/'][B]EzEconomy integration[/B][/URL]: For best results, pair EzAfk with [B]EzEconomy[/B] for modern, reliable Vault economy support!
 [*][B]Integrations that matter[/B]: Use the WorldGuard `afk-bypass` flag, track usage with bStats, receive console reminders when new releases are available, and surface AFK prefixes in the tab list without any external dependencies.
 [*][B]Custom display names & tab styling[/B]: Mirror AFK status in chat and name tags with configurable prefixes, suffixes, and formats that work with TAB or the built-in formatter.
 [*][B]Persistent storage[/B]: Optionally connect to MySQL to store the last active timestamp for every tracked player across restarts, plus per-player YAML totals for the AFK time leaderboard.
@@ -94,14 +100,16 @@ Install [URL='https://www.spigotmc.org/resources/placeholderapi.6245/']Placehold
 
 [I]Provided placeholders[/I]
 [LIST]
-[*][ICODE]%ezafk_status%[/ICODE] — Returns `AFK` or `ACTIVE` for the targeted player.
-[*][ICODE]%ezafk_status_colored%[/ICODE] — Returns the color-formatted status string (e.g., `&cAFK`).
+[LIST]
+[*][ICODE]%ezafk_status%[/ICODE] — Returns [ICODE]AFK[/ICODE] or [ICODE]ACTIVE[/ICODE] for the targeted player.
+[*][ICODE]%ezafk_status_colored%[/ICODE] — Returns the color-formatted status string (e.g., [ICODE]&cAFK[/ICODE]).
 [*][ICODE]%ezafk_since%[/ICODE] — Seconds since the player was marked AFK. Empty when they are active.
 [*][ICODE]%ezafk_last_active%[/ICODE] — Seconds since the player last moved. Always available.
 [*][ICODE]%ezafk_prefix%[/ICODE] — The configured AFK prefix applied to their display name while AFK.
 [*][ICODE]%ezafk_suffix%[/ICODE] — The configured AFK suffix applied to their display name while AFK.
 [*][ICODE]%ezafk_afk_count%[/ICODE] — Total number of players currently marked as AFK.
 [*][ICODE]%ezafk_active_count%[/ICODE] — Total number of online players not marked as AFK.
+[/LIST]
 [/LIST]
 
 [I]Usage example[/I]
@@ -121,7 +129,7 @@ EzAfk ships with dedicated files to keep settings organized:
 
 [spoiler=Core config (config.yml)]
 [code=YAML]
-# Config for EzAfk 2.0.0
+# Config for EzAfk 1.8.0
 # GUI settings have moved to gui.yml.
 # MySQL settings have moved to mysql.yml.
 messages:
@@ -216,7 +224,6 @@ unafk:
 economy:
   # Enable economy-based costs for going AFK. Requires Vault with an economy provider installed.
   enabled: false
-    # Recommended: [URL=https://www.spigotmc.org/resources/1-21-ezeconomy-modern-vault-economy-plugin-for-minecraft-servers.130975/][B]EzEconomy[/B][/URL] for seamless Vault integration.
   # Players with this permission bypass all AFK costs.
   bypass-permission: "ezafk.economy.bypass"
   # Players inside a WorldGuard region with the afk-bypass flag will also skip costs.
@@ -302,7 +309,7 @@ password: ""
 [SIZE=5][B]Multiple language support[/B][/SIZE]
 Every alert, warning, or confirmation shown to players can be tailored in the language-specific files under `messages/`. EzAfk bundles fully translated packs for English, Spanish, Dutch, Russian, and Simplified Chinese, and automatically falls back to English if a language is missing.
 
-Set `messages.language` in `config.yml` to match one of the bundled codes (`en`, `es`, `nl`, `ru`, or `zh`) and the plugin will copy the corresponding file on first launch. Want to localise EzAfk for your own community? Copy one of the provided files, translate the values, drop it back into the `messages/` folder, and point `messages.language` at your new filename (for example, `messages_fr`).
+Set [ICODE]messages.language[/ICODE] in [ICODE]config.yml[/ICODE] to match one of the bundled codes ([ICODE]en[/ICODE], [ICODE]es[/ICODE], [ICODE]nl[/ICODE], [ICODE]ru[/ICODE], or [ICODE]zh[/ICODE]) and the plugin will copy the corresponding file on first launch. Want to localise EzAfk for your own community? Copy one of the provided files, translate the values, drop it back into the [ICODE]messages/[/ICODE] folder, and point [ICODE]messages.language[/ICODE] at your new filename (for example, [ICODE]messages_fr[/ICODE]).
 
 Messages include everything from AFK toggle confirmations and bypass notifications to GUI errors, blindness prompts, and tab-prefix text—making it easy to deliver a consistent experience in your players' preferred language.
 
@@ -312,6 +319,7 @@ For support, suggestions, or bug reports, join our [URL='https://discord.gg/yWP9
 Keep your server active and free from idle players with EzAfk! Download now and take control of AFK players on your server.
 
 [IMG]https://bstats.org/signatures/bukkit/ezafk.svg[/IMG]
+[CENTER][URL='https://www.spigotmc.org/resources/authors/shadow48402.25936/'][IMG]https://i.ibb.co/PzfjNjh0/ezplugins-try-other-plugins.png[/IMG][/URL][/CENTER]
 
 ---
 
@@ -415,9 +423,7 @@ Enable the integration in `config.yml` to unlock the custom `afk-bypass` flag, a
 **Flag name**: `afk-bypass`
 
 **How to add the flag to your region?**
-```shell
-/rg flag <region> afk-bypass allow
-```
+[CODE]/rg flag <region> afk-bypass allow[/ICODE]
 
 #### **MySQL storage (> v1.3)**
 
@@ -443,8 +449,8 @@ Install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/
 
 **Usage example:**
 ```yaml
-&7Status: %ezafk_status_colored%
-&7AFK for: %ezafk_since%s
+&7Status: %ezafk_status_colored%[/ICODE]
+[ICODE]&7AFK for: %ezafk_since%s
 ```
 
 ---
