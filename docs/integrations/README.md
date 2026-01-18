@@ -9,3 +9,4 @@ This folder contains documentation for all EzAfk integrations. Each integration 
 - [Spigot](SpigotIntegration.md)
 - [Tab](TabIntegration.md)
 - [WorldGuard](WorldGuardIntegration.md)
+- [Simple Voice Chat](SimpleVoiceChatIntegration.md)

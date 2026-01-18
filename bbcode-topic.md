@@ -28,6 +28,7 @@ Advanced documentation can be found in the [URL='https://github.com/ez-plugins/E
 [*][B]Economy-aware AFK[/B]: Optionally charge players using Vault-supported economies when they go or stay AFK, with recurring billing plus bypass permissions or WorldGuard regions.
 [*][URL='https://www.spigotmc.org/resources/1-21-ezeconomy-modern-vault-economy-plugin-for-minecraft-servers.130975/'][B]EzEconomy integration[/B][/URL]: For best results, pair EzAfk with [B]EzEconomy[/B] for modern, reliable Vault economy support!
 [*][B]Integrations that matter[/B]: Use the WorldGuard `afk-bypass` flag, track usage with bStats, receive console reminders when new releases are available, and surface AFK prefixes in the tab list without any external dependencies.
+[*][B]Simple Voice Chat integration (> v2.2.0)[/B]: Optionally play a custom MP3 sound to players when they go AFK, using the Simple Voice Chat mod and its API.
 [*][B]Custom display names & tab styling[/B]: Mirror AFK status in chat and name tags with configurable prefixes, suffixes, and formats that work with TAB or the built-in formatter.
 [*][B]Persistent storage[/B]: Optionally connect to MySQL to store the last active timestamp for every tracked player across restarts, plus per-player YAML totals for the AFK time leaderboard.
 [*][B]AFK analytics[/B]: Surface `/afk time`, `/afk info`, and `/afk top` so staff can investigate reports and highlight the most idle players with a cached leaderboard.
@@ -92,6 +93,7 @@ Enable the integration in `config.yml` to unlock the custom `afk-bypass` flag, a
 [B]MySQL storage (> v1.3)[/B]
 Store AFK player state in a central database. EzAfk automatically handles inserts, updates, and cleanup based on player UUIDs.
 
+[B]Simple Voice Chat (> v1.8)[/B]
 [B]Metrics & updates[/B]
 Anonymous usage statistics are collected via bStats, and the plugin optionally checks SpigotMC for updates during startup. Both features can be disabled through `config.yml`.
 
@@ -352,6 +354,7 @@ Keep your server active and free from idle players with EzAfk! Download now and 
 - **AFK kick warnings**: Send configurable chat and/or title warnings at multiple intervals before a player is kicked for being AFK, giving them a chance to return.
 - **Economy-aware AFK**: Optionally charge players using Vault-supported economies when they go or stay AFK, with recurring billing plus bypass permissions or WorldGuard regions.
 - **[EzEconomy integration](https://www.spigotmc.org/resources/1-21-ezeconomy-modern-vault-economy-plugin-for-minecraft-servers.130975/)**: For best results, pair EzAfk with **EzEconomy** for modern, reliable Vault economy support!
+- **Simple Voice Chat integration** (> v2.2.0): Optionally play a custom MP3 sound to players when they go AFK, using the Simple Voice Chat mod and its API.
 - **Integrations that matter**: Use the WorldGuard `afk-bypass` flag, track usage with bStats, receive console reminders when new releases are available, and surface AFK prefixes in the tab list without any external dependencies.
 - **Custom display names & tab styling**: Mirror AFK status in chat and name tags with configurable prefixes, suffixes, and formats that work with TAB or the built-in formatter.
 - **Persistent storage**: Optionally connect to MySQL to store the last active timestamp for every tracked player across restarts, plus per-player YAML totals for the AFK time leaderboard.
@@ -423,7 +426,9 @@ Enable the integration in `config.yml` to unlock the custom `afk-bypass` flag, a
 **Flag name**: `afk-bypass`
 
 **How to add the flag to your region?**
-[CODE]/rg flag <region> afk-bypass allow[/ICODE]
+```shell
+/rg flag <region> afk-bypass allow
+```
 
 #### **MySQL storage (> v1.3)**
 
