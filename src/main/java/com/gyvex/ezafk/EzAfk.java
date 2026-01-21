@@ -6,6 +6,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import com.gyvex.ezafk.config.ConfigManager;
 
 public class EzAfk extends JavaPlugin {
+    public FileConfiguration config;
     private static EzAfk instance;
     private Bootstrap bootstrap;
     private ConfigManager configManager;
@@ -29,7 +30,7 @@ public class EzAfk extends JavaPlugin {
     }
 
     public void loadConfig() {
-        configManager.loadConfig();
+        this.config = configManager.loadConfig();
     }
     public boolean isAfkSoundEnabled() {
         return configManager.isAfkSoundEnabled();

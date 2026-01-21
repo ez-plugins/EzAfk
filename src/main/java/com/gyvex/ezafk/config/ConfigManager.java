@@ -29,7 +29,7 @@ public class ConfigManager {
         this.plugin = plugin;
     }
 
-    public void loadConfig() {
+    public FileConfiguration loadConfig() {
         plugin.reloadConfig();
         this.config = plugin.getConfig();
         saveDefaultGuiConfig();
@@ -43,6 +43,7 @@ public class ConfigManager {
         // Load AFK sound config
         afkSoundEnabled = config.getBoolean("afk.sound.enabled", true);
         afkSoundFile = config.getString("afk.sound.file", "plugins/EzAfk/afk-sound.mp3");
+        return this.config;
     }
 
     public boolean isAfkSoundEnabled() {
