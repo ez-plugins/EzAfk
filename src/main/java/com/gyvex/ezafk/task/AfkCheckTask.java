@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.runnable;
+package com.gyvex.ezafk.task;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;

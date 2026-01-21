@@ -1,6 +1,6 @@
 package com.gyvex.ezafk.task;
 
-import com.gyvex.ezafk.runnable.AfkCheckTask;
+import com.gyvex.ezafk.task.AfkCheckTask;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
