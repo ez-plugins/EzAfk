@@ -2,6 +2,7 @@ package com.gyvex.ezafk.gui;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.compatibility.LoreUtil;
 import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI.PlayerListType;
 import com.gyvex.ezafk.manager.MessageManager;
 import org.bukkit.Bukkit;
@@ -16,8 +17,9 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-
+import com.gyvex.ezafk.util.PlaceholderUtil;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -69,12 +71,33 @@ public class AfkPlayerActionsGUI implements Listener {
         // Create inventory using compatibility utility for cross-version support
         Inventory inventory = CompatibilityUtil.createInventory(null, inventorySize, GUI_TITLE);
 
-        for (Map.Entry<Integer, GuiAction> entry : actions.entrySet()) {
-            inventory.setItem(entry.getKey(), entry.getValue().createIcon());
+        // Filler item for empty slots
+        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
+        ItemStack filler = null;
+        if (config.getBoolean("empty-slot-filler.enabled", true)) {
+            String matName = config.getString("empty-slot-filler.material", "GRAY_STAINED_GLASS_PANE");
+            Material mat = Material.matchMaterial(matName);
+            if (mat == null) mat = Material.GRAY_STAINED_GLASS_PANE;
+            filler = new ItemStack(mat);
+            ItemMeta meta = filler.getItemMeta();
+            if (meta != null) {
+                String display = config.getString("empty-slot-filler.display-name", " ");
+                List<String> lore = config.getStringList("empty-slot-filler.lore");
+                LoreUtil.setDisplayName(meta, display, null, org.bukkit.Bukkit.getLogger());
+                LoreUtil.setLore(meta, lore, null, org.bukkit.Bukkit.getLogger());
+                filler.setItemMeta(meta);
+            }
         }
 
-        if (backButtonSlot >= 0 && backButtonItem != null) {
-            inventory.setItem(backButtonSlot, backButtonItem.clone());
+        // Place actions and filler
+        for (int i = 0; i < inventorySize; i++) {
+            if (actions.containsKey(i)) {
+                inventory.setItem(i, actions.get(i).createIcon());
+            } else if (backButtonSlot == i && backButtonItem != null) {
+                inventory.setItem(i, backButtonItem.clone());
+            } else if (filler != null) {
+                inventory.setItem(i, filler.clone());
+            }
         }
 
         // Open GUI for the opener
@@ -150,51 +173,16 @@ public class AfkPlayerActionsGUI implements Listener {
                 if (actionSection == null) {
                     continue;
                 }
-
                 int slot = actionSection.getInt("slot", actions.size());
                 if (slot < 0) {
                     continue;
                 }
-
                 if (slot >= MAX_INVENTORY_SIZE) {
                     EzAfk.getInstance().getLogger().warning("Slot " + slot + " for GUI action '" + key + "' exceeds the maximum supported size. Skipping...");
                     continue;
                 }
-
-                String materialName = actionSection.getString("material", "STONE");
-                Material material = null;
-
-                if (materialName != null) {
-                    material = Material.matchMaterial(materialName);
-
-                    if (material == null) {
-                        material = Material.matchMaterial(materialName.toUpperCase(Locale.ROOT));
-                    }
-                }
-
-                if (material == null) {
-                    EzAfk.getInstance().getLogger().warning("Invalid material for GUI action '" + key + "'. Skipping...");
-                    continue;
-                }
-
-                String displayName = actionSection.getString("display-name", key);
-                String typeName = actionSection.getString("type", "MESSAGE");
-
-                GuiAction.ActionType actionType;
-                try {
-                    actionType = GuiAction.ActionType.valueOf(typeName.toUpperCase(Locale.ROOT));
-                } catch (IllegalArgumentException exception) {
-                    EzAfk.getInstance().getLogger().warning("Invalid action type '" + typeName + "' for GUI action '" + key + "'. Skipping...");
-                    continue;
-                }
-
-                String targetMessage = actionSection.getString("target-message");
-                String feedbackMessage = actionSection.getString("feedback-message");
-                String command = actionSection.getString("command");
-
-                GuiAction action = new GuiAction(material, displayName, actionType, targetMessage, feedbackMessage, command);
+                GuiAction action = GuiActionFactory.fromConfigSection(actionSection);
                 actions.put(slot, action);
-
                 int requiredSize = ((slot / 9) + 1) * 9;
                 if (requiredSize > MAX_INVENTORY_SIZE) {
                     requiredSize = MAX_INVENTORY_SIZE;
@@ -202,7 +190,6 @@ public class AfkPlayerActionsGUI implements Listener {
                 inventorySize = Math.max(inventorySize, requiredSize);
             }
         }
-
         ensureBackButtonSlot();
     }
 
@@ -267,120 +254,19 @@ public class AfkPlayerActionsGUI implements Listener {
     }
 
     private ItemStack createBackButtonItem() {
-        ItemStack item = new ItemStack(Material.BARRIER);
+        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
+        ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
-
         if (meta != null) {
-            meta.setDisplayName(ChatColor.RED + "Back");
+            String display = config.getString("back-button.display-name", "&6« Back to Overview");
+            List<String> lore = config.getStringList("back-button.lore");
+            if (lore == null || lore.isEmpty()) {
+                lore = java.util.Collections.singletonList("&7Return to the player list.");
+            }
+            LoreUtil.setDisplayName(meta, display, null, org.bukkit.Bukkit.getLogger());
+            LoreUtil.setLore(meta, lore, null, org.bukkit.Bukkit.getLogger());
             item.setItemMeta(meta);
         }
-
         return item;
-    }
-
-    private static String replacePlaceholders(Player executor, Player target, String message) {
-        if (message == null) {
-            return null;
-        }
-
-        String result = message;
-
-        result = result.replace("%executor%", executor != null ? executor.getName() : "");
-        result = result.replace("%player%", target != null ? target.getName() : "");
-
-        return result;
-    }
-
-    private static String colorize(String message) {
-        if (message == null) {
-            return null;
-        }
-
-        return ChatColor.translateAlternateColorCodes('&', message);
-    }
-
-    private static class GuiAction {
-        private final Material material;
-        private final String displayName;
-        private final ActionType type;
-        private final String targetMessage;
-        private final String feedbackMessage;
-        private final String command;
-
-        GuiAction(Material material, String displayName, ActionType type, String targetMessage, String feedbackMessage, String command) {
-            this.material = material;
-            this.displayName = colorize(displayName);
-            this.type = type;
-            this.targetMessage = targetMessage;
-            this.feedbackMessage = feedbackMessage;
-            this.command = command;
-        }
-
-        ItemStack createIcon() {
-            ItemStack item = new ItemStack(material);
-            ItemMeta meta = item.getItemMeta();
-
-            if (meta != null) {
-                meta.setDisplayName(displayName);
-                item.setItemMeta(meta);
-            }
-
-            return item;
-        }
-
-        void execute(Player executor, Player target) {
-            switch (type) {
-                case KICK:
-                    if (target == null) {
-                        MessageManager.sendMessage(executor, "gui.actions.error.player-not-found", "&cCould not find the selected player.");
-                        return;
-                    }
-                    String kickMessage = colorize(replacePlaceholders(executor, target, targetMessage));
-                    String defaultKickMessage = MessageManager.getMessage("gui.actions.default-kick-message", "&cYou were kicked for being AFK too long.");
-                    target.kickPlayer(kickMessage != null ? kickMessage : defaultKickMessage);
-                    break;
-                case MESSAGE:
-                    if (target == null) {
-                        MessageManager.sendMessage(executor, "gui.actions.error.player-not-found", "&cCould not find the selected player.");
-                        return;
-                    }
-                    String alertMessage = colorize(replacePlaceholders(executor, target, targetMessage));
-                    if (alertMessage != null) {
-                        target.sendMessage(alertMessage);
-                    }
-                    break;
-                case TELEPORT:
-                    if (target == null) {
-                        MessageManager.sendMessage(executor, "gui.actions.error.player-not-found", "&cCould not find the selected player.");
-                        return;
-                    }
-                    executor.teleport(target);
-                    break;
-                case COMMAND:
-                    String commandToRun = replacePlaceholders(executor, target, command);
-                    if (commandToRun == null || commandToRun.isEmpty()) {
-                        MessageManager.sendMessage(executor, "gui.actions.error.no-command", "&cNo command configured for this action.");
-                        return;
-                    }
-                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), commandToRun);
-                    break;
-                default:
-                    return;
-            }
-
-            String feedback = colorize(replacePlaceholders(executor, target, feedbackMessage));
-            if (feedback != null && !feedback.isEmpty()) {
-                executor.sendMessage(feedback);
-            }
-
-            executor.closeInventory();
-        }
-
-        enum ActionType {
-            KICK,
-            MESSAGE,
-            TELEPORT,
-            COMMAND
-        }
     }
 }

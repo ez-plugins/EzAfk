@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.gyvex</groupId>
   <artifactId>EzAfk</artifactId>
-  <version>2.2.1</version>
+  <version>2.2.2</version>
   <build>
     <resources>
       <resource>
@@ -46,6 +46,14 @@
                 <relocation>
                   <pattern>org.bstats</pattern>
                   <shadedPattern>com.gyvex.ezafk.bstats</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.kyori.adventure</pattern>
+                  <shadedPattern>com.gyvex.ezafk.shaded.adventure</shadedPattern>
+                </relocation>
+                <relocation>
+                  <pattern>net.kyori.adventure.text.serializer.legacy</pattern>
+                  <shadedPattern>com.gyvex.ezafk.shaded.adventure.text.serializer.legacy</shadedPattern>
                 </relocation>
               </relocations>
             </configuration>

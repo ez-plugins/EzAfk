@@ -14,6 +14,8 @@ actions:
     slot: 0
     material: IRON_BOOTS
     display-name: "&cKick Player"
+    lore:
+      - "&7Remove the player from the server."
     type: KICK
     target-message: "&cYou were kicked for being AFK too long."
     feedback-message: "&aSuccessfully kicked %player%"
@@ -21,6 +23,8 @@ actions:
     slot: 1
     material: PAPER
     display-name: "&eSend Alert"
+    lore:
+      - "&7Send a private message to the player."
     type: MESSAGE
     target-message: "&eYou are marked as AFK. Keep active to prevent getting kicked!"
     feedback-message: "&aSent alert to %player%"
@@ -28,5 +32,18 @@ actions:
     slot: 2
     material: COMPASS
     display-name: "&aTeleport to Player"
+    lore:
+      - "&7Teleport to the player's location."
     type: TELEPORT
     feedback-message: "&aTeleported to %player%"
+
+empty-slot-filler:
+  enabled: true
+  material: GRAY_STAINED_GLASS_PANE
+  display-name: " "
+  lore: []
+
+back-button:
+  display-name: "&6« Back to Overview"
+  lore:
+    - "&7Return to the player list."
