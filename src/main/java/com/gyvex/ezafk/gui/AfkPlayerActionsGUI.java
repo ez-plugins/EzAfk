@@ -2,6 +2,7 @@ package com.gyvex.ezafk.gui;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.compatibility.LoreUtil;
 import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI.PlayerListType;
 import com.gyvex.ezafk.manager.MessageManager;
 import org.bukkit.Bukkit;
@@ -82,8 +83,8 @@ public class AfkPlayerActionsGUI implements Listener {
             if (meta != null) {
                 String display = config.getString("empty-slot-filler.display-name", " ");
                 List<String> lore = config.getStringList("empty-slot-filler.lore");
-                com.gyvex.ezafk.compatibility.LoreUtil.setDisplayName(meta, display, null, org.bukkit.Bukkit.getLogger());
-                com.gyvex.ezafk.compatibility.LoreUtil.setLore(meta, lore, null, org.bukkit.Bukkit.getLogger());
+                LoreUtil.setDisplayName(meta, display, null, org.bukkit.Bukkit.getLogger());
+                LoreUtil.setLore(meta, lore, null, org.bukkit.Bukkit.getLogger());
                 filler.setItemMeta(meta);
             }
         }
@@ -253,15 +254,19 @@ public class AfkPlayerActionsGUI implements Listener {
     }
 
     private ItemStack createBackButtonItem() {
+        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
         ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {
-            meta.setDisplayName(ChatColor.GOLD + "« Back to Overview");
-            meta.setLore(java.util.Arrays.asList(ChatColor.GRAY + "Return to the player list."));
+            String display = config.getString("back-button.display-name", "&6« Back to Overview");
+            List<String> lore = config.getStringList("back-button.lore");
+            if (lore == null || lore.isEmpty()) {
+                lore = java.util.Collections.singletonList("&7Return to the player list.");
+            }
+            LoreUtil.setDisplayName(meta, display, null, org.bukkit.Bukkit.getLogger());
+            LoreUtil.setLore(meta, lore, null, org.bukkit.Bukkit.getLogger());
             item.setItemMeta(meta);
         }
         return item;
     }
-
-    // GuiAction class moved to its own file. Use GuiAction from com.gyvex.ezafk.gui.GuiAction
 }

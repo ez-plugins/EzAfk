@@ -36,8 +36,14 @@ actions:
       - "&7Teleport to the player's location."
     type: TELEPORT
     feedback-message: "&aTeleported to %player%"
+
 empty-slot-filler:
   enabled: true
   material: GRAY_STAINED_GLASS_PANE
   display-name: " "
   lore: []
+
+back-button:
+  display-name: "&6« Back to Overview"
+  lore:
+    - "&7Return to the player list."
