@@ -185,6 +185,7 @@
                                     <include>net.kyori:adventure-text-serializer-legacy</include>
                                     <include>net.kyori:examination-api</include>
                                     <include>net.kyori:examination-string</include>
+                                    <include>javazoom:jlayer</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -195,6 +196,10 @@
                                 <relocation>
                                     <pattern>net.kyori</pattern>
                                     <shadedPattern>com.gyvex.ezafk.libs.net.kyori</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>javazoom</pattern>
+                                    <shadedPattern>com.gyvex.ezafk.libs.javazoom</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>
