@@ -6,7 +6,7 @@ api-version: 1.13
 commands:
   ezafk:
     description: "Manage AFK states and EzAfk configuration"
-    aliases: ["afk", "ea", "afktime", "afktop"]
+    aliases: ["afk", "ea", "afktime", "afktop", "afkzone"]
     usage: "/afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
 permissions:
   ezafk.reload:

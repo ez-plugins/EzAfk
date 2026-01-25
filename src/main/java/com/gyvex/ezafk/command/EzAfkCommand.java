@@ -50,6 +50,15 @@ public class EzAfkCommand implements CommandExecutor {
             return true;
         }
 
+        if ("afkzone".equals(lowerLabel)) {
+            // /afkzone add|list|remove|pos1|pos2|reset ... -> map to /afk zone <action> ...
+            String[] newArgs = new String[args.length + 1];
+            newArgs[0] = "zone";
+            System.arraycopy(args, 0, newArgs, 1, args.length);
+            handleAfkZone(sender, newArgs);
+            return true;
+        }
+
         if (args.length == 0) {
             if (!(sender instanceof Player)) {
                 MessageManager.sendMessage(sender, "command.toggle.self.only-players", "&cOnly players can toggle their own AFK state.");
