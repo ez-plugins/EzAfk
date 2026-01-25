@@ -72,3 +72,11 @@ unafk:
     subtitle: "&7Вы больше не AFK"
 kick:
   message: "&cВы были кикнуты с сервера за слишком долгое пребывание AFK!"
+
+afkzone:
+  reward:
+    granted:
+      economy: "&aВы получили %amount% за пребывание AFK в %zone%."
+      command: "&aВы получили награду в виде команды за пребывание AFK в %zone%."
+      item: "&aВы получили %count%x %item% за пребывание AFK в %zone%."
+      default: "&aВы получили награду за пребывание AFK в %zone%."

@@ -72,3 +72,11 @@ unafk:
     subtitle: "&7你已不再 AFK"
 kick:
   message: "&c由于长时间 AFK，你已被服务器踢出！"
+
+afkzone:
+  reward:
+    granted:
+      economy: "&a你因在 %zone% 挂机而获得了 %amount%。"
+      command: "&a你因在 %zone% 挂机而获得了一次命令奖励。"
+      item: "&a你因在 %zone% 挂机而获得了 %count%x %item%。"
+      default: "&a你因在 %zone% 挂机而获得了一项奖励。"

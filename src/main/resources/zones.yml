@@ -11,3 +11,51 @@
 #   z2: 120
 enabled: false
 regions: []
+# Example region with rewards:
+# - name: spawn
+#   world: world
+#   x1: 100
+#   y1: 50
+#   z1: 100
+#   x2: 120
+#   y2: 70
+#   z2: 120
+#   reward:
+#     enabled: true
+#     interval-seconds: 60
+#     type: economy # economy|command|item
+#     amount: 5.0
+#     # max-stack: 0 (0 or omitted = no stacking allowed, positive = allowed queued intervals)
+#     max-stack: 3
+
+# Example command reward:
+# - name: bonus
+#   world: world
+#   x1: 200
+#   y1: 50
+#   z1: 200
+#   x2: 210
+#   y2: 70
+#   z2: 210
+#   reward:
+#     enabled: true
+#     interval-seconds: 300
+#     type: command
+#     command: "give %player% minecraft:gold_nugget 1"
+
+# Example item reward:
+# - name: crate
+#   world: world
+#   x1: 300
+#   y1: 50
+#   z1: 300
+#   x2: 305
+#   y2: 55
+#   z2: 305
+#   reward:
+#     enabled: true
+#     interval-seconds: 120
+#     type: item
+#     item:
+#       material: DIAMOND
+#       amount: 1

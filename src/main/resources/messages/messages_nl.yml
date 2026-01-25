@@ -70,3 +70,11 @@ unafk:
     subtitle: "&7Je bent niet langer AFK"
 kick:
   message: "&cJe bent van deze server gekickt omdat je te lang AFK was!"
+
+afkzone:
+  reward:
+    granted:
+      economy: "&aJe ontving %amount% voor het blijven AFK in %zone%."
+      command: "&aJe ontving een commando-beloning voor het blijven AFK in %zone%."
+      item: "&aJe ontving %count%x %item% voor het blijven AFK in %zone%."
+      default: "&aJe ontving een beloning voor het blijven AFK in %zone%."
