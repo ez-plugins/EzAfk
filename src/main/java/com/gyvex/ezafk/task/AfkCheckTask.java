@@ -7,6 +7,7 @@ import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
+import com.gyvex.ezafk.manager.AfkZoneRewardManager;
 import com.gyvex.ezafk.state.AfkReason;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.LastActiveState;
@@ -65,6 +66,7 @@ public class AfkCheckTask extends BukkitRunnable {
         }
 
         EconomyManager.processRecurringCharges();
+        AfkZoneRewardManager.processRewards();
     }
 
     private boolean shouldBypassAfkCheck(Player player, UUID playerId) {

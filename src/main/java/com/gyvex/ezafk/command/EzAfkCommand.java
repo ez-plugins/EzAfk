@@ -107,15 +107,18 @@ public class EzAfkCommand implements CommandExecutor {
         switch (action) {
             case "list":
                 if (!CommandUtil.checkPermission(sender, "ezafk.zone.list", "command.usage", "&cYou don't have permission.")) return;
-                List<java.util.Map<String, Object>> list = plugin.getZonesConfig().getMapList("regions");
-                if (list == null || list.isEmpty()) {
+                List<?> rawList = plugin.getZonesConfig().getMapList("regions");
+                if (rawList == null || rawList.isEmpty()) {
                     MessageManager.sendMessage(sender, "afkzone.list.empty", "&eNo AFK zones configured.");
                     return;
                 }
                 MessageManager.sendMessage(sender, "afkzone.list.header", "&6AFK Zones:");
-                for (java.util.Map<String, Object> map : list) {
-                    String name = map.getOrDefault("name", "<unnamed>") + "";
-                    String world = map.getOrDefault("world", "") + "";
+                for (Object o : rawList) {
+                    if (!(o instanceof java.util.Map)) continue;
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<Object, Object> map = (java.util.Map<Object, Object>) o;
+                    String name = String.valueOf(map.getOrDefault("name", "<unnamed>"));
+                    String world = String.valueOf(map.getOrDefault("world", ""));
                     String coords = String.format("%s,%s,%s - %s,%s,%s",
                             map.getOrDefault("x1", ""), map.getOrDefault("y1", ""), map.getOrDefault("z1", ""),
                             map.getOrDefault("x2", ""), map.getOrDefault("y2", ""), map.getOrDefault("z2", "")
@@ -179,8 +182,19 @@ public class EzAfkCommand implements CommandExecutor {
                 region.put("y2", maxLoc.getY());
                 region.put("z2", maxLoc.getZ());
 
-                List<java.util.Map<String, Object>> regions = plugin.getZonesConfig().getMapList("regions");
-                if (regions == null) regions = new java.util.ArrayList<>();
+                List<?> rawRegions = plugin.getZonesConfig().getMapList("regions");
+                java.util.List<java.util.Map<String, Object>> regions;
+                if (rawRegions == null) {
+                    regions = new java.util.ArrayList<>();
+                } else {
+                    regions = new java.util.ArrayList<>();
+                    for (Object o : rawRegions) {
+                        if (!(o instanceof java.util.Map)) continue;
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
+                        regions.add(m);
+                    }
+                }
                 regions.add(region);
                 plugin.getZonesConfig().set("regions", regions);
                 plugin.getZonesConfig().set("enabled", true);
@@ -196,7 +210,16 @@ public class EzAfkCommand implements CommandExecutor {
                     return;
                 }
                 String removeName = args[2];
-                List<java.util.Map<String, Object>> current = plugin.getZonesConfig().getMapList("regions");
+                List<?> rawCurrent = plugin.getZonesConfig().getMapList("regions");
+                java.util.List<java.util.Map<String, Object>> current = new java.util.ArrayList<>();
+                if (rawCurrent != null) {
+                    for (Object o : rawCurrent) {
+                        if (!(o instanceof java.util.Map)) continue;
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
+                        current.add(m);
+                    }
+                }
                 boolean removed = false;
                 java.util.Iterator<java.util.Map<String, Object>> it = current.iterator();
                 while (it.hasNext()) {
