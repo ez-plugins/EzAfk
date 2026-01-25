@@ -30,6 +30,7 @@ afk:
     # Interval in seconds between asynchronous flushes of AFK time data to disk.
     # Lower values write more frequently while higher values reduce disk activity.
     flush-interval-seconds: 30
+  # Storage and other settings
   # Prevent players from bypassing AFK
   anti:
     # Toggle the infinite water flow protection

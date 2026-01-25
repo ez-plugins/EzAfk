@@ -1,0 +1,13 @@
+# AFK zones configuration
+# Players inside these cuboids are exempt from AFK checks.
+# Each region entry should include: world, x1, y1, z1, x2, y2, z2
+# Example:
+# - world: world
+#   x1: 100
+#   y1: 50
+#   z1: 100
+#   x2: 120
+#   y2: 70
+#   z2: 120
+enabled: false
+regions: []
