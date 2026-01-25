@@ -3,6 +3,7 @@ package com.gyvex.ezafk.task;
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
+import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
@@ -41,6 +42,11 @@ public class AfkCheckTask extends BukkitRunnable {
             long lastActive = LastActiveState.getLastActive(player);
 
             if (shouldBypassAfkCheck(player, playerId)) {
+                continue;
+            }
+
+            // Config-defined AFK zones (configured via afk.zones) bypass AFK checks
+            if (AfkZoneManager.isInAfkZone(player)) {
                 continue;
             }
 

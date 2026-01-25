@@ -22,6 +22,7 @@ import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.integration.EconomyServiceListener;
 import com.gyvex.ezafk.manager.AfkTimeManager;
+import com.gyvex.ezafk.manager.AfkZoneManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -48,6 +49,7 @@ public class EzAfk extends JavaPlugin {
     private FileConfiguration messagesConfig;
     private FileConfiguration guiConfig;
     private FileConfiguration mysqlConfig;
+    private org.bukkit.configuration.file.FileConfiguration zonesConfig;
     private File messagesFile;
     private File guiFile;
     private File mysqlFile;
@@ -96,6 +98,7 @@ public class EzAfk extends JavaPlugin {
 
         MySQLManager.setup();
         AfkTimeManager.load(this);
+        AfkZoneManager.load(this);
 
         economyServiceListener = new EconomyServiceListener();
         getServer().getPluginManager().registerEvents(economyServiceListener, this);
@@ -176,6 +179,10 @@ public class EzAfk extends JavaPlugin {
         // Load AFK sound config
         afkSoundEnabled = config.getBoolean("afk.sound.enabled", true);
         afkSoundFile = config.getString("afk.sound.file", "plugins/EzAfk/afk-sound.mp3");
+        // Load zones config and reload AFK zones from it when config is loaded or reloaded
+        saveDefaultZonesConfig();
+        reloadZonesConfig();
+        AfkZoneManager.load(this);
     }
     public boolean isAfkSoundEnabled() {
         return afkSoundEnabled;
@@ -195,6 +202,42 @@ public class EzAfk extends JavaPlugin {
         }
 
         return messagesConfig;
+    }
+
+    public void saveDefaultZonesConfig() {
+        if (this.zonesConfig == null) {
+            if (!getDataFolder().exists()) {
+                getDataFolder().mkdirs();
+            }
+        }
+        saveResource("zones.yml", false);
+    }
+
+    public void reloadZonesConfig() {
+        File zonesFile = new File(getDataFolder(), "zones.yml");
+        if (!zonesFile.exists()) {
+            saveDefaultZonesConfig();
+        }
+
+        this.zonesConfig = org.bukkit.configuration.file.YamlConfiguration.loadConfiguration(zonesFile);
+    }
+
+    public org.bukkit.configuration.file.FileConfiguration getZonesConfig() {
+        if (this.zonesConfig == null) {
+            reloadZonesConfig();
+        }
+        return this.zonesConfig;
+    }
+
+    public void saveZonesConfig() {
+        File zonesFile = new File(getDataFolder(), "zones.yml");
+        try {
+            if (this.zonesConfig != null) {
+                this.zonesConfig.save(zonesFile);
+            }
+        } catch (IOException e) {
+            getLogger().warning("Unable to save zones.yml: " + e.getMessage());
+        }
     }
 
     public FileConfiguration getGuiConfig() {
