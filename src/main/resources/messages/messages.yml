@@ -95,3 +95,12 @@ afkzone:
       command: "&aYou received a command reward for staying AFK in %zone%."
       item: "&aYou received %count%x %item% for staying AFK in %zone%."
       default: "&aYou received a reward for staying AFK in %zone%."
+
+  add:
+    selection-missing: "&cNo WorldEdit selection found - please select a region or provide explicit coordinates."
+    coords-required: "&cWorldEdit not available. Provide coordinates: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cInvalid coordinates provided. Use numbers."
+    pos1:
+      set: "&aPosition 1 set. Use /afk zone pos2 to set the second corner."
+    pos2:
+      set: "&aPosition 2 set. Use /afk zone add <name> to create the zone."

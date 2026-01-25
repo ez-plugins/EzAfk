@@ -92,6 +92,15 @@ afkzone:
       reached: "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%."
       cooldown: "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%."
 
+  add:
+    selection-missing: "&cNo WorldEdit selection found - please select a region or provide explicit coordinates."
+    coords-required: "&cWorldEdit not available. Provide coordinates: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cInvalid coordinates provided. Use numbers."
+    pos1:
+      set: "&aPosition 1 set. Use /afk zone pos2 to set the second corner."
+    pos2:
+      set: "&aPosition 2 set. Use /afk zone add <name> to create the zone."
+
   reset:
     success: "&aReset reward counts for %player%."
     zone:

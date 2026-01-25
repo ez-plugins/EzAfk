@@ -30,6 +30,8 @@ import java.util.UUID;
 public class EzAfkCommand implements CommandExecutor {
     private static final int TOP_LEADERBOARD_SIZE = 10;
     private final EzAfk plugin;
+    private static final java.util.Map<java.util.UUID, org.bukkit.Location> zonePos1 = new java.util.HashMap<>();
+    private static final java.util.Map<java.util.UUID, org.bukkit.Location> zonePos2 = new java.util.HashMap<>();
 
     public EzAfkCommand(EzAfk plugin) {
         this.plugin = plugin;
@@ -141,9 +143,10 @@ public class EzAfkCommand implements CommandExecutor {
                 java.util.Map<String, Object> region = new java.util.HashMap<>();
                 region.put("name", name);
 
-                // Attempt to use WorldEdit region selection if available
+                // Attempt to use WorldEdit region selection if available, else fall back to stored pos1/pos2, else require explicit coordinates
                 org.bukkit.Location minLoc = null;
                 org.bukkit.Location maxLoc = null;
+                boolean usedSelection = false;
                 org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
                 if (wePlugin != null) {
                     try {
@@ -160,18 +163,52 @@ public class EzAfkCommand implements CommandExecutor {
                                 if (minObj instanceof org.bukkit.Location && maxObj instanceof org.bukkit.Location) {
                                     minLoc = (org.bukkit.Location) minObj;
                                     maxLoc = (org.bukkit.Location) maxObj;
+                                    usedSelection = true;
                                 }
                             }
                         }
                     } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException ignored) {
-                        // Fall back to single-block region
+                        // ignore
                     }
-                }
-
-                if (minLoc == null || maxLoc == null) {
-                    // Fallback: single block at player's location
-                    minLoc = p.getLocation();
-                    maxLoc = p.getLocation();
+                    if (!usedSelection) {
+                        // Check for stored pos1/pos2
+                        java.util.UUID pu = p.getUniqueId();
+                        org.bukkit.Location p1 = zonePos1.get(pu);
+                        org.bukkit.Location p2 = zonePos2.get(pu);
+                        if (p1 != null && p2 != null) {
+                            minLoc = new org.bukkit.Location(p1.getWorld(), Math.min(p1.getX(), p2.getX()), Math.min(p1.getY(), p2.getY()), Math.min(p1.getZ(), p2.getZ()));
+                            maxLoc = new org.bukkit.Location(p1.getWorld(), Math.max(p1.getX(), p2.getX()), Math.max(p1.getY(), p2.getY()), Math.max(p1.getZ(), p2.getZ()));
+                        } else {
+                            MessageManager.sendMessage(sender, "afkzone.add.selection-missing", "&cNo WorldEdit selection found - please select a region or provide explicit coordinates, or set pos1/pos2.");
+                            return;
+                        }
+                    }
+                } else {
+                    // No WorldEdit installed - allow stored pos1/pos2 or require explicit coordinates
+                    java.util.UUID pu = p.getUniqueId();
+                    org.bukkit.Location p1 = zonePos1.get(pu);
+                    org.bukkit.Location p2 = zonePos2.get(pu);
+                    if (p1 != null && p2 != null) {
+                        minLoc = new org.bukkit.Location(p1.getWorld(), Math.min(p1.getX(), p2.getX()), Math.min(p1.getY(), p2.getY()), Math.min(p1.getZ(), p2.getZ()));
+                        maxLoc = new org.bukkit.Location(p1.getWorld(), Math.max(p1.getX(), p2.getX()), Math.max(p1.getY(), p2.getY()), Math.max(p1.getZ(), p2.getZ()));
+                    } else if (args.length >= 9) {
+                        try {
+                            double ax1 = Double.parseDouble(args[3]);
+                            double ay1 = Double.parseDouble(args[4]);
+                            double az1 = Double.parseDouble(args[5]);
+                            double ax2 = Double.parseDouble(args[6]);
+                            double ay2 = Double.parseDouble(args[7]);
+                            double az2 = Double.parseDouble(args[8]);
+                            minLoc = new org.bukkit.Location(p.getWorld(), Math.min(ax1, ax2), Math.min(ay1, ay2), Math.min(az1, az2));
+                            maxLoc = new org.bukkit.Location(p.getWorld(), Math.max(ax1, ax2), Math.max(ay1, ay2), Math.max(az1, az2));
+                        } catch (NumberFormatException ex) {
+                            MessageManager.sendMessage(sender, "afkzone.add.coords-invalid", "&cInvalid coordinates provided. Use numbers.");
+                            return;
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "afkzone.add.coords-required", "&cWorldEdit not available. Provide coordinates: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2> or set pos1/pos2.");
+                        return;
+                    }
                 }
 
                 region.put("world", minLoc.getWorld().getName());
@@ -201,6 +238,9 @@ public class EzAfkCommand implements CommandExecutor {
                 plugin.saveZonesConfig();
                 plugin.reloadZonesConfig();
                 com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
+                // clear stored pos1/pos2 for this player if present
+                zonePos1.remove(p.getUniqueId());
+                zonePos2.remove(p.getUniqueId());
                 MessageManager.sendMessage(sender, "afkzone.add.success", "&aAFK zone %name% added at your location.", Map.of("name", name));
                 return;
             case "remove":
@@ -240,6 +280,26 @@ public class EzAfkCommand implements CommandExecutor {
                 plugin.reloadZonesConfig();
                 com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
                 MessageManager.sendMessage(sender, "afkzone.remove.success", "&aAFK zone '%name%' removed.", Map.of("name", removeName));
+                return;
+            case "pos1":
+                if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
+                if (!(sender instanceof Player)) {
+                    MessageManager.sendMessage(sender, "afkzone.add.player-only", "&cOnly players can set positions.");
+                    return;
+                }
+                Player pp1 = (Player) sender;
+                zonePos1.put(pp1.getUniqueId(), pp1.getLocation());
+                MessageManager.sendMessage(sender, "afkzone.add.pos1.set", "&aPosition 1 set.");
+                return;
+            case "pos2":
+                if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
+                if (!(sender instanceof Player)) {
+                    MessageManager.sendMessage(sender, "afkzone.add.player-only", "&cOnly players can set positions.");
+                    return;
+                }
+                Player pp2 = (Player) sender;
+                zonePos2.put(pp2.getUniqueId(), pp2.getLocation());
+                MessageManager.sendMessage(sender, "afkzone.add.pos2.set", "&aPosition 2 set.");
                 return;
             case "reset":
                 if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;

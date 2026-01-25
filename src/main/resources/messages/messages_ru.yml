@@ -9,6 +9,14 @@ afk:
   title:
     title: "&eAFK"
     subtitle: "&7Вы теперь AFK"
+  add:
+    selection-missing: "&cВы не выбрали регион WorldEdit - выберите регион или укажите координаты."
+    coords-required: "&cWorldEdit недоступен. Укажите координаты: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cНеверные координаты. Используйте числа."
+    pos1:
+      set: "&aПозиция 1 установлена. Используйте /afk zone pos2 для установки второй точки."
+    pos2:
+      set: "&aПозиция 2 установлена. Используйте /afk zone add <name> чтобы создать зону."
 command:
   usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
   toggle:
