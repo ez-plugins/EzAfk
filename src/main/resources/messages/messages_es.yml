@@ -86,6 +86,8 @@ afkzone:
       set: "&aPosición 1 establecida. Usa /afk zone pos2 para establecer la segunda esquina."
     pos2:
       set: "&aPosición 2 establecida. Usa /afk zone add <name> para crear la zona."
+    pos-cleared-self: "&aTus posiciones guardadas han sido borradas."
+    pos-cleared-target: "&aPosiciones borradas para %player%."
     limit:
       reached: "&cYa has alcanzado %reward_limit% para %reward_name%, vuelve en %time_remaining%."
       cooldown: "&cYa has alcanzado %reward_limit% para %reward_name%, vuelve en %time_remaining%."

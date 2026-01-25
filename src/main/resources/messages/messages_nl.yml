@@ -35,6 +35,8 @@ command:
       set: "&aPositie 1 ingesteld. Gebruik /afk zone pos2 om de tweede hoek in te stellen."
     pos2:
       set: "&aPositie 2 ingesteld. Gebruik /afk zone add <name> om de zone te maken."
+    pos-cleared-self: "&aJe opgeslagen posities zijn gewist."
+    pos-cleared-target: "&aOpgeslagen posities gewist voor %player%."
     enabled-target: "&aAFK-detectie wordt nu voor jou omzeild."
     disabled: "&a%target% zal AFK-detectie niet langer omzeilen."
     disabled-target: "&cAFK-detectie wordt niet langer voor jou omzeild."

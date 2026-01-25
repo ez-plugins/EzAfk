@@ -118,6 +118,10 @@ public class EzAfk extends JavaPlugin {
         getCommand("ezafk").setTabCompleter(new EzAfkTabCompleter());
 
         startAFKCheckTask();
+        // Schedule cleanup of temporary zone positions (pos1/pos2)
+        long expireSeconds = config.getLong("zones.pos-expire-seconds", 300L);
+        long expireMillis = expireSeconds * 1000L;
+        getServer().getScheduler().runTaskTimer(this, () -> com.gyvex.ezafk.command.EzAfkCommand.cleanupExpiredPositions(expireMillis), 20L * 60L, 20L * 60L);
     }
 
     private void logStartupBanner() {

@@ -100,6 +100,8 @@ afkzone:
       set: "&aPosition 1 set. Use /afk zone pos2 to set the second corner."
     pos2:
       set: "&aPosition 2 set. Use /afk zone add <name> to create the zone."
+    pos-cleared-self: "&aCleared your stored positions."
+    pos-cleared-target: "&aCleared stored positions for %player%."
 
   reset:
     success: "&aReset reward counts for %player%."

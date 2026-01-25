@@ -17,6 +17,8 @@ afk:
       set: "&aПозиция 1 установлена. Используйте /afk zone pos2 для установки второй точки."
     pos2:
       set: "&aПозиция 2 установлена. Используйте /afk zone add <name> чтобы создать зону."
+    pos-cleared-self: "&aВаши сохранённые позиции были очищены."
+    pos-cleared-target: "&aСохранённые позиции очищены для %player%."
 command:
   usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
   toggle:

@@ -97,3 +97,5 @@ afkzone:
       set: "&a位置1 已设置。使用 /afk zone pos2 来设置第二个角。"
     pos2:
       set: "&a位置2 已设置。使用 /afk zone add <name> 来创建区域。"
+    pos-cleared-self: "&a已清除你保存的位置。"
+    pos-cleared-target: "&a已为 %player% 清除保存的位置。"

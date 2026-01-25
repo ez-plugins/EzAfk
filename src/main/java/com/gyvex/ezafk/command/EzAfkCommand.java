@@ -32,6 +32,37 @@ public class EzAfkCommand implements CommandExecutor {
     private final EzAfk plugin;
     private static final java.util.Map<java.util.UUID, org.bukkit.Location> zonePos1 = new java.util.HashMap<>();
     private static final java.util.Map<java.util.UUID, org.bukkit.Location> zonePos2 = new java.util.HashMap<>();
+    private static final java.util.Map<java.util.UUID, Long> zonePos1Time = new java.util.HashMap<>();
+    private static final java.util.Map<java.util.UUID, Long> zonePos2Time = new java.util.HashMap<>();
+
+    public static void clearPositions(java.util.UUID playerId) {
+        zonePos1.remove(playerId);
+        zonePos2.remove(playerId);
+        zonePos1Time.remove(playerId);
+        zonePos2Time.remove(playerId);
+    }
+
+    public static void cleanupExpiredPositions(long expiryMillis) {
+        long now = System.currentTimeMillis();
+        java.util.List<java.util.UUID> toRemove = new java.util.ArrayList<>();
+
+        for (java.util.Map.Entry<java.util.UUID, Long> e : zonePos1Time.entrySet()) {
+            if (now - e.getValue() > expiryMillis) toRemove.add(e.getKey());
+        }
+        for (java.util.UUID id : toRemove) {
+            zonePos1.remove(id);
+            zonePos1Time.remove(id);
+        }
+
+        toRemove.clear();
+        for (java.util.Map.Entry<java.util.UUID, Long> e : zonePos2Time.entrySet()) {
+            if (now - e.getValue() > expiryMillis) toRemove.add(e.getKey());
+        }
+        for (java.util.UUID id : toRemove) {
+            zonePos2.remove(id);
+            zonePos2Time.remove(id);
+        }
+    }
 
     public EzAfkCommand(EzAfk plugin) {
         this.plugin = plugin;
@@ -298,6 +329,7 @@ public class EzAfkCommand implements CommandExecutor {
                 }
                 Player pp1 = (Player) sender;
                 zonePos1.put(pp1.getUniqueId(), pp1.getLocation());
+                zonePos1Time.put(pp1.getUniqueId(), System.currentTimeMillis());
                 MessageManager.sendMessage(sender, "afkzone.add.pos1.set", "&aPosition 1 set.");
                 return;
             case "pos2":
@@ -308,8 +340,31 @@ public class EzAfkCommand implements CommandExecutor {
                 }
                 Player pp2 = (Player) sender;
                 zonePos2.put(pp2.getUniqueId(), pp2.getLocation());
+                zonePos2Time.put(pp2.getUniqueId(), System.currentTimeMillis());
                 MessageManager.sendMessage(sender, "afkzone.add.pos2.set", "&aPosition 2 set.");
                 return;
+            case "clearpos":
+                // /afk zone clearpos [player]
+                if (args.length >= 3) {
+                    if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
+                    Player target = Bukkit.getPlayer(args[2]);
+                    if (target == null) {
+                        MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
+                        return;
+                    }
+                    clearPositions(target.getUniqueId());
+                    MessageManager.sendMessage(sender, "afkzone.add.pos-cleared-target", "&aCleared stored positions for %player%.", Map.of("player", target.getName()));
+                    return;
+                } else {
+                    if (!(sender instanceof Player)) {
+                        MessageManager.sendMessage(sender, "afkzone.add.player-only", "&cOnly players can clear their own stored positions.");
+                        return;
+                    }
+                    Player self = (Player) sender;
+                    clearPositions(self.getUniqueId());
+                    MessageManager.sendMessage(sender, "afkzone.add.pos-cleared-self", "&aCleared your stored positions.");
+                    return;
+                }
             case "reset":
                 if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
                 if (args.length < 3) {
