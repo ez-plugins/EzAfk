@@ -80,3 +80,11 @@ afkzone:
       command: "&a你因在 %zone% 挂机而获得了一次命令奖励。"
       item: "&a你因在 %zone% 挂机而获得了 %count%x %item%。"
       default: "&a你因在 %zone% 挂机而获得了一项奖励。"
+    limit:
+      reached: "&c你已达到 %reward_limit% 次 %reward_name%，请在 %time_remaining% 后再来。"
+      cooldown: "&c你已达到 %reward_limit% 次 %reward_name%，请在 %time_remaining% 后再来。"
+
+  reset:
+    success: "&a已为 %player% 重置奖励计数。"
+    zone:
+      success: "&a已为 %player% 在区域 %zone% 重置奖励计数。"

@@ -46,13 +46,37 @@ public final class AfkZoneRewardManager {
             RewardState rs = playerStates.get(zone.name);
 
             if (rs == null) {
-                rs = new RewardState(now + zone.rewardIntervalSeconds * 1000L, 0);
+                rs = new RewardState(now + zone.rewardIntervalSeconds * 1000L, 0, 0, 0L);
                 playerStates.put(zone.name, rs);
                 continue; // first interval scheduled
             }
 
             if (now < rs.nextScheduled) {
                 continue; // not yet
+            }
+
+            // If a per-player limit is configured, check cooldown and reset if expired
+            if (zone.rewardLimit > 0) {
+                if (rs.limitCooldownUntil > now) {
+                    // still in cooldown, notify player and schedule next check
+                    long remainingMs = rs.limitCooldownUntil - now;
+                    String timeStr = formatDurationMillis(remainingMs);
+                    try {
+                        Map<String, String> ph = new HashMap<>();
+                        ph.put("reward_limit", String.valueOf(zone.rewardLimit));
+                        ph.put("reward_name", zone.name == null ? "" : zone.name);
+                        ph.put("time_remaining", timeStr);
+                        MessageManager.sendMessage(player, "afkzone.reward.limit.cooldown", "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%.", ph);
+                    } catch (Throwable ignored) {}
+                    rs.nextScheduled = now + Math.max(1000L, zone.rewardIntervalSeconds * 1000L);
+                    continue;
+                } else {
+                    // cooldown expired - reset count
+                    if (rs.grantCount >= zone.rewardLimit) {
+                        rs.grantCount = 0;
+                        rs.limitCooldownUntil = 0L;
+                    }
+                }
             }
 
             long intervalMs = Math.max(1L, zone.rewardIntervalSeconds) * 1000L;
@@ -64,9 +88,28 @@ public final class AfkZoneRewardManager {
                 // cap by max stack
                 toGrant = Math.min(toGrant, Math.max(0, zone.rewardMaxStack - rs.stackCount));
             }
+            // cap by per-player limit if configured
+            if (zone.rewardLimit > 0) {
+                int remaining = Math.max(0, zone.rewardLimit - rs.grantCount);
+                toGrant = Math.min(toGrant, remaining);
+            }
 
             if (toGrant <= 0) {
-                // nothing to grant (stack full)
+                // nothing to grant (stack full or limit reached)
+                if (zone.rewardLimit > 0 && rs.grantCount >= zone.rewardLimit) {
+                    // set cooldown if configured
+                    if (zone.rewardLimitCooldownSeconds > 0) {
+                        rs.limitCooldownUntil = now + zone.rewardLimitCooldownSeconds * 1000L;
+                    }
+                    // notify player
+                    try {
+                        Map<String, String> ph = new HashMap<>();
+                        ph.put("reward_limit", String.valueOf(zone.rewardLimit));
+                        ph.put("reward_name", zone.name == null ? "" : zone.name);
+                        ph.put("time_remaining", formatDurationMillis(Math.max(0, rs.limitCooldownUntil - now)));
+                        MessageManager.sendMessage(player, "afkzone.reward.limit.reached", "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%.", ph);
+                    } catch (Throwable ignored) {}
+                }
                 rs.nextScheduled = now + intervalMs; // schedule next check
                 continue;
             }
@@ -145,7 +188,22 @@ public final class AfkZoneRewardManager {
 
                 if (grantSuccess) {
                     rs.stackCount += toGrant;
+                    rs.grantCount += toGrant;
                     rs.nextScheduled = now + intervalMs;
+
+                    // If grant count reached limit, start cooldown and notify
+                    if (zone.rewardLimit > 0 && rs.grantCount >= zone.rewardLimit) {
+                        if (zone.rewardLimitCooldownSeconds > 0) {
+                            rs.limitCooldownUntil = now + zone.rewardLimitCooldownSeconds * 1000L;
+                        }
+                        try {
+                            Map<String, String> ph = new HashMap<>();
+                            ph.put("reward_limit", String.valueOf(zone.rewardLimit));
+                            ph.put("reward_name", zone.name == null ? "" : zone.name);
+                            ph.put("time_remaining", formatDurationMillis(Math.max(0, rs.limitCooldownUntil - now)));
+                            MessageManager.sendMessage(player, "afkzone.reward.limit.reached", "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%.", ph);
+                        } catch (Throwable ignored) {}
+                    }
 
                     // Send localized player message about the reward
                     try {
@@ -178,9 +236,46 @@ public final class AfkZoneRewardManager {
         long nextScheduled;
         int stackCount;
 
-        RewardState(long nextScheduled, int stackCount) {
+        int grantCount;
+        long limitCooldownUntil;
+
+        RewardState(long nextScheduled, int stackCount, int grantCount, long limitCooldownUntil) {
             this.nextScheduled = nextScheduled;
             this.stackCount = stackCount;
+            this.grantCount = grantCount;
+            this.limitCooldownUntil = limitCooldownUntil;
         }
+    }
+
+    public static void resetPlayerCounts(java.util.UUID playerId) {
+        Map<String, RewardState> m = states.get(playerId);
+        if (m != null) {
+            for (RewardState rs : m.values()) {
+                rs.grantCount = 0;
+                rs.limitCooldownUntil = 0L;
+            }
+        }
+    }
+
+    public static void resetPlayerCountForZone(java.util.UUID playerId, String zoneName) {
+        Map<String, RewardState> m = states.get(playerId);
+        if (m != null) {
+            RewardState rs = m.get(zoneName);
+            if (rs != null) {
+                rs.grantCount = 0;
+                rs.limitCooldownUntil = 0L;
+            }
+        }
+    }
+
+    private static String formatDurationMillis(long ms) {
+        if (ms <= 0) return "0s";
+        long s = ms / 1000;
+        long hours = s / 3600;
+        long minutes = (s % 3600) / 60;
+        long seconds = s % 60;
+        if (hours > 0) return String.format("%dh %dm %ds", hours, minutes, seconds);
+        if (minutes > 0) return String.format("%dm %ds", minutes, seconds);
+        return String.format("%ds", seconds);
     }
 }

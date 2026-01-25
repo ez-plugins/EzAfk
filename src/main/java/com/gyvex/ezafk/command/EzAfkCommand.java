@@ -241,6 +241,26 @@ public class EzAfkCommand implements CommandExecutor {
                 com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
                 MessageManager.sendMessage(sender, "afkzone.remove.success", "&aAFK zone '%name%' removed.", Map.of("name", removeName));
                 return;
+            case "reset":
+                if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
+                if (args.length < 3) {
+                    MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone reset <player> [zone]");
+                    return;
+                }
+                Player target = Bukkit.getPlayer(args[2]);
+                if (target == null) {
+                    MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
+                    return;
+                }
+                if (args.length >= 4) {
+                    String zoneName = args[3];
+                    com.gyvex.ezafk.manager.AfkZoneRewardManager.resetPlayerCountForZone(target.getUniqueId(), zoneName);
+                    MessageManager.sendMessage(sender, "afkzone.reset.zone.success", "&aReset reward counts for %player% in zone %zone%.", Map.of("player", target.getName(), "zone", zoneName));
+                } else {
+                    com.gyvex.ezafk.manager.AfkZoneRewardManager.resetPlayerCounts(target.getUniqueId());
+                    MessageManager.sendMessage(sender, "afkzone.reset.success", "&aReset reward counts for %player%.", Map.of("player", target.getName()));
+                }
+                return;
             default:
                 MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone <list|add|remove> [name]");
                 return;

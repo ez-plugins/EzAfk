@@ -143,6 +143,7 @@
                     <include>config.yml</include>
                     <include>gui.yml</include>
                     <include>mysql.yml</include>
+                    <include>zones.yml</include>
                     <include>messages/**</include>
                 </includes>
             </resource>

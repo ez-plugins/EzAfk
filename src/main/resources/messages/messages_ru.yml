@@ -80,3 +80,11 @@ afkzone:
       command: "&aВы получили награду в виде команды за пребывание AFK в %zone%."
       item: "&aВы получили %count%x %item% за пребывание AFK в %zone%."
       default: "&aВы получили награду за пребывание AFK в %zone%."
+    limit:
+      reached: "&cВы уже достигли %reward_limit% для %reward_name%, вернитесь через %time_remaining%."
+      cooldown: "&cВы уже достигли %reward_limit% для %reward_name%, вернитесь через %time_remaining%."
+
+  reset:
+    success: "&aСброшены счётчики наград для %player%."
+    zone:
+      success: "&aСброшены счётчики наград для %player% в зоне %zone%."

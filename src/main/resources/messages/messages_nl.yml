@@ -78,3 +78,11 @@ afkzone:
       command: "&aJe ontving een commando-beloning voor het blijven AFK in %zone%."
       item: "&aJe ontving %count%x %item% voor het blijven AFK in %zone%."
       default: "&aJe ontving een beloning voor het blijven AFK in %zone%."
+    limit:
+      reached: "&cJe hebt al %reward_limit% bereikt voor %reward_name%, kom terug over %time_remaining%."
+      cooldown: "&cJe hebt al %reward_limit% bereikt voor %reward_name%, kom terug over %time_remaining%."
+
+  reset:
+    success: "&aBeloningsaantallen gereset voor %player%."
+    zone:
+      success: "&aBeloningsaantallen gereset voor %player% in zone %zone%."

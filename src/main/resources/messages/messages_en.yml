@@ -88,3 +88,11 @@ afkzone:
       command: "&aYou received a command reward for staying AFK in %zone%."
       item: "&aYou received %count%x %item% for staying AFK in %zone%."
       default: "&aYou received a reward for staying AFK in %zone%."
+    limit:
+      reached: "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%."
+      cooldown: "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%."
+
+  reset:
+    success: "&aReset reward counts for %player%."
+    zone:
+      success: "&aReset reward counts for %player% in zone %zone%."
