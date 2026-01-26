@@ -1,6 +1,6 @@
 package com.gyvex.ezafk.compatibility;
 
-import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -365,7 +365,7 @@ public class CompatibilityUtil {
         try {
             Class<?> namespacedKeyClass = Class.forName("org.bukkit.NamespacedKey");
             Constructor<?> constructor = namespacedKeyClass.getConstructor(org.bukkit.plugin.Plugin.class, String.class);
-            return constructor.newInstance(EzAfk.getInstance(), key);
+            return constructor.newInstance(Registry.get().getPlugin(), key);
         } catch (Exception ignored) {
             return null;
         }
