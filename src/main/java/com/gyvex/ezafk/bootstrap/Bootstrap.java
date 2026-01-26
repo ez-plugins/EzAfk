@@ -15,6 +15,7 @@ import com.gyvex.ezafk.integration.SimpleVoiceChatAfkListener;
 import com.gyvex.ezafk.integration.SpigotIntegration;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.integration.VoiceChatIntegration;
+import com.gyvex.ezafk.integration.WorldEditIntegration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MySQLManager;
@@ -47,13 +48,14 @@ public class Bootstrap {
         plugin.saveDefaultConfig();
         plugin.loadConfig();
         maybeRegisterWorldGuardIntegration();
+        maybeRegisterWorldEditIntegration();
     }
 
     public void onEnable() {
         plugin.loadConfig();
         logStartupBanner();
         // Copy default AFK sound to the EzAfk plugin folder (plugins/EzAfk/mp3/ezafk-sound.mp3)
-        String afkSoundPath = plugin.config.getString("afk.sound.file", "mp3/ezafk-sound.mp3");
+        String afkSoundPath = plugin.getConfig().getString("afk.sound.file", "mp3/ezafk-sound.mp3");
         java.io.File afkSoundFile = new java.io.File(plugin.getDataFolder(), afkSoundPath); // plugins/EzAfk/mp3/ezafk-sound.mp3
         // Use Bukkit's saveResource to copy the mp3 file safely
         plugin.saveResource("mp3/ezafk-sound.mp3", true);
@@ -64,7 +66,7 @@ public class Bootstrap {
         IntegrationManager.addIntegration("economy", new EconomyIntegration());
         IntegrationManager.addIntegration("placeholderapi", new PlaceholderApiIntegration());
 
-        String voicechatConfig = plugin.config.getString("integration.voicechat", "auto").trim().toLowerCase();
+        String voicechatConfig = plugin.getConfig().getString("integration.voicechat", "auto").trim().toLowerCase();
         boolean voicechatAvailable = plugin.getServer().getPluginManager().getPlugin("voicechat") != null;
         boolean enableVoicechatIntegration = false;
         if ("true".equals(voicechatConfig)) {
@@ -118,7 +120,7 @@ public class Bootstrap {
 
     public void onDisable() {
         AfkTimeManager.flushActiveSessions(AfkState.getActiveAfkSessions());
-        if (plugin.config.getBoolean("afk.hide-screen.enabled")) {
+        if (plugin.getConfig().getBoolean("afk.hide-screen.enabled")) {
             for (UUID uuid : new ArrayList<>(AfkState.afkPlayers)) {
                 Player player = Bukkit.getPlayer(uuid);
 
@@ -157,7 +159,7 @@ public class Bootstrap {
     }
 
     private void maybeRegisterWorldGuardIntegration() {
-        if (!plugin.config.getBoolean("integration.worldguard")) {
+        if (!plugin.getConfig().getBoolean("integration.worldguard")) {
             plugin.getLogger().fine("WorldGuard integration disabled via config");
             return;
         }
@@ -169,27 +171,52 @@ public class Bootstrap {
             return;
         }
 
+        // Delegate detailed class detection and setup to the integration itself.
         try {
-            Class.forName("com.sk89q.worldguard.WorldGuard");
-            Class.forName("com.sk89q.worldguard.protection.flags.registry.FlagRegistry");
-            Class.forName("com.sk89q.worldguard.protection.flags.StateFlag");
-        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
-            plugin.getLogger().log(Level.WARNING, "WorldGuard classes not present. Skipping integration setup.", ex);
+            WorldGuardIntegration integration = new WorldGuardIntegration();
+            integration.load();
+
+            if (integration.isSetup) {
+                integration.setupTags();
+                if (integration.isSetup) {
+                    IntegrationManager.addIntegration("worldguard", integration);
+                    plugin.getLogger().info("WorldGuard integration registered.");
+                } else {
+                    plugin.getLogger().info("WorldGuard integration setup skipped after tag registration failure.");
+                }
+            } else {
+                plugin.getLogger().info("WorldGuard classes not present. Skipping integration setup.");
+            }
+        } catch (NoClassDefFoundError ex) {
+            plugin.getLogger().log(Level.WARNING, "Failed to initialize WorldGuard integration.", ex);
+        }
+    }
+
+    private void maybeRegisterWorldEditIntegration() {
+        if (!plugin.getConfig().getBoolean("integration.worldedit")) {
+            plugin.getLogger().fine("WorldEdit integration disabled via config");
+            return;
+        }
+
+        org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
+
+        if (wePlugin == null || !wePlugin.isEnabled()) {
+            plugin.getLogger().info("WorldEdit plugin not found. Skipping integration setup.");
             return;
         }
 
         try {
-            WorldGuardIntegration integration = new WorldGuardIntegration();
-            integration.setupTags();
+            WorldEditIntegration integration = new WorldEditIntegration();
+            integration.load();
 
             if (integration.isSetup) {
-                IntegrationManager.addIntegration("worldguard", integration);
-                plugin.getLogger().info("WorldGuard integration registered.");
+                IntegrationManager.addIntegration("worldedit", integration);
+                plugin.getLogger().info("WorldEdit integration registered.");
             } else {
-                plugin.getLogger().info("WorldGuard integration setup skipped after tag registration failure.");
+                plugin.getLogger().info("WorldEdit integration setup skipped.");
             }
         } catch (NoClassDefFoundError ex) {
-            plugin.getLogger().log(Level.WARNING, "Failed to initialize WorldGuard integration.", ex);
+            plugin.getLogger().log(java.util.logging.Level.WARNING, "Failed to initialize WorldEdit integration.", ex);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.protection.ApplicableRegionSet;
@@ -39,9 +40,9 @@ public class WorldGuardIntegration extends Integration {
     }
 
     public void setupTags() {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
-        if (!plugin.config.getBoolean("integration.worldguard")) {
+        if (!plugin.getConfig().getBoolean("integration.worldguard")) {
             return;
         }
 
@@ -80,6 +81,15 @@ public class WorldGuardIntegration extends Integration {
 
     @Override
     public void load() {
+        // Detect WorldGuard API presence at load time so callers can decide whether to proceed.
+        try {
+            Class.forName("com.sk89q.worldguard.WorldGuard");
+            Class.forName("com.sk89q.worldguard.protection.flags.registry.FlagRegistry");
+            Class.forName("com.sk89q.worldguard.protection.flags.StateFlag");
+            this.isSetup = true;
+        } catch (ClassNotFoundException | NoClassDefFoundError ex) {
+            this.isSetup = false;
+        }
     }
 
     @Override

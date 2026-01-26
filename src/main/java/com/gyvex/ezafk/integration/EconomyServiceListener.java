@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.event.EventHandler;
@@ -63,7 +64,7 @@ public class EconomyServiceListener implements Listener {
     }
 
     private void log(String message) {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (plugin == null) {
             return;

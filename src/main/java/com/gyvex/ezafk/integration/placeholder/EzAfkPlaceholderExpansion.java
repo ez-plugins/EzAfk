@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration.placeholder;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.LastActiveState;
 import com.gyvex.ezafk.util.DurationFormatter;
@@ -24,7 +25,7 @@ public class EzAfkPlaceholderExpansion extends PlaceholderExpansion {
     private final String playtimePlaceholder;
 
     public EzAfkPlaceholderExpansion() {
-        var config = EzAfk.getInstance().getConfig();
+        var config = Registry.get().getPlugin().getConfig();
         this.playtimeIntegrationEnabled = config.getBoolean("integration.playtime.enabled", false);
         this.playtimePlaceholder = config.getString("integration.playtime.placeholder", "%playtime_time_total_seconds%");
     }
@@ -36,12 +37,12 @@ public class EzAfkPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public String getAuthor() {
-        return String.join(", ", EzAfk.getInstance().getDescription().getAuthors());
+        return String.join(", ", Registry.get().getPlugin().getDescription().getAuthors());
     }
 
     @Override
     public String getVersion() {
-        return EzAfk.getInstance().getDescription().getVersion();
+        return Registry.get().getPlugin().getDescription().getVersion();
     }
 
     @Override
@@ -94,7 +95,7 @@ public class EzAfkPlaceholderExpansion extends PlaceholderExpansion {
     }
 
     private String getConfigValue(String path) {
-        String value = EzAfk.getInstance().getConfig().getString(path, "");
+        String value = Registry.get().getPlugin().getConfig().getString(path, "");
         return value == null ? "" : value;
     }
 

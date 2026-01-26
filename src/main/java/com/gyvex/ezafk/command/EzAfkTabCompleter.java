@@ -1,6 +1,6 @@
 package com.gyvex.ezafk.command;
 
-import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -14,13 +14,13 @@ import java.util.Locale;
 import java.util.stream.Collectors;
 
 public class EzAfkTabCompleter implements TabCompleter {
-        private static final List<String> MAIN_COMMANDS = Arrays.asList(
-            "reload", "gui", "toggle", "bypass", "info", "time", "top", "zone"
-        );
+    private static final List<String> MAIN_COMMANDS = Arrays.asList(
+        "reload", "gui", "toggle", "bypass", "info", "time", "top", "zone"
+    );
 
-        private static final List<String> ZONE_COMMANDS = Arrays.asList(
-            "list", "add", "remove", "pos1", "pos2", "reset"
-        );
+    private static final List<String> ZONE_COMMANDS = Arrays.asList(
+        "list", "add", "remove", "pos1", "pos2", "reset"
+    );
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -63,23 +63,20 @@ public class EzAfkTabCompleter implements TabCompleter {
             if (sub.equals("remove")) {
                 // suggest zone names from zones.yml
                 try {
-                    EzAfk plugin = EzAfk.getInstance();
-                    if (plugin != null) {
-                        java.util.List<?> raw = plugin.getZonesConfig().getMapList("regions");
-                        if (raw != null) {
-                            List<String> zones = new java.util.ArrayList<>();
-                            for (Object o : raw) {
-                                if (!(o instanceof java.util.Map)) continue;
-                                @SuppressWarnings("unchecked")
-                                java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
-                                String name = String.valueOf(m.getOrDefault("name", ""));
-                                if (!name.isEmpty() && name.toLowerCase(Locale.ROOT).startsWith(prefix)) {
-                                    zones.add(name);
-                                }
+                    java.util.List<?> raw = Registry.get().getZonesConfig().getMapList("regions");
+                    if (raw != null) {
+                        List<String> zones = new java.util.ArrayList<>();
+                        for (Object o : raw) {
+                            if (!(o instanceof java.util.Map)) continue;
+                            @SuppressWarnings("unchecked")
+                            java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
+                            String name = String.valueOf(m.getOrDefault("name", ""));
+                            if (!name.isEmpty() && name.toLowerCase(Locale.ROOT).startsWith(prefix)) {
+                                zones.add(name);
                             }
-                            java.util.Collections.sort(zones, String.CASE_INSENSITIVE_ORDER);
-                            return zones;
                         }
+                        java.util.Collections.sort(zones, String.CASE_INSENSITIVE_ORDER);
+                        return zones;
                     }
                 } catch (Exception ignored) {}
             }

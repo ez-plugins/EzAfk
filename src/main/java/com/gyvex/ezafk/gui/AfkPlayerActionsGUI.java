@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.gui;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.compatibility.LoreUtil;
 import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI.PlayerListType;
@@ -72,7 +73,7 @@ public class AfkPlayerActionsGUI implements Listener {
         Inventory inventory = CompatibilityUtil.createInventory(null, inventorySize, GUI_TITLE);
 
         // Filler item for empty slots
-        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
+        FileConfiguration config = Registry.get().getConfigManager().getGuiConfig();
         ItemStack filler = null;
         if (config.getBoolean("empty-slot-filler.enabled", true)) {
             String matName = config.getString("empty-slot-filler.material", "GRAY_STAINED_GLASS_PANE");
@@ -159,14 +160,14 @@ public class AfkPlayerActionsGUI implements Listener {
         backButtonSlot = -1;
         backButtonItem = createBackButtonItem();
 
-        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
+        FileConfiguration config = Registry.get().getConfigManager().getGuiConfig();
         ConfigurationSection section = config.getConfigurationSection("actions");
 
         int configuredSize = config.getInt("inventory-size", config.getInt("actions.inventory-size", MIN_INVENTORY_SIZE));
         inventorySize = normalizeInventorySize(configuredSize);
 
         if (section == null) {
-            EzAfk.getInstance().getLogger().warning("No GUI actions configured. The player actions GUI will be empty.");
+            Registry.get().getLogger().warning("No GUI actions configured. The player actions GUI will be empty.");
         } else {
             for (String key : section.getKeys(false)) {
                 ConfigurationSection actionSection = section.getConfigurationSection(key);
@@ -178,7 +179,7 @@ public class AfkPlayerActionsGUI implements Listener {
                     continue;
                 }
                 if (slot >= MAX_INVENTORY_SIZE) {
-                    EzAfk.getInstance().getLogger().warning("Slot " + slot + " for GUI action '" + key + "' exceeds the maximum supported size. Skipping...");
+                    Registry.get().getLogger().warning("Slot " + slot + " for GUI action '" + key + "' exceeds the maximum supported size. Skipping...");
                     continue;
                 }
                 GuiAction action = GuiActionFactory.fromConfigSection(actionSection);
@@ -219,7 +220,7 @@ public class AfkPlayerActionsGUI implements Listener {
         }
 
         if (backButtonSlot < 0) {
-            EzAfk.getInstance().getLogger().warning("Failed to allocate a slot for the back button in the player actions GUI.");
+            Registry.get().getLogger().warning("Failed to allocate a slot for the back button in the player actions GUI.");
         }
     }
 
@@ -247,14 +248,14 @@ public class AfkPlayerActionsGUI implements Listener {
         }
 
         if (size != configuredSize) {
-            EzAfk.getInstance().getLogger().warning("Adjusted player actions GUI inventory size from " + configuredSize + " to " + size + " (must be a multiple of 9 between 9 and 54).");
+            Registry.get().getLogger().warning("Adjusted player actions GUI inventory size from " + configuredSize + " to " + size + " (must be a multiple of 9 between 9 and 54).");
         }
 
         return size;
     }
 
     private ItemStack createBackButtonItem() {
-        FileConfiguration config = EzAfk.getInstance().getGuiConfig();
+        FileConfiguration config = Registry.get().getConfigManager().getGuiConfig();
         ItemStack item = new ItemStack(Material.ARROW);
         ItemMeta meta = item.getItemMeta();
         if (meta != null) {

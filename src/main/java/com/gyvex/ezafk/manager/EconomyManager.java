@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.integration.EconomyIntegration;
 import com.gyvex.ezafk.integration.Integration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
@@ -76,7 +77,7 @@ public final class EconomyManager {
             return false;
         }
 
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (!isEconomyActive() || bypassesEconomy(player)) {
             scheduleNextCharge(player, plugin);
@@ -156,7 +157,7 @@ public final class EconomyManager {
             return;
         }
 
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (plugin == null) {
             return;
@@ -255,7 +256,7 @@ public final class EconomyManager {
     }
 
     private static void handleFailure(Player player, boolean initiatedByPlayer) {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (!initiatedByPlayer && plugin != null) {
             blockPlayer(player, plugin);
@@ -285,7 +286,7 @@ public final class EconomyManager {
     }
 
     private static boolean bypassesEconomy(Player player) {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (plugin == null) {
             return false;
@@ -306,7 +307,7 @@ public final class EconomyManager {
     }
 
     private static boolean isEconomyActive() {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (plugin == null) {
             return false;
@@ -320,7 +321,7 @@ public final class EconomyManager {
     }
 
     private static boolean isRecurringEnabled() {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         if (plugin == null) {
             return false;

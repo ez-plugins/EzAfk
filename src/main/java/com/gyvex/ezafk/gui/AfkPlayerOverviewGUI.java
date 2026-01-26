@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.gui;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.state.AfkState;
@@ -295,7 +296,7 @@ public class AfkPlayerOverviewGUI implements Listener {
                     }
                     openGUI(player, 1, targetType);
                 } catch (IllegalArgumentException exception) {
-                    EzAfk.getInstance().getLogger().warning("Invalid overview list type metadata: " + targetListTypeName);
+                    Registry.get().getLogger().warning("Invalid overview list type metadata: " + targetListTypeName);
                 }
                 return;
             }
@@ -314,7 +315,7 @@ public class AfkPlayerOverviewGUI implements Listener {
             String storedUuid = CompatibilityUtil.getItemMetadata(itemMeta, PLAYER_UUID_KEY);
 
             if (storedUuid == null) {
-                EzAfk.getInstance().getLogger().warning("Player head missing AFK UUID metadata");
+                Registry.get().getLogger().warning("Player head missing AFK UUID metadata");
                 return;
             }
 
@@ -322,13 +323,13 @@ public class AfkPlayerOverviewGUI implements Listener {
             try {
                 playerId = UUID.fromString(storedUuid);
             } catch (IllegalArgumentException exception) {
-                EzAfk.getInstance().getLogger().warning("Invalid AFK UUID metadata: " + storedUuid);
+                Registry.get().getLogger().warning("Invalid AFK UUID metadata: " + storedUuid);
                 return;
             }
 
             AfkPlayerActionsGUI actionsGUI = AfkPlayerActionsGUI.getInstance();
             if (actionsGUI == null) {
-                EzAfk.getInstance().getLogger().warning("Player actions GUI is not initialized. Unable to open player actions view.");
+                Registry.get().getLogger().warning("Player actions GUI is not initialized. Unable to open player actions view.");
                 return;
             }
 
