@@ -1,11 +1,12 @@
 package com.gyvex.ezafk.command;
 
-import com.gyvex.ezafk.registry.Registry;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+
+import com.gyvex.ezafk.bootstrap.Registry;
 
 import java.util.Arrays;
 import java.util.Collections;

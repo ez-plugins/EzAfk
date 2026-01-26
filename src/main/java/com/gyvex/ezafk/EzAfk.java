@@ -1,7 +1,8 @@
 package com.gyvex.ezafk;
 
-import com.gyvex.ezafk.registry.Registry;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import com.gyvex.ezafk.bootstrap.Registry;
 
 public class EzAfk extends JavaPlugin {
     @Override

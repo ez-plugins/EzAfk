@@ -1,6 +1,8 @@
 package com.gyvex.ezafk.command;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.util.CommandUtil;
 import org.bukkit.Bukkit;
@@ -15,24 +17,9 @@ import java.util.Map;
 
 public class AfkZoneCommand {
     private final EzAfk plugin;
-    // zone position cache moved to ZoneCache
-
+    
     public AfkZoneCommand(EzAfk plugin) {
         this.plugin = plugin;
-    }
-
-    // helper methods available on ZoneCache
-
-    private static Double reflectGetNumber(Object obj, String methodName) {
-        if (obj == null) return null;
-        try {
-            java.lang.reflect.Method m = obj.getClass().getMethod(methodName);
-            Object v = m.invoke(obj);
-            if (v instanceof Number) return ((Number) v).doubleValue();
-            if (v instanceof String) return Double.parseDouble((String) v);
-        } catch (Exception ignored) {
-        }
-        return null;
     }
 
     public void handleAfkZone(CommandSender sender, String[] args) {
@@ -46,7 +33,7 @@ public class AfkZoneCommand {
         switch (action) {
             case "list":
                 if (!CommandUtil.checkPermission(sender, "ezafk.zone.list", "command.usage", "&cYou don't have permission.")) return;
-                List<?> rawList = plugin.getZonesConfig().getMapList("regions");
+                List<?> rawList = Registry.get().getZonesConfig().getMapList("regions");
                 if (rawList == null || rawList.isEmpty()) {
                     MessageManager.sendMessage(sender, "afkzone.list.empty", "&eNo AFK zones configured.");
                     return;
@@ -126,7 +113,7 @@ public class AfkZoneCommand {
                 region.put("y2", maxLoc.getY());
                 region.put("z2", maxLoc.getZ());
 
-                List<?> rawRegions = plugin.getZonesConfig().getMapList("regions");
+                List<?> rawRegions = Registry.get().getZonesConfig().getMapList("regions");
                 java.util.List<java.util.Map<String, Object>> regions;
                 if (rawRegions == null) {
                     regions = new java.util.ArrayList<>();
@@ -140,11 +127,11 @@ public class AfkZoneCommand {
                     }
                 }
                 regions.add(region);
-                plugin.getZonesConfig().set("regions", regions);
-                plugin.getZonesConfig().set("enabled", true);
-                plugin.saveZonesConfig();
-                plugin.reloadZonesConfig();
-                com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
+                Registry.get().getZonesConfig().set("regions", regions);
+                Registry.get().getZonesConfig().set("enabled", true);
+                Registry.get().saveZonesConfig();
+                Registry.get().reloadZonesConfig();
+                AfkZoneManager.load(plugin);
                 // clear stored pos1/pos2 for this player if present
                 ZoneCache.zonePos1.remove(p.getUniqueId());
                 ZoneCache.zonePos2.remove(p.getUniqueId());
@@ -157,7 +144,7 @@ public class AfkZoneCommand {
                     return;
                 }
                 String removeName = args[2];
-                List<?> rawCurrent = plugin.getZonesConfig().getMapList("regions");
+                List<?> rawCurrent = Registry.get().getZonesConfig().getMapList("regions");
                 java.util.List<java.util.Map<String, Object>> current = new java.util.ArrayList<>();
                 if (rawCurrent != null) {
                     for (Object o : rawCurrent) {
@@ -182,10 +169,10 @@ public class AfkZoneCommand {
                     MessageManager.sendMessage(sender, "afkzone.remove.notfound", "&cAFK zone '%name%' not found.", Map.of("name", removeName));
                     return;
                 }
-                plugin.getZonesConfig().set("regions", current);
-                plugin.saveZonesConfig();
-                plugin.reloadZonesConfig();
-                com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
+                Registry.get().getZonesConfig().set("regions", current);
+                Registry.get().saveZonesConfig();
+                Registry.get().reloadZonesConfig();
+                AfkZoneManager.load(Registry.get().getPlugin());
                 MessageManager.sendMessage(sender, "afkzone.remove.success", "&aAFK zone '%name%' removed.", Map.of("name", removeName));
                 return;
             case "pos1":

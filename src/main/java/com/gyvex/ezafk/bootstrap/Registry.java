@@ -1,7 +1,6 @@
-package com.gyvex.ezafk.registry;
+package com.gyvex.ezafk.bootstrap;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.bootstrap.Bootstrap;
 import com.gyvex.ezafk.config.ConfigManager;
 import com.gyvex.ezafk.task.TaskManager;
 import org.bukkit.configuration.file.FileConfiguration;

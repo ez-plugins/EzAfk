@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.command;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.gui.AfkPlayerActionsGUI;
 import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.TabIntegration;
@@ -109,15 +110,13 @@ public class EzAfkCommand implements CommandExecutor {
         }
     }
 
-    // Zone command handling delegated to AfkZoneCommand
-
     private void handleReload(CommandSender sender) {
         if (!sender.hasPermission("ezafk.reload")) {
             MessageManager.sendMessage(sender, "command.reload.no-permission", "&cYou don't have permission to use this command.");
             return;
         }
 
-        plugin.loadConfig();
+        Registry.get().getConfigManager().loadConfig();
         IntegrationManager.unload();
         IntegrationManager.load();
         TabIntegration tabIntegration = (TabIntegration) IntegrationManager.getIntegration("tab");
