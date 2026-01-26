@@ -35,8 +35,6 @@ afk:
     enabled: false
   animation:
     enabled: true
-  # per-AFK settings
-  # Storage and other settings
   # Prevent players from bypassing AFK
   anti:
     # Toggle the infinite water flow protection
