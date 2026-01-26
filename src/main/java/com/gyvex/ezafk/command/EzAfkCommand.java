@@ -262,6 +262,29 @@ public class EzAfkCommand implements CommandExecutor {
     private void handleTime(CommandSender sender, String[] args, int startIndex) {
         int remainingArguments = Math.max(0, args.length - startIndex);
 
+        // Support: /afk time reset <player>
+        if (remainingArguments >= 2 && args[startIndex].equalsIgnoreCase("reset")) {
+            if (!sender.hasPermission("ezafk.time.reset")) {
+                MessageManager.sendMessage(sender, "command.time.reset.no-permission", "&cYou don't have permission to reset player AFK time.");
+                return;
+            }
+
+            String targetName = args[startIndex + 1];
+            OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+            if (target == null || (target.getName() == null && !target.hasPlayedBefore() && !target.isOnline())) {
+                MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
+                return;
+            }
+
+            boolean ok = AfkTimeManager.resetPlayer(target.getUniqueId());
+            if (ok) {
+                MessageManager.sendMessage(sender, "command.time.reset.success", "&aReset AFK time for %player%.", Map.of("player", target.getName() != null ? target.getName() : target.getUniqueId().toString()));
+            } else {
+                MessageManager.sendMessage(sender, "command.time.reset.failed", "&cFailed to reset AFK time for %player%.", Map.of("player", target.getName() != null ? target.getName() : target.getUniqueId().toString()));
+            }
+            return;
+        }
+
         if (remainingArguments > 1) {
             MessageManager.sendMessage(sender, "command.usage", getUsageFallback());
             return;

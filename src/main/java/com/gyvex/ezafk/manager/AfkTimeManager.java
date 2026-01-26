@@ -6,7 +6,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -37,7 +36,7 @@ public final class AfkTimeManager {
         return first.playerId.compareTo(second.playerId);
     });
     private static final Map<UUID, LeaderboardEntry> leaderboardEntries = new HashMap<>();
-    private static File timesDirectory;
+    
     private static BukkitTask flushTask;
     private static long flushIntervalTicks = 20L * 30L;
     private static final long DEFAULT_FLUSH_INTERVAL_SECONDS = 30L;
@@ -62,49 +61,28 @@ public final class AfkTimeManager {
         pendingSaves.clear();
         clearLeaderboardCache();
 
-        timesDirectory = new File(dataFolder, "afk-times");
-        if (!timesDirectory.exists() && !timesDirectory.mkdirs()) {
-            plugin.getLogger().warning("Unable to create afk-times directory for AFK time storage.");
-        }
-
         migrateLegacyData(plugin, new File(dataFolder, "afk-times.yml"));
 
-        loadPlayerFiles(plugin);
+        // Load from configured storage repository if available (preferred)
+        if (Registry.get().getStorageRepository() != null) {
+            try {
+                java.util.Map<UUID, Long> stored = Registry.get().getStorageRepository().loadAll();
+                if (stored != null) {
+                    totalAfkSeconds.putAll(stored);
+                }
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to load AFK times from storage repository: " + e.getMessage());
+            }
+        } else {
+            plugin.getLogger().warning("No storage repository configured; AFK times will be kept in-memory only.");
+        }
+
         rebuildLeaderboardCache();
 
         configureFlushTask(plugin);
     }
 
-    private static void loadPlayerFiles(EzAfk plugin) {
-        if (timesDirectory == null || !timesDirectory.exists()) {
-            return;
-        }
-
-        FilenameFilter yamlFilter = (dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".yml");
-        File[] files = timesDirectory.listFiles(yamlFilter);
-        if (files == null) {
-            return;
-        }
-
-        for (File file : files) {
-            String name = file.getName();
-            if (name.length() <= 4) {
-                continue;
-            }
-
-            String uuidPart = name.substring(0, name.length() - 4);
-            try {
-                UUID uuid = UUID.fromString(uuidPart);
-                FileConfiguration configuration = YamlConfiguration.loadConfiguration(file);
-                long seconds = configuration.getLong("total", 0L);
-                if (seconds > 0L) {
-                    totalAfkSeconds.put(uuid, seconds);
-                }
-            } catch (IllegalArgumentException exception) {
-                plugin.getLogger().warning("Invalid AFK time file name detected: " + name);
-            }
-        }
-    }
+    
 
     private static void migrateLegacyData(EzAfk plugin, File legacyFile) {
         if (legacyFile == null || !legacyFile.exists()) {
@@ -144,6 +122,17 @@ public final class AfkTimeManager {
             return;
         }
 
+        // Persist via storage repository when available
+        if (Registry.get().getStorageRepository() != null) {
+            try {
+                flushPending(plugin, true);
+                Registry.get().getStorageRepository().saveAll();
+            } catch (Exception e) {
+                plugin.getLogger().warning("Failed to save all AFK times to storage repository: " + e.getMessage());
+            }
+            return;
+        }
+
         flushPending(plugin, true);
     }
 
@@ -153,8 +142,13 @@ public final class AfkTimeManager {
         if (plugin == null) {
             return;
         }
-
         flushPending(plugin, true);
+
+        if (Registry.get().getStorageRepository() != null) {
+            try {
+                Registry.get().getStorageRepository().shutdown();
+            } catch (Exception ignored) {}
+        }
     }
 
     public static void recordAfkSession(UUID playerId, long startMillis, long endMillis) {
@@ -187,7 +181,24 @@ public final class AfkTimeManager {
     }
 
     public static long getTotalAfkSeconds(UUID playerId) {
-        return totalAfkSeconds.getOrDefault(playerId, 0L);
+        Long v = totalAfkSeconds.get(playerId);
+        if (v != null) return v;
+
+        // Fallback: if not cached, query configured storage repository
+        if (Registry.get() != null && Registry.get().getStorageRepository() != null && playerId != null) {
+            try {
+                long stored = Registry.get().getStorageRepository().getPlayerAfkTime(playerId);
+                if (stored > 0L) {
+                    totalAfkSeconds.put(playerId, stored);
+                    updateLeaderboardEntry(playerId, stored);
+                }
+                return stored;
+            } catch (Exception e) {
+                if (Registry.get() != null) Registry.get().getLogger().warning("Failed to read AFK time from storage repository: " + e.getMessage());
+            }
+        }
+
+        return 0L;
     }
 
     public static List<Map.Entry<UUID, Long>> getTopPlayers(int limit) {
@@ -213,19 +224,23 @@ public final class AfkTimeManager {
     }
 
     private static boolean savePlayer(UUID playerId, long total, EzAfk plugin) {
-        if (playerId == null || timesDirectory == null) {
-            return false;
-        }
+        if (playerId == null) return false;
 
+        // If total is zero or less, remove/zero the record in storage
         if (total <= 0L) {
             removeFromLeaderboard(playerId);
-            File playerFile = new File(timesDirectory, playerId.toString() + ".yml");
-            if (playerFile.exists() && !playerFile.delete() && plugin != null) {
-                plugin.getLogger().warning("Unable to delete AFK time file for player " + playerId);
-                return false;
+            if (Registry.get().getStorageRepository() != null) {
+                try {
+                    Registry.get().getStorageRepository().deletePlayer(playerId);
+                    dirtyPlayers.remove(playerId);
+                    return true;
+                } catch (Exception e) {
+                    if (plugin != null) plugin.getLogger().warning("Failed to delete AFK time via storage repository: " + e.getMessage());
+                    return false;
+                }
             }
-            dirtyPlayers.remove(playerId);
-            return true;
+            if (plugin != null) plugin.getLogger().warning("No storage repository configured to delete AFK time for player " + playerId);
+            return false;
         }
 
         if (persistPlayer(playerId, total, plugin)) {
@@ -303,30 +318,20 @@ public final class AfkTimeManager {
     }
 
     private static boolean persistPlayer(UUID playerId, long total, EzAfk plugin) {
-        if (playerId == null || timesDirectory == null) {
-            return false;
-        }
+        if (playerId == null) return false;
 
-        if (!timesDirectory.exists() && !timesDirectory.mkdirs()) {
-            if (plugin != null) {
-                plugin.getLogger().warning("Unable to create afk-times directory for AFK time storage.");
+        if (Registry.get().getStorageRepository() != null) {
+            try {
+                Registry.get().getStorageRepository().savePlayerAfkTime(playerId, total);
+                return true;
+            } catch (Exception e) {
+                if (plugin != null) plugin.getLogger().warning("Failed to persist AFK time via storage repository: " + e.getMessage());
+                return false;
             }
-            return false;
         }
 
-        File playerFile = new File(timesDirectory, playerId.toString() + ".yml");
-        YamlConfiguration configuration = new YamlConfiguration();
-        configuration.set("total", total);
-
-        try {
-            configuration.save(playerFile);
-            return true;
-        } catch (IOException exception) {
-            if (plugin != null) {
-                plugin.getLogger().warning("Unable to save AFK time for player " + playerId + ": " + exception.getMessage());
-            }
-            return false;
-        }
+        if (plugin != null) plugin.getLogger().warning("No storage repository configured; cannot persist AFK time for player " + playerId);
+        return false;
     }
 
     private static void rebuildLeaderboardCache() {
@@ -400,6 +405,27 @@ public final class AfkTimeManager {
         if (existing != null) {
             leaderboardCache.remove(existing);
         }
+    }
+
+    public static boolean resetPlayer(java.util.UUID playerId) {
+        if (playerId == null) return false;
+
+        totalAfkSeconds.remove(playerId);
+        dirtyPlayers.remove(playerId);
+        pendingSaves.remove(playerId);
+        removeFromLeaderboard(playerId);
+
+        if (Registry.get() != null && Registry.get().getStorageRepository() != null) {
+            try {
+                Registry.get().getStorageRepository().deletePlayer(playerId);
+                return true;
+            } catch (Exception e) {
+                if (Registry.get() != null) Registry.get().getLogger().warning("Failed to delete player AFK time: " + e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private record LeaderboardEntry(UUID playerId, long totalSeconds) {

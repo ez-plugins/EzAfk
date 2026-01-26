@@ -22,6 +22,7 @@ public class Registry {
     private FileConfiguration zonesConfig;
     private TaskManager taskManager;
     private Bootstrap bootstrap;
+    private com.gyvex.ezafk.repository.StorageRepository storageRepository;
     private final ArrayList<Listener> registeredListeners = new ArrayList<>();
 
     private Registry(EzAfk plugin) {
@@ -35,6 +36,13 @@ public class Registry {
     public static void init(EzAfk plugin) {
         if (instance != null) return;
         instance = new Registry(plugin);
+        // initialize storage after Registry is available
+        try {
+            instance.storageRepository = com.gyvex.ezafk.repository.StorageFactory.create();
+            if (instance.storageRepository != null) instance.storageRepository.init();
+        } catch (Exception e) {
+            instance.logger.warning("Failed to initialize storage repository: " + e.getMessage());
+        }
     }
 
     public static Registry get() {
@@ -60,6 +68,10 @@ public class Registry {
 
     public Bootstrap getBootstrap() {
         return bootstrap;
+    }
+
+    public com.gyvex.ezafk.repository.StorageRepository getStorageRepository() {
+        return storageRepository;
     }
 
     public void registerListener(Listener listener) {
