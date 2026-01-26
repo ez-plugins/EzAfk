@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.integration.placeholder.EzAfkPlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
@@ -16,7 +17,7 @@ public class PlaceholderApiIntegration extends Integration {
         Plugin placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
 
         if (placeholderApi == null || !placeholderApi.isEnabled()) {
-            EzAfk.getInstance().getLogger().log(Level.FINE, "PlaceholderAPI not detected. Skipping expansion registration.");
+            Registry.get().getLogger().log(Level.FINE, "PlaceholderAPI not detected. Skipping expansion registration.");
             return;
         }
 
@@ -24,9 +25,9 @@ public class PlaceholderApiIntegration extends Integration {
 
         if (expansion.register()) {
             isSetup = true;
-            EzAfk.getInstance().getLogger().log(Level.INFO, "Registered EzAfk placeholders with PlaceholderAPI.");
+            Registry.get().getLogger().log(Level.INFO, "Registered EzAfk placeholders with PlaceholderAPI.");
         } else {
-            EzAfk.getInstance().getLogger().log(Level.WARNING, "Failed to register EzAfk placeholders with PlaceholderAPI.");
+            Registry.get().getLogger().log(Level.WARNING, "Failed to register EzAfk placeholders with PlaceholderAPI.");
         }
     }
 

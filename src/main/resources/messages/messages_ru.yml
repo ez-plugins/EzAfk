@@ -9,6 +9,16 @@ afk:
   title:
     title: "&eAFK"
     subtitle: "&7Вы теперь AFK"
+  add:
+    selection-missing: "&cВы не выбрали регион WorldEdit - выберите регион или укажите координаты."
+    coords-required: "&cWorldEdit недоступен. Укажите координаты: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cНеверные координаты. Используйте числа."
+    pos1:
+      set: "&aПозиция 1 установлена. Используйте /afk zone pos2 для установки второй точки."
+    pos2:
+      set: "&aПозиция 2 установлена. Используйте /afk zone add <name> чтобы создать зону."
+    pos-cleared-self: "&aВаши сохранённые позиции были очищены."
+    pos-cleared-target: "&aСохранённые позиции очищены для %player%."
 command:
   usage: "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
   toggle:
@@ -80,3 +90,11 @@ afkzone:
       command: "&aВы получили награду в виде команды за пребывание AFK в %zone%."
       item: "&aВы получили %count%x %item% за пребывание AFK в %zone%."
       default: "&aВы получили награду за пребывание AFK в %zone%."
+    limit:
+      reached: "&cВы уже достигли %reward_limit% для %reward_name%, вернитесь через %time_remaining%."
+      cooldown: "&cВы уже достигли %reward_limit% для %reward_name%, вернитесь через %time_remaining%."
+
+  reset:
+    success: "&aСброшены счётчики наград для %player%."
+    zone:
+      success: "&aСброшены счётчики наград для %player% в зоне %zone%."

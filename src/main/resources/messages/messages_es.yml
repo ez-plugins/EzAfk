@@ -78,3 +78,21 @@ afkzone:
       command: "&aHas recibido una recompensa por comando por permanecer AFK en %zone%."
       item: "&aHas recibido %count%x %item% por permanecer AFK en %zone%."
       default: "&aHas recibido una recompensa por permanecer AFK en %zone%."
+  add:
+    selection-missing: "&cNo se encontró una selección de WorldEdit: selecciona una región o proporciona coordenadas."
+    coords-required: "&cWorldEdit no está disponible. Proporciona coordenadas: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cCoordenadas inválidas. Usa números."
+    pos1:
+      set: "&aPosición 1 establecida. Usa /afk zone pos2 para establecer la segunda esquina."
+    pos2:
+      set: "&aPosición 2 establecida. Usa /afk zone add <name> para crear la zona."
+    pos-cleared-self: "&aTus posiciones guardadas han sido borradas."
+    pos-cleared-target: "&aPosiciones borradas para %player%."
+    limit:
+      reached: "&cYa has alcanzado %reward_limit% para %reward_name%, vuelve en %time_remaining%."
+      cooldown: "&cYa has alcanzado %reward_limit% para %reward_name%, vuelve en %time_remaining%."
+
+  reset:
+    success: "&aReiniciadas las cuentas de recompensa para %player%."
+    zone:
+      success: "&aReiniciadas las cuentas de recompensa para %player% en la zona %zone%."

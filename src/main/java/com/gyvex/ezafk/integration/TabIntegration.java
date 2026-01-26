@@ -16,6 +16,25 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+package com.gyvex.ezafk.integration;
+
+import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.state.AfkState;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.logging.Level;
+import me.neznamy.tab.api.TabAPI;
+import me.neznamy.tab.api.TabPlayer;
+import me.neznamy.tab.api.placeholder.PlaceholderManager;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class TabIntegration extends Integration {
     private static final int PLAYER_LIST_NAME_LIMIT = 80;
@@ -39,12 +58,11 @@ public class TabIntegration extends Integration {
     }
 
     public void reloadFromConfig() {
-        this.tabPrefixEnabled = EzAfk.getInstance().getConfig().getBoolean("afk.tab-prefix.enabled");
+        this.tabPrefixEnabled = Registry.get().getPlugin().getConfig().getBoolean("afk.tab-prefix.enabled");
 
-        this.prefixTemplate = EzAfk.getInstance().getConfig().getString("afk.tab-prefix.prefix", "");
-        this.suffixTemplate = EzAfk.getInstance().getConfig().getString("afk.tab-prefix.suffix", "");
-        this.formatTemplate =
-                EzAfk.getInstance().getConfig().getString("afk.tab-prefix.format", "%prefix%%player%%suffix%");
+        this.prefixTemplate = Registry.get().getPlugin().getConfig().getString("afk.tab-prefix.prefix", "");
+        this.suffixTemplate = Registry.get().getPlugin().getConfig().getString("afk.tab-prefix.suffix", "");
+        this.formatTemplate = Registry.get().getPlugin().getConfig().getString("afk.tab-prefix.format", "%prefix%%player%%suffix%");
         this.integrationMode = resolveIntegrationMode();
         this.tabApiUnavailableLogged = false;
         this.tabPlaceholderUnavailableLogged = false;
@@ -151,11 +169,7 @@ public class TabIntegration extends Integration {
                 tabApiAdapter = null;
             }
             if (integrationMode == TabIntegrationMode.TAB && !tabApiUnavailableLogged) {
-                EzAfk.getInstance()
-                        .getLogger()
-                        .log(
-                                Level.WARNING,
-                                "TAB support requested but the plugin is not installed or disabled. Falling back to Bukkit player list.");
+                Registry.get().getLogger().log(Level.WARNING, "TAB support requested but the plugin is not installed or disabled. Falling back to Bukkit player list.");
                 tabApiUnavailableLogged = true;
             }
             return;
@@ -167,9 +181,7 @@ public class TabIntegration extends Integration {
                 tabApiAdapter = adapter;
                 tabApiUnavailableLogged = false;
             } else if (!tabApiUnavailableLogged) {
-                EzAfk.getInstance()
-                        .getLogger()
-                        .log(Level.WARNING, "TAB detected but API is unavailable. Falling back to Bukkit player list.");
+                Registry.get().getLogger().log(Level.WARNING, "TAB detected but API is unavailable. Falling back to Bukkit player list.");
                 tabApiUnavailableLogged = true;
             }
         }
@@ -177,20 +189,19 @@ public class TabIntegration extends Integration {
 
     private PlayerListNameAdapter createTabApiAdapter() {
         try {
-            Class<?> adapterClass =
-                    Class.forName("com.gyvex.ezafk.integration.TabApiPlayerListNameAdapter");
+            Class<?> adapterClass = Class.forName("com.gyvex.ezafk.integration.TabApiPlayerListNameAdapter");
             if (!PlayerListNameAdapter.class.isAssignableFrom(adapterClass)) {
                 return null;
             }
             return (PlayerListNameAdapter) adapterClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException | RuntimeException ex) {
             if (!tabApiUnavailableLogged) {
-                EzAfk.getInstance().getLogger().log(Level.FINE, "Failed to initialize TAB API adapter", ex);
+                Registry.get().getLogger().log(Level.FINE, "Failed to initialize TAB API adapter", ex);
             }
             return null;
         } catch (LinkageError ex) {
             if (!tabApiUnavailableLogged) {
-                EzAfk.getInstance().getLogger().log(Level.FINE, "Failed to initialize TAB API adapter", ex);
+                Registry.get().getLogger().log(Level.FINE, "Failed to initialize TAB API adapter", ex);
             }
             return null;
         }
@@ -285,9 +296,7 @@ public class TabIntegration extends Integration {
 
     private void handlePlaceholderRegistrationFailure(Throwable throwable) {
         if (!tabPlaceholderUnavailableLogged) {
-            EzAfk.getInstance()
-                    .getLogger()
-                    .log(Level.FINE, "Failed to register TAB AFK placeholder", throwable);
+            Registry.get().getLogger().log(Level.FINE, "Failed to register TAB AFK placeholder", throwable);
             tabPlaceholderUnavailableLogged = true;
         }
     }
@@ -300,19 +309,14 @@ public class TabIntegration extends Integration {
     }
 
     private boolean isIntegrationEnabled() {
-        return EzAfk.getInstance().config.getBoolean("integration.tab");
+        return Registry.get().getPlugin().getConfig().getBoolean("integration.tab");
     }
 
     private TabIntegrationMode resolveIntegrationMode() {
-        String rawValue = EzAfk.getInstance().getConfig().getString("afk.tab-prefix.mode", "auto");
+        String rawValue = Registry.get().getPlugin().getConfig().getString("afk.tab-prefix.mode", "auto");
         TabIntegrationMode resolved = TabIntegrationMode.fromConfig(rawValue);
         if (resolved == null) {
-            EzAfk.getInstance()
-                    .getLogger()
-                    .log(
-                            Level.WARNING,
-                            "Unknown afk.tab-prefix.mode value '{0}'. Falling back to AUTO.",
-                            rawValue);
+            Registry.get().getLogger().log(Level.WARNING, "Unknown afk.tab-prefix.mode value '{0}'. Falling back to AUTO.", rawValue);
             return TabIntegrationMode.AUTO;
         }
         return resolved;

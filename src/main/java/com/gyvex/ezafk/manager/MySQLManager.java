@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.*;
@@ -44,7 +45,7 @@ public class MySQLManager {
      * </p>
      */
     public static void setup() {
-        FileConfiguration mysqlConfig = EzAfk.getInstance().getMysqlConfig();
+        FileConfiguration mysqlConfig = Registry.get().getConfigManager().getMysqlConfig();
 
         enabled = mysqlConfig.getBoolean("enabled");
         if (!enabled) {

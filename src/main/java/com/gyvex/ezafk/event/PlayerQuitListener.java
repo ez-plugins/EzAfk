@@ -27,5 +27,7 @@ public class PlayerQuitListener implements Listener {
         AfkState.afkPlayers.remove(playerId);
         AfkState.forgetDisplayName(playerId);
         EconomyManager.onDisable(playerId);
+        // Clear any stored AFK zone pos1/pos2 for this player
+        com.gyvex.ezafk.zone.ZoneCache.clearPositions(playerId);
     }
 }

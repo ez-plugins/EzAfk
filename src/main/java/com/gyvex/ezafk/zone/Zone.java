@@ -14,8 +14,10 @@ public final class Zone {
     public final String rewardCommand; // for command type
     public final String rewardItemMaterial; // for item type
     public final int rewardItemAmount;
+    public final int rewardLimit; // per-player limit
+    public final long rewardLimitCooldownSeconds;
 
-    public Zone(String name, String world, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, boolean rewardEnabled, long rewardIntervalSeconds, int rewardMaxStack, double rewardAmount, String rewardType, String rewardCommand, String rewardItemMaterial, int rewardItemAmount) {
+    public Zone(String name, String world, double minX, double minY, double minZ, double maxX, double maxY, double maxZ, boolean rewardEnabled, long rewardIntervalSeconds, int rewardMaxStack, double rewardAmount, String rewardType, String rewardCommand, String rewardItemMaterial, int rewardItemAmount, int rewardLimit, long rewardLimitCooldownSeconds) {
         this.name = name == null ? "" : name;
         this.world = world;
         this.minX = minX;
@@ -32,6 +34,8 @@ public final class Zone {
         this.rewardCommand = rewardCommand;
         this.rewardItemMaterial = rewardItemMaterial;
         this.rewardItemAmount = Math.max(1, rewardItemAmount);
+        this.rewardLimit = rewardLimit;
+        this.rewardLimitCooldownSeconds = rewardLimitCooldownSeconds;
     }
 
     public boolean contains(Player player) {

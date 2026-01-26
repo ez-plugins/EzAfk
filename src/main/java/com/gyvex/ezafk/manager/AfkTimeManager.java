@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -138,7 +139,7 @@ public final class AfkTimeManager {
             return;
         }
 
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
         if (plugin == null) {
             return;
         }
@@ -147,7 +148,7 @@ public final class AfkTimeManager {
     }
 
     public static void shutdown() {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
         stopFlushTask();
         if (plugin == null) {
             return;

@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.state;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
@@ -101,7 +102,7 @@ public class AfkState {
                 player.sendMessage(message);
             }
 
-            boolean broadcastEnabled = plugin.config.getBoolean("afk.broadcast.enabled");
+            boolean broadcastEnabled = plugin.getConfig().getBoolean("afk.broadcast.enabled");
             String broadcastMessage = getStatusMessage(
                     "afk.broadcast",
                     "&cPlayer&a %player% &cis now AFK",
@@ -115,7 +116,7 @@ public class AfkState {
                 }
             }
 
-            boolean titleEnabled = plugin.config.getBoolean("afk.title.enabled");
+            boolean titleEnabled = plugin.getConfig().getBoolean("afk.title.enabled");
 
             if (titleEnabled) {
                 String title = MessageManager.getMessage("titles.afk.title", "&eAFK");
@@ -132,11 +133,11 @@ public class AfkState {
                 CompatibilityUtil.sendTitle(player, title, subtitle, 10, 70, 20);
             }
 
-            if (EzAfk.getInstance().config.getBoolean("afk.animation.enabled")) {
+            if (Registry.get().getPlugin().getConfig().getBoolean("afk.animation.enabled")) {
                 StateAnimator.playAfkEnableAnimation(player);
             }
 
-            if (plugin.config.getBoolean("afk.hide-screen.enabled")) {
+            if (plugin.getConfig().getBoolean("afk.hide-screen.enabled")) {
                 player.addPotionEffect(new PotionEffect(
                         PotionEffectType.BLINDNESS,
                         Integer.MAX_VALUE,
@@ -183,7 +184,7 @@ public class AfkState {
 
         restoreDisplayName(playerId);
 
-        if (mode == AfkActivationMode.STANDARD && plugin.config.getBoolean("afk.hide-screen.enabled")) {
+        if (mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("afk.hide-screen.enabled")) {
             player.removePotionEffect(PotionEffectType.BLINDNESS);
         }
 
@@ -196,7 +197,7 @@ public class AfkState {
             MySQLManager.removeAfkPlayerAsync(playerId);
         }
 
-        if (mode == AfkActivationMode.STANDARD && EzAfk.getInstance().config.getBoolean("unafk.animation.enabled")) {
+        if (mode == AfkActivationMode.STANDARD && Registry.get().getPlugin().getConfig().getBoolean("unafk.animation.enabled")) {
             StateAnimator.playAfkDisableAnimation(player);
         }
 
@@ -204,7 +205,7 @@ public class AfkState {
             MessageManager.sendMessage(player, "afk.no-longer", "&aYou are no longer AFK!");
         }
 
-        if (mode == AfkActivationMode.STANDARD && plugin.config.getBoolean("unafk.broadcast.enabled")) {
+        if (mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("unafk.broadcast.enabled")) {
             String message = getStatusMessage(
                     "unafk.broadcast",
                     "&aPlayer&7 %player% &ais no longer AFK",
@@ -219,7 +220,7 @@ public class AfkState {
             }
         }
 
-        boolean titleEnabled = mode == AfkActivationMode.STANDARD && plugin.config.getBoolean("unafk.title.enabled");
+        boolean titleEnabled = mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("unafk.title.enabled");
         if (titleEnabled) {
             String title = MessageManager.getMessage("titles.unafk.title", "&aWelcome back!");
             String subtitle = MessageManager.getMessage("titles.unafk.subtitle", "&7You are no longer AFK");

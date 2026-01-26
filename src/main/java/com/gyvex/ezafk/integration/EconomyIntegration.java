@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -19,7 +20,7 @@ public class EconomyIntegration extends Integration {
     public void load() {
         this.isSetup = false;
 
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
 
         clearEconomy(plugin, "Economy integration cleared before Vault detection.");
 
@@ -61,7 +62,7 @@ public class EconomyIntegration extends Integration {
 
     @Override
     public void unload() {
-        EzAfk plugin = EzAfk.getInstance();
+        EzAfk plugin = Registry.get().getPlugin();
         clearEconomy(plugin, "Economy integration cleared during unload.");
         this.isSetup = false;
     }

@@ -35,8 +35,8 @@ public class MoveListener implements Listener {
         Player player = event.getPlayer();
         UUID playerId = player.getUniqueId();
 
-        boolean antiVehicle = this.plugin.config.getBoolean("afk.anti.infinite-vehicle");
-        boolean flagOnly = this.plugin.config.getBoolean("afk.anti.flag-only");
+        boolean antiVehicle = this.plugin.getConfig().getBoolean("afk.anti.infinite-vehicle");
+        boolean flagOnly = this.plugin.getConfig().getBoolean("afk.anti.flag-only");
 
         if (antiVehicle && player.isInsideVehicle()) {
             if (flagOnly) {
@@ -56,7 +56,7 @@ public class MoveListener implements Listener {
             return;
         }
 
-        boolean antiInfiniteWaterFlow = this.plugin.config.getBoolean("afk.anti.infinite-waterflow");
+        boolean antiInfiniteWaterFlow = this.plugin.getConfig().getBoolean("afk.anti.infinite-waterflow");
 
         if (antiInfiniteWaterFlow && isInInfiniteWaterFlow(player)) {
             if (flagOnly) {
@@ -73,7 +73,7 @@ public class MoveListener implements Listener {
             return;
         }
 
-        boolean antiBubbleColumn = this.plugin.config.getBoolean("afk.anti.bubble-column");
+        boolean antiBubbleColumn = this.plugin.getConfig().getBoolean("afk.anti.bubble-column");
 
         if (antiBubbleColumn && isInBubbleColumn(player)) {
             if (flagOnly) {

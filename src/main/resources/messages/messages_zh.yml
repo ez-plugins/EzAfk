@@ -80,3 +80,22 @@ afkzone:
       command: "&a你因在 %zone% 挂机而获得了一次命令奖励。"
       item: "&a你因在 %zone% 挂机而获得了 %count%x %item%。"
       default: "&a你因在 %zone% 挂机而获得了一项奖励。"
+    limit:
+      reached: "&c你已达到 %reward_limit% 次 %reward_name%，请在 %time_remaining% 后再来。"
+      cooldown: "&c你已达到 %reward_limit% 次 %reward_name%，请在 %time_remaining% 后再来。"
+
+  reset:
+    success: "&a已为 %player% 重置奖励计数。"
+    zone:
+      success: "&a已为 %player% 在区域 %zone% 重置奖励计数。"
+
+  add:
+    selection-missing: "&c未找到 WorldEdit 选择 - 请选择一个区域或提供坐标。"
+    coords-required: "&c未检测到 WorldEdit。请提供坐标：/afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&c提供的坐标无效。请使用数字。"
+    pos1:
+      set: "&a位置1 已设置。使用 /afk zone pos2 来设置第二个角。"
+    pos2:
+      set: "&a位置2 已设置。使用 /afk zone add <name> 来创建区域。"
+    pos-cleared-self: "&a已清除你保存的位置。"
+    pos-cleared-target: "&a已为 %player% 清除保存的位置。"

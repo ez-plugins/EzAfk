@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.command;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.gui.AfkPlayerActionsGUI;
 import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.TabIntegration;
@@ -30,9 +31,13 @@ import java.util.UUID;
 public class EzAfkCommand implements CommandExecutor {
     private static final int TOP_LEADERBOARD_SIZE = 10;
     private final EzAfk plugin;
+    private final AfkZoneCommand afkZoneCommand;
+
+    // Zone position storage and helpers moved to AfkZoneCommand
 
     public EzAfkCommand(EzAfk plugin) {
         this.plugin = plugin;
+        this.afkZoneCommand = new AfkZoneCommand(plugin);
     }
 
     @Override
@@ -45,6 +50,15 @@ public class EzAfkCommand implements CommandExecutor {
 
         if ("afktop".equals(lowerLabel)) {
             handleTop(sender);
+            return true;
+        }
+
+        if ("afkzone".equals(lowerLabel)) {
+            // /afkzone add|list|remove|pos1|pos2|reset ... -> map to /afk zone <action> ...
+            String[] newArgs = new String[args.length + 1];
+            newArgs[0] = "zone";
+            System.arraycopy(args, 0, newArgs, 1, args.length);
+            afkZoneCommand.handleAfkZone(sender, newArgs);
             return true;
         }
 
@@ -88,162 +102,11 @@ public class EzAfkCommand implements CommandExecutor {
                 handleTop(sender);
                 return true;
             case "zone":
-                handleAfkZone(sender, args);
+                afkZoneCommand.handleAfkZone(sender, args);
                 return true;
             default:
                 MessageManager.sendMessage(sender, "command.usage", getUsageFallback());
                 return true;
-        }
-    }
-
-    private void handleAfkZone(CommandSender sender, String[] args) {
-        if (args.length < 2) {
-            MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone <list|add|remove> [name]");
-            return;
-        }
-
-        String action = args[1].toLowerCase(Locale.ROOT);
-
-        switch (action) {
-            case "list":
-                if (!CommandUtil.checkPermission(sender, "ezafk.zone.list", "command.usage", "&cYou don't have permission.")) return;
-                List<?> rawList = plugin.getZonesConfig().getMapList("regions");
-                if (rawList == null || rawList.isEmpty()) {
-                    MessageManager.sendMessage(sender, "afkzone.list.empty", "&eNo AFK zones configured.");
-                    return;
-                }
-                MessageManager.sendMessage(sender, "afkzone.list.header", "&6AFK Zones:");
-                for (Object o : rawList) {
-                    if (!(o instanceof java.util.Map)) continue;
-                    @SuppressWarnings("unchecked")
-                    java.util.Map<Object, Object> map = (java.util.Map<Object, Object>) o;
-                    String name = String.valueOf(map.getOrDefault("name", "<unnamed>"));
-                    String world = String.valueOf(map.getOrDefault("world", ""));
-                    String coords = String.format("%s,%s,%s - %s,%s,%s",
-                            map.getOrDefault("x1", ""), map.getOrDefault("y1", ""), map.getOrDefault("z1", ""),
-                            map.getOrDefault("x2", ""), map.getOrDefault("y2", ""), map.getOrDefault("z2", "")
-                    );
-                    MessageManager.sendMessage(sender, "afkzone.list.entry", "&e%name% &7(%world%): &f%coords%", Map.of("name", name, "world", world, "coords", coords));
-                }
-                return;
-            case "add":
-                if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
-                if (!(sender instanceof Player)) {
-                    MessageManager.sendMessage(sender, "afkzone.add.player-only", "&cOnly players can create AFK zones.");
-                    return;
-                }
-                if (args.length < 3) {
-                    MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone add <name>");
-                    return;
-                }
-                String name = args[2];
-                Player p = (Player) sender;
-                java.util.Map<String, Object> region = new java.util.HashMap<>();
-                region.put("name", name);
-
-                // Attempt to use WorldEdit region selection if available
-                org.bukkit.Location minLoc = null;
-                org.bukkit.Location maxLoc = null;
-                org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
-                if (wePlugin != null) {
-                    try {
-                        Class<?> weClass = Class.forName("com.sk89q.worldedit.bukkit.WorldEditPlugin");
-                        if (weClass.isInstance(wePlugin)) {
-                            java.lang.reflect.Method getSelection = weClass.getMethod("getSelection", org.bukkit.entity.Player.class);
-                            Object selection = getSelection.invoke(wePlugin, p);
-                            if (selection != null) {
-                                Class<?> selClass = selection.getClass();
-                                java.lang.reflect.Method getMinimumPoint = selClass.getMethod("getMinimumPoint");
-                                java.lang.reflect.Method getMaximumPoint = selClass.getMethod("getMaximumPoint");
-                                Object minObj = getMinimumPoint.invoke(selection);
-                                Object maxObj = getMaximumPoint.invoke(selection);
-                                if (minObj instanceof org.bukkit.Location && maxObj instanceof org.bukkit.Location) {
-                                    minLoc = (org.bukkit.Location) minObj;
-                                    maxLoc = (org.bukkit.Location) maxObj;
-                                }
-                            }
-                        }
-                    } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException ignored) {
-                        // Fall back to single-block region
-                    }
-                }
-
-                if (minLoc == null || maxLoc == null) {
-                    // Fallback: single block at player's location
-                    minLoc = p.getLocation();
-                    maxLoc = p.getLocation();
-                }
-
-                region.put("world", minLoc.getWorld().getName());
-                region.put("x1", minLoc.getX());
-                region.put("y1", minLoc.getY());
-                region.put("z1", minLoc.getZ());
-                region.put("x2", maxLoc.getX());
-                region.put("y2", maxLoc.getY());
-                region.put("z2", maxLoc.getZ());
-
-                List<?> rawRegions = plugin.getZonesConfig().getMapList("regions");
-                java.util.List<java.util.Map<String, Object>> regions;
-                if (rawRegions == null) {
-                    regions = new java.util.ArrayList<>();
-                } else {
-                    regions = new java.util.ArrayList<>();
-                    for (Object o : rawRegions) {
-                        if (!(o instanceof java.util.Map)) continue;
-                        @SuppressWarnings("unchecked")
-                        java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
-                        regions.add(m);
-                    }
-                }
-                regions.add(region);
-                plugin.getZonesConfig().set("regions", regions);
-                plugin.getZonesConfig().set("enabled", true);
-                plugin.saveZonesConfig();
-                plugin.reloadZonesConfig();
-                com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
-                MessageManager.sendMessage(sender, "afkzone.add.success", "&aAFK zone %name% added at your location.", Map.of("name", name));
-                return;
-            case "remove":
-                if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
-                if (args.length < 3) {
-                    MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone remove <name>");
-                    return;
-                }
-                String removeName = args[2];
-                List<?> rawCurrent = plugin.getZonesConfig().getMapList("regions");
-                java.util.List<java.util.Map<String, Object>> current = new java.util.ArrayList<>();
-                if (rawCurrent != null) {
-                    for (Object o : rawCurrent) {
-                        if (!(o instanceof java.util.Map)) continue;
-                        @SuppressWarnings("unchecked")
-                        java.util.Map<String, Object> m = (java.util.Map<String, Object>) o;
-                        current.add(m);
-                    }
-                }
-                boolean removed = false;
-                java.util.Iterator<java.util.Map<String, Object>> it = current.iterator();
-                while (it.hasNext()) {
-                    java.util.Map<String, Object> m = it.next();
-                    Object n = m.get("name");
-                    if (n != null && removeName.equalsIgnoreCase(n.toString())) {
-                        it.remove();
-                        removed = true;
-                        break;
-                    }
-                }
-                if (!removed) {
-                    MessageManager.sendMessage(sender, "afkzone.remove.notfound", "&cAFK zone '%name%' not found.", Map.of("name", removeName));
-                    return;
-                }
-                plugin.getZonesConfig().set("regions", current);
-                plugin.saveZonesConfig();
-                plugin.reloadZonesConfig();
-                com.gyvex.ezafk.manager.AfkZoneManager.load(plugin);
-                MessageManager.sendMessage(sender, "afkzone.remove.success", "&aAFK zone '%name%' removed.", Map.of("name", removeName));
-                return;
-            default:
-                MessageManager.sendMessage(sender, "command.usage", "&cUsage: /afkzone <list|add|remove> [name]");
-                return;
         }
     }
 
@@ -253,7 +116,7 @@ public class EzAfkCommand implements CommandExecutor {
             return;
         }
 
-        plugin.loadConfig();
+        Registry.get().getConfigManager().loadConfig();
         IntegrationManager.unload();
         IntegrationManager.load();
         TabIntegration tabIntegration = (TabIntegration) IntegrationManager.getIntegration("tab");

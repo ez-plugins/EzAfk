@@ -49,6 +49,8 @@ public final class AfkZoneManager {
             String rewardCommand = null;
             String rewardItemMaterial = null;
             int rewardItemAmount = 1;
+            int rewardLimit = 0;
+            long rewardLimitCooldown = 0L;
 
             if (map.containsKey("reward") && map.get("reward") instanceof Map) {
                 @SuppressWarnings("unchecked")
@@ -73,12 +75,17 @@ public final class AfkZoneManager {
                     if (amt instanceof Number) rewardItemAmount = ((Number) amt).intValue();
                     else try { rewardItemAmount = Integer.parseInt(String.valueOf(amt)); } catch (Exception ignored) {}
                 }
+                Object limitObj = rewardMap.getOrDefault("limit", 0);
+                if (limitObj instanceof Number) rewardLimit = ((Number) limitObj).intValue();
+                else try { rewardLimit = Integer.parseInt(String.valueOf(limitObj)); } catch (Exception ignored) {}
+
+                rewardLimitCooldown = (long) toDouble(rewardMap.getOrDefault("limit-cooldown-seconds", 0));
             }
 
             World world = Bukkit.getWorld(worldName);
             if (world == null) continue;
 
-            zones.add(new Zone(name, world.getName(), Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2), Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2), rewardEnabled, rewardInterval, rewardMaxStack, rewardAmount, rewardType, rewardCommand, rewardItemMaterial, rewardItemAmount));
+            zones.add(new Zone(name, world.getName(), Math.min(x1, x2), Math.min(y1, y2), Math.min(z1, z2), Math.max(x1, x2), Math.max(y1, y2), Math.max(z1, z2), rewardEnabled, rewardInterval, rewardMaxStack, rewardAmount, rewardType, rewardCommand, rewardItemMaterial, rewardItemAmount, rewardLimit, rewardLimitCooldown));
         }
     }
 

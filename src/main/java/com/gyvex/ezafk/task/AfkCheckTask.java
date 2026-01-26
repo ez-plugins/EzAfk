@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.task;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.registry.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.manager.AfkZoneManager;
@@ -25,18 +26,18 @@ public class AfkCheckTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        EzAfk plugin = EzAfk.getInstance();
-        long kickTimeoutMs = plugin.config.getLong("kick.timeout") * 1000;
-        long afkTimeoutMs = plugin.config.getLong("afk.timeout") * 1000;
-        boolean kickEnabled = plugin.config.getBoolean("kick.enabled");
-        boolean kickEnabledWhenFull = plugin.config.getBoolean("kick.enabledWhenFull");
+        EzAfk plugin = Registry.get().getPlugin();
+        long kickTimeoutMs = plugin.getConfig().getLong("kick.timeout") * 1000;
+        long afkTimeoutMs = plugin.getConfig().getLong("afk.timeout") * 1000;
+        boolean kickEnabled = plugin.getConfig().getBoolean("kick.enabled");
+        boolean kickEnabledWhenFull = plugin.getConfig().getBoolean("kick.enabledWhenFull");
         long currentTime = System.currentTimeMillis();
 
         // Warning configuration
-        boolean warningsEnabled = plugin.config.getBoolean("kick.warnings.enabled", true);
-        List<Integer> warningIntervals = plugin.config.getIntegerList("kick.warnings.intervals");
-        String warningMode = plugin.config.getString("kick.warnings.mode", "both");
-        boolean warningDebug = plugin.config.getBoolean("kick.warnings.debug", false);
+        boolean warningsEnabled = plugin.getConfig().getBoolean("kick.warnings.enabled", true);
+        List<Integer> warningIntervals = plugin.getConfig().getIntegerList("kick.warnings.intervals");
+        String warningMode = plugin.getConfig().getString("kick.warnings.mode", "both");
+        boolean warningDebug = plugin.getConfig().getBoolean("kick.warnings.debug", false);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             UUID playerId = player.getUniqueId();
@@ -70,8 +71,8 @@ public class AfkCheckTask extends BukkitRunnable {
     }
 
     private boolean shouldBypassAfkCheck(Player player, UUID playerId) {
-        EzAfk plugin = EzAfk.getInstance();
-        return plugin.config.getBoolean("afk.bypass.enabled")
+        EzAfk plugin = Registry.get().getPlugin();
+        return plugin.getConfig().getBoolean("afk.bypass.enabled")
                 && (player.hasPermission("ezafk.bypass") || AfkState.isBypassed(playerId));
     }
 
@@ -83,15 +84,15 @@ public class AfkCheckTask extends BukkitRunnable {
     private void handleWarnings(Player player, UUID playerId, long lastActive, long currentTime,
                                 long afkTimeoutMs, long kickTimeoutMs, boolean warningsEnabled,
                                 List<Integer> warningIntervals, String warningMode, boolean warningDebug) {
-        EzAfk plugin = EzAfk.getInstance();
-        boolean kickEnabled = plugin.config.getBoolean("kick.enabled");
+        EzAfk plugin = Registry.get().getPlugin();
+        boolean kickEnabled = plugin.getConfig().getBoolean("kick.enabled");
         if (!kickEnabled) {
             return;
         }
         long timeAfk = currentTime - lastActive - afkTimeoutMs;
         if (!warningsEnabled || !AfkState.isAfk(playerId) || timeAfk < 0 || timeAfk >= kickTimeoutMs) {
             if (warningDebug) {
-                EzAfk.getInstance().getLogger().info("[EzAfk][Debug] Skipping warnings: enabled=" + warningsEnabled + ", isAfk=" + AfkState.isAfk(playerId) + ", timeAfk=" + timeAfk + ", kickTimeoutMs=" + kickTimeoutMs);
+                Registry.get().getLogger().info("[EzAfk][Debug] Skipping warnings: enabled=" + warningsEnabled + ", isAfk=" + AfkState.isAfk(playerId) + ", timeAfk=" + timeAfk + ", kickTimeoutMs=" + kickTimeoutMs);
             }
             return;
         }
@@ -99,12 +100,12 @@ public class AfkCheckTask extends BukkitRunnable {
         long secondsUntilKick = (kickTimeoutMs - timeAfk) / 1000L;
         Set<Integer> sent = warnedPlayers.computeIfAbsent(playerId, k -> new HashSet<>());
         if (warningDebug) {
-            EzAfk.getInstance().getLogger().info("[EzAfk][Debug] Player " + player.getName() + " secondsUntilKick=" + secondsUntilKick + ", warningIntervals=" + warningIntervals + ", sent=" + sent);
+            Registry.get().getLogger().info("[EzAfk][Debug] Player " + player.getName() + " secondsUntilKick=" + secondsUntilKick + ", warningIntervals=" + warningIntervals + ", sent=" + sent);
         }
         for (int interval : warningIntervals) {
             if (secondsUntilKick == interval && !sent.contains(interval)) {
                 if (warningDebug) {
-                    EzAfk.getInstance().getLogger().info("[EzAfk][Debug] Sending warning to " + player.getName() + " for interval " + interval + "s");
+                    Registry.get().getLogger().info("[EzAfk][Debug] Sending warning to " + player.getName() + " for interval " + interval + "s");
                 }
                 sendWarning(player, interval, warningMode);
                 sent.add(interval);
@@ -159,7 +160,7 @@ public class AfkCheckTask extends BukkitRunnable {
         long timeoutSeconds = afkTimeoutMs / 1000L;
         String detail = "Inactive for " + DurationFormatter.formatDuration(inactivitySeconds)
                 + " (threshold " + DurationFormatter.formatDuration(timeoutSeconds) + ")";
-        AfkState.toggle(EzAfk.getInstance(), player, false, AfkReason.INACTIVITY, detail);
+        AfkState.toggle(Registry.get().getPlugin(), player, false, AfkReason.INACTIVITY, detail);
         warnedPlayers.remove(playerId); // Reset warnings if player returns from AFK
     }
 }
