@@ -295,7 +295,7 @@ public final class AfkTimeManager {
             return;
         }
 
-        long intervalSeconds = plugin.getConfig().getLong("afk.storage.flush-interval-seconds", DEFAULT_FLUSH_INTERVAL_SECONDS);
+        long intervalSeconds = plugin.getConfig().getLong("storage.flush-interval-seconds", DEFAULT_FLUSH_INTERVAL_SECONDS);
         if (intervalSeconds <= 0L) {
             intervalSeconds = DEFAULT_FLUSH_INTERVAL_SECONDS;
         }

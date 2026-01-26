@@ -1,6 +1,15 @@
 # Config for EzAfk 2.0.0
 # GUI settings have moved to gui.yml.
 # MySQL settings have moved to mysql.yml.
+# MySQL settings have moved to mysql.yml.
+
+# Storage backend selection for AFK persistence. Valid values: yaml, sqlite, mysql
+storage:
+  type: yaml
+  # Interval in seconds between asynchronous flushes of AFK time data to disk.
+  # Lower values write more frequently while higher values reduce disk activity.
+  flush-interval-seconds: 30
+
 messages:
   # Default language for the generated messages file. Supported values: en, es, nl, ru, zh
   # Language files are located in the messages/ directory.
@@ -26,10 +35,7 @@ afk:
     enabled: false
   animation:
     enabled: true
-  storage:
-    # Interval in seconds between asynchronous flushes of AFK time data to disk.
-    # Lower values write more frequently while higher values reduce disk activity.
-    flush-interval-seconds: 30
+  # per-AFK settings
   # Storage and other settings
   # Prevent players from bypassing AFK
   anti:
