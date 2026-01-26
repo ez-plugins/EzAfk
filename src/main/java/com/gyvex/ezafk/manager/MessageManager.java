@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

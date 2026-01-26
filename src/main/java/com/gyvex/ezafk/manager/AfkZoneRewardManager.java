@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.integration.Integration;

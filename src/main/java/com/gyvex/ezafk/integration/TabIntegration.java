@@ -19,7 +19,7 @@ import org.bukkit.plugin.Plugin;
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import java.util.HashMap;
 import java.util.HashSet;

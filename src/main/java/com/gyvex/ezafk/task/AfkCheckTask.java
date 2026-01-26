@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.task;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.manager.AfkZoneManager;
