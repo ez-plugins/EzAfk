@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -20,7 +21,7 @@ public final class AfkZoneManager {
         zones.clear();
         if (plugin == null) return;
 
-        FileConfiguration zonesConfig = plugin.getZonesConfig();
+        FileConfiguration zonesConfig = Registry.get().getZonesConfig();
         if (zonesConfig == null) return;
 
         if (!zonesConfig.getBoolean("enabled", false)) return;

@@ -4,6 +4,7 @@ package com.gyvex.ezafk.integration;
 import java.io.InputStream;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 
 import de.maxhenkel.voicechat.api.VoicechatConnection;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
@@ -27,18 +28,18 @@ public class SimpleVoiceChatIntegration {
      * This is a stub. You must implement the actual call to Simple Voice Chat's API.
      */
     public void playAfkSound(Player player) {
-        if (!plugin.isAfkSoundEnabled()) return;
-        String soundFile = plugin.getAfkSoundFile();
-        java.io.File mp3File = new java.io.File(plugin.getDataFolder(), soundFile); // plugins/EzAfk/mp3/ezafk-sound.mp3
+        if (!Registry.get().getConfigManager().isAfkSoundEnabled()) return;
+        String soundFile = Registry.get().getConfigManager().getAfkSoundFile();
+        java.io.File mp3File = new java.io.File(Registry.get().getPlugin().getDataFolder(), soundFile); // plugins/EzAfk/mp3/ezafk-sound.mp3
         if (!mp3File.exists()) {
-            plugin.getLogger().warning("AFK sound file not found: " + mp3File.getAbsolutePath());
+            Registry.get().getLogger().warning("AFK sound file not found: " + mp3File.getAbsolutePath());
             return;
         }
         java.io.InputStream mp3Stream;
         try {
             mp3Stream = new java.io.FileInputStream(mp3File);
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to open AFK sound file: " + e.getMessage());
+            Registry.get().getLogger().warning("Failed to open AFK sound file: " + e.getMessage());
             return;
         }
 
@@ -55,7 +56,7 @@ public class SimpleVoiceChatIntegration {
         try {
             audio = decodeMp3ToPcm(mp3Stream);
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to decode AFK sound: " + e.getMessage());
+            Registry.get().getLogger().warning("Failed to decode AFK sound: " + e.getMessage());
             return;
         }
         if (audio == null || audio.length == 0) return;

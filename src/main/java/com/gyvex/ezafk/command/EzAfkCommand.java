@@ -2,8 +2,8 @@ package com.gyvex.ezafk.command;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
-import com.gyvex.ezafk.gui.AfkPlayerActionsGUI;
-import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI;
+import com.gyvex.ezafk.listener.AfkPlayerActionsGUI;
+import com.gyvex.ezafk.listener.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
