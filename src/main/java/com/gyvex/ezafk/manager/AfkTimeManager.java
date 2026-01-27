@@ -40,6 +40,7 @@ public final class AfkTimeManager {
     private static BukkitTask flushTask;
     private static long flushIntervalTicks = 20L * 30L;
     private static final long DEFAULT_FLUSH_INTERVAL_SECONDS = 30L;
+    private static java.io.File timesDirectory = null;
     private AfkTimeManager() {
     }
 

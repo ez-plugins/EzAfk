@@ -171,7 +171,7 @@ public class TabIntegration extends Integration {
 
     private PlayerListNameAdapter createTabApiAdapter() {
         try {
-            Class<?> adapterClass = Class.forName("com.gyvex.ezafk.integration.TabApiPlayerListNameAdapter");
+            Class<?> adapterClass = Class.forName("com.gyvex.ezafk.integration.tab.TabApiPlayerListNameAdapter");
             if (!PlayerListNameAdapter.class.isAssignableFrom(adapterClass)) {
                 return null;
             }

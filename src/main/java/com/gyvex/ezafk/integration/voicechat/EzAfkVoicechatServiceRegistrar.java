@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.integration;
+package com.gyvex.ezafk.integration.voicechat;
 
 import de.maxhenkel.voicechat.api.BukkitVoicechatService;
 import org.bukkit.plugin.java.JavaPlugin;

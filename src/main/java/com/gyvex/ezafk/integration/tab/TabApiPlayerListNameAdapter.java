@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.integration;
+package com.gyvex.ezafk.integration.tab;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-class TabApiPlayerListNameAdapter implements PlayerListNameAdapter {
+class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.PlayerListNameAdapter {
     private enum ApplyValueType {
         STRING,
         KYORI_COMPONENT,

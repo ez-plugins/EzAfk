@@ -69,8 +69,20 @@ public class WorldGuardIntegration extends Integration {
                             e
                     );
                 }
+            } catch (IllegalStateException e) {
+                // WorldGuard's flag registry is locked (typically after WorldGuard initialization).
+                // Try to reuse an existing flag if present; otherwise skip registration quietly.
+                Flag<?> existing = registry.get(AFK_BYPASS.getName());
+
+                if (existing instanceof StateFlag) {
+                    AFK_BYPASS = (StateFlag) existing;
+                    plugin.getLogger().info("Using existing AFK BYPASS flag from WorldGuard (registry locked)");
+                    this.isSetup = true;
+                } else {
+                    plugin.getLogger().warning("WorldGuard flag registry is locked; cannot register AFK BYPASS flag now. Skipping WorldGuard flag registration.");
+                }
             }
-        } catch (NoClassDefFoundError | IllegalStateException ex) {
+        } catch (NoClassDefFoundError ex) {
             plugin.getLogger().log(
                     Level.WARNING,
                     "WorldGuard API not available. Skipping WorldGuard integration setup.",

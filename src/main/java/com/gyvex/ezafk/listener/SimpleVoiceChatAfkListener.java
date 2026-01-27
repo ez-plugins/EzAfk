@@ -9,10 +9,10 @@ import org.bukkit.event.Listener;
  * Listens for AFK status changes and triggers Simple Voice Chat sound playback.
  */
 public class SimpleVoiceChatAfkListener implements Listener {
-    private final com.gyvex.ezafk.integration.SimpleVoiceChatIntegration svcIntegration;
+    private final com.gyvex.ezafk.integration.voicechat.SimpleVoiceChatIntegration svcIntegration;
 
     public SimpleVoiceChatAfkListener(EzAfk plugin) {
-        this.svcIntegration = new com.gyvex.ezafk.integration.SimpleVoiceChatIntegration(plugin);
+        this.svcIntegration = new com.gyvex.ezafk.integration.voicechat.SimpleVoiceChatIntegration(plugin);
     }
 
     @EventHandler
