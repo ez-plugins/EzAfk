@@ -4,6 +4,14 @@ import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
+import com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
+import com.sk89q.worldguard.protection.ApplicableRegionSet;
+import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.ProtectedRegion;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
@@ -77,8 +85,29 @@ public class AfkCheckTask extends BukkitRunnable {
     }
 
     private boolean shouldBypassWorldGuard(Player player) {
-        return IntegrationManager.hasIntegration("worldguard")
-                && WorldGuardIntegration.isInAfkBypassSection(player);
+        // Prefer direct check using the registered AFK BYPASS flag from AfkBypassFlag.
+        StateFlag flag = AfkBypassFlag.get();
+        if (flag == null) return false;
+
+        try {
+            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+            RegionManager regions = container.get(BukkitAdapter.adapt(player.getWorld()));
+
+            if (regions == null) return false;
+
+            ApplicableRegionSet set = regions.getApplicableRegions(BukkitAdapter.asBlockVector(player.getLocation()));
+
+            for (ProtectedRegion region : set) {
+                if (region.getFlags().containsKey(flag) && region.getFlag(flag) == StateFlag.State.ALLOW) {
+                    return true;
+                }
+            }
+        } catch (NoClassDefFoundError | Exception ignored) {
+            // WorldGuard not available or error while checking regions.
+            return false;
+        }
+
+        return false;
     }
 
     private void handleWarnings(Player player, UUID playerId, long lastActive, long currentTime,

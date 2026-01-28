@@ -18,7 +18,6 @@ import com.gyvex.ezafk.integration.VoiceChatIntegration;
 import com.gyvex.ezafk.integration.WorldEditIntegration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.manager.IntegrationManager;
-import com.gyvex.ezafk.manager.MySQLManager;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.listener.EconomyServiceListener;
@@ -80,7 +79,9 @@ public class Bootstrap {
         }
         IntegrationManager.load();
 
-        MySQLManager.setup();
+        String storageType = plugin.getConfig().getString("storage.type", "yaml").trim().toLowerCase();
+        plugin.getLogger().fine("Storage type selected: " + storageType);
+        // Storage repository is initialized during Registry.init(); on reload the command will refresh it.
         AfkTimeManager.load(plugin);
 
         economyServiceListener = new EconomyServiceListener();
@@ -167,34 +168,27 @@ public class Bootstrap {
         org.bukkit.plugin.Plugin worldGuardPlugin = plugin.getServer().getPluginManager().getPlugin("WorldGuard");
 
         if (worldGuardPlugin == null || !worldGuardPlugin.isEnabled()) {
-            plugin.getLogger().info("WorldGuard plugin not found. Skipping integration setup.");
-            return;
+            plugin.getLogger().info("WorldGuard plugin not found. Attempting class-based detection and flag registration.");
+            // Continue: even if the PluginManager does not report WorldGuard, try
+            // class-based detection and flag registration. This covers cases where
+            // classes are present on the classpath or WorldGuard is loaded differently.
         }
 
-        // Delegate detailed class detection and setup to the integration itself.
+        // Create and register the integration instance now, but defer calling
+        // its `load()` method until IntegrationManager.load() runs in onEnable().
+        // This prevents double-invocation of setup logic.
         try {
             WorldGuardIntegration integration = new WorldGuardIntegration();
-            integration.load();
-
-            if (integration.isSetup) {
-                integration.setupTags();
-                if (integration.isSetup) {
-                    IntegrationManager.addIntegration("worldguard", integration);
-                    plugin.getLogger().info("WorldGuard integration registered.");
-                } else {
-                    plugin.getLogger().info("WorldGuard integration setup skipped after tag registration failure.");
-                }
-            } else {
-                plugin.getLogger().info("WorldGuard classes not present. Skipping integration setup.");
-            }
+            IntegrationManager.addIntegration("worldguard", integration);
+            plugin.getLogger().info("WorldGuard integration registered.");
         } catch (NoClassDefFoundError ex) {
             plugin.getLogger().log(Level.WARNING, "Failed to initialize WorldGuard integration.", ex);
         }
     }
 
     private void maybeRegisterWorldEditIntegration() {
-        if (!plugin.getConfig().getBoolean("integration.worldedit")) {
-            plugin.getLogger().fine("WorldEdit integration disabled via config");
+        if (!plugin.getConfig().getBoolean("integration.worldedit", true)) {
+            plugin.getLogger().info("WorldEdit integration disabled via config");
             return;
         }
 

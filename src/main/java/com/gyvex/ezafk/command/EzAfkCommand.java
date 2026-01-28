@@ -8,7 +8,6 @@ import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
-import com.gyvex.ezafk.manager.MySQLManager;
 import com.gyvex.ezafk.state.AfkReason;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.AfkStatusDetails;
@@ -124,9 +123,10 @@ public class EzAfkCommand implements CommandExecutor {
             tabIntegration.reloadFromConfig();
             tabIntegration.update();
         }
-
-        MySQLManager.shutdown();
-        MySQLManager.setup();
+        // Reload storage repository according to new configuration
+        try {
+            Registry.get().reloadStorageRepository();
+        } catch (Exception ignored) {}
         AfkPlayerActionsGUI.reloadConfiguredActions();
         MessageManager.sendMessage(sender, "command.reload.success", "&aConfig reloaded.");
     }

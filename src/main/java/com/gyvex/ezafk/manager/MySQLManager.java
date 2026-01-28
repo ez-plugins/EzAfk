@@ -49,9 +49,8 @@ public class MySQLManager {
 
         enabled = mysqlConfig.getBoolean("enabled");
         if (!enabled) {
-            closeConnection();
-            shutdownExecutor();
-            LOGGER.info("MySQL is disabled in configuration.");
+            // MySQL is explicitly disabled in mysql.yml; do not attempt to initialize or close resources here.
+            // The bootstrap/reload flows decide whether to call setup() based on configured storage type.
             return;
         }
 

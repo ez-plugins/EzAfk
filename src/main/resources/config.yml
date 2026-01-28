@@ -118,6 +118,9 @@ kick:
 integration:
   # https://dev.bukkit.org/projects/worldguard
   # Automatically skipped when WorldGuard is not installed.
+  # Enable WorldEdit integration. When true, EzAfk will attempt to read
+  # WorldEdit selections when creating AFK zones.
+  worldedit: true
   worldguard: true
   # https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
   tab: true
@@ -135,6 +138,13 @@ integration:
   spigot:
     check-for-update: true
   voicechat: auto # Options: true, false, auto. 'auto' will detect if Simple Voice Chat is available
+  # Controls automatic WorldGuard flag registration for AFK BYPASS.
+  # Options:
+  #   auto   - Try to register the flag during EzAfk load. If the WorldGuard registry
+  #            is already locked, EzAfk will log concise guidance for admins.
+  #   manual - Do not attempt automatic registration; admin must register the flag manually
+  #            or adjust plugin load order. Use this if you prefer manual control.
+  flag-registration: auto
   # TAB integration
   # Requires: https://www.spigotmc.org/resources/tab-1-5-1-21.57806/
   tab-prefix:

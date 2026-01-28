@@ -1,6 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.bootstrap.Registry;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -10,24 +11,50 @@ public class WorldEditIntegration extends Integration {
 
     @Override
     public void load() {
-        // Prefer our integration helpers if they are available in the jar,
-        // otherwise fall back to checking for WorldEdit classes on the classpath.
-        String[] detectionOrder = new String[]{
-                "com.gyvex.ezafk.integration.worldedit.WorldEditHelper",
-                "com.gyvex.ezafk.integration.worldedit.LegacyWorldEditHelper",
-                "com.sk89q.worldedit.bukkit.WorldEditPlugin"
-        };
+        // Only mark the integration as setup if WorldEdit is actually present
+        // (either by plugin manager or by WorldEdit core classes on the classpath).
+        EzAfk plugin = Registry.get().getPlugin();
+        boolean worldEditPresent = false;
+        try {
+            // Check for WorldEdit core class
+            Class.forName("com.sk89q.worldedit.WorldEdit");
+            worldEditPresent = true;
+        } catch (ClassNotFoundException ignored) {
+        }
+        try {
+            // Also allow detection via plugin manager if available
+            if (plugin != null) {
+                org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
+                if (wePlugin != null && wePlugin.isEnabled()) worldEditPresent = true;
+            }
+        } catch (Exception ignored) {
+        }
 
-        for (String cand : detectionOrder) {
+        if (!worldEditPresent) {
+            this.isSetup = false;
+            cachedHelperClass = null;
+            return;
+        }
+
+        // WorldEdit is present; prefer our helper implementations if they exist.
+        String[] helpers = new String[]{
+                "com.gyvex.ezafk.integration.worldedit.WorldEditHelper",
+                "com.gyvex.ezafk.integration.worldedit.LegacyWorldEditHelper"
+        };
+        for (String cand : helpers) {
             try {
                 Class.forName(cand);
                 cachedHelperClass = cand;
+                this.isSetup = true;
                 return;
             } catch (ClassNotFoundException ignored) {
             }
         }
 
-        this.isSetup = false;
+        // If helpers aren't present for some reason, still mark setup true so
+        // the fallback reflection logic in this class can attempt to read
+        // selections directly.
+        this.isSetup = true;
     }
 
     @Override
@@ -46,9 +73,13 @@ public class WorldEditIntegration extends Integration {
         if (cachedHelperClass != null) {
             try {
                 Class<?> helper = Class.forName(cachedHelperClass);
+                plugin.getLogger().info("WorldEdit: trying cached helper " + cachedHelperClass);
                 java.lang.reflect.Method m = helper.getMethod("getSelectionLocations", EzAfk.class, Player.class);
                 Object out = m.invoke(null, plugin, p);
-                if (out instanceof Location[]) return (Location[]) out;
+                if (out instanceof Location[]) {
+                    plugin.getLogger().info("WorldEdit: cached helper returned selection");
+                    return (Location[]) out;
+                }
             } catch (Exception ex) {
                 try {
                     plugin.getLogger().fine("Cached worldedit helper failed: " + ex.getMessage());
@@ -68,18 +99,20 @@ public class WorldEditIntegration extends Integration {
         for (String cand : candidates) {
             try {
                 Class<?> helper = Class.forName(cand);
+                plugin.getLogger().info("WorldEdit: trying helper " + cand);
                 java.lang.reflect.Method m = helper.getMethod("getSelectionLocations", EzAfk.class, Player.class);
                 Object out = m.invoke(null, plugin, p);
                 if (out instanceof Location[]) {
                     // cache in-memory for faster future lookups
                     cachedHelperClass = cand;
+                    plugin.getLogger().info("WorldEdit: helper " + cand + " returned selection");
                     return (Location[]) out;
                 }
             } catch (ClassNotFoundException | NoSuchMethodException ignored) {
                 // try next candidate
             } catch (Exception ex) {
                 try {
-                    plugin.getLogger().fine("integration helper " + cand + " threw: " + ex.getMessage());
+                    plugin.getLogger().info("integration helper " + cand + " threw: " + ex.getMessage());
                 } catch (Exception ignored) {
                 }
             }
