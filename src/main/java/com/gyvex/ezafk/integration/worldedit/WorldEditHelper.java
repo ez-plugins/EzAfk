@@ -15,9 +15,7 @@ public class WorldEditHelper {
      */
     public static Location[] getSelectionLocations(EzAfk plugin, Player p) {
         try {
-            try {
-                plugin.getLogger().info("WorldEditHelper: attempting selection for " + p.getName());
-            } catch (Exception ignored) {}
+            // no-op: diagnostic removed
             // WorldEdit main class
             Class<?> weClass = Class.forName("com.sk89q.worldedit.WorldEdit");
             java.lang.reflect.Method getInstance = weClass.getMethod("getInstance");
@@ -70,7 +68,6 @@ public class WorldEditHelper {
                 }
             }
             if (localSession == null) {
-                try { plugin.getLogger().info("WorldEditHelper: localSession is null"); } catch (Exception ignored) {}
                 return null;
             }
 
@@ -92,7 +89,6 @@ public class WorldEditHelper {
                 }
             }
             if (region == null) {
-                try { plugin.getLogger().info("WorldEditHelper: region is null"); } catch (Exception ignored) {}
                 return null;
             }
 
@@ -111,13 +107,11 @@ public class WorldEditHelper {
             Double maxZ = reflectGetNumber(maxObj, "getZ");
 
             if (minX == null || minY == null || minZ == null || maxX == null || maxY == null || maxZ == null) {
-                try { plugin.getLogger().info("WorldEditHelper: one or more region coordinates are null"); } catch (Exception ignored) {}
                 return null;
             }
 
             Location minLoc = new Location(p.getWorld(), Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ));
             Location maxLoc = new Location(p.getWorld(), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
-            try { plugin.getLogger().info("WorldEditHelper: selection coords: " + minLoc + " -> " + maxLoc); } catch (Exception ignored) {}
 
             return new Location[]{minLoc, maxLoc};
         } catch (ClassNotFoundException ex) {

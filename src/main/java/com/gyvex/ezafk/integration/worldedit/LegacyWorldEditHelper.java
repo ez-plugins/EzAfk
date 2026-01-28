@@ -12,10 +12,8 @@ import org.bukkit.entity.Player;
 public class LegacyWorldEditHelper {
 
     public static Location[] getSelectionLocations(EzAfk plugin, Player p) {
-        try { plugin.getLogger().info("LegacyWorldEditHelper: attempting selection for " + p.getName()); } catch (Exception ignored) {}
         org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
         if (wePlugin == null) {
-            try { plugin.getLogger().info("LegacyWorldEditHelper: WorldEdit plugin not found via PluginManager"); } catch (Exception ignored) {}
             return null;
         }
         try {
@@ -32,10 +30,6 @@ public class LegacyWorldEditHelper {
                 } catch (IllegalArgumentException ignored) {
                     // try next overload
                 }
-            }
-            if (selection == null) {
-                try { plugin.getLogger().info("LegacyWorldEditHelper: selection is null"); } catch (Exception ignored) {}
-                return null;
             }
             if (selection == null) return null;
             Class<?> selClass = selection.getClass();
@@ -75,8 +69,7 @@ public class LegacyWorldEditHelper {
             Location minLoc = new Location(world, Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ));
             Location maxLoc = new Location(world, Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
             return new Location[]{minLoc, maxLoc};
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException ex) {
-            try { plugin.getLogger().info("LegacyWorldEditHelper threw: " + ex.getMessage()); } catch (Exception ignored) {}
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | java.lang.reflect.InvocationTargetException ignored) {
             return null;
         }
     }

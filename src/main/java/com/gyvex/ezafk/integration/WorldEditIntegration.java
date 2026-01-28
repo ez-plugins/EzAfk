@@ -73,11 +73,11 @@ public class WorldEditIntegration extends Integration {
         if (cachedHelperClass != null) {
             try {
                 Class<?> helper = Class.forName(cachedHelperClass);
-                plugin.getLogger().info("WorldEdit: trying cached helper " + cachedHelperClass);
+                plugin.getLogger().fine("WorldEdit: trying cached helper " + cachedHelperClass);
                 java.lang.reflect.Method m = helper.getMethod("getSelectionLocations", EzAfk.class, Player.class);
                 Object out = m.invoke(null, plugin, p);
                 if (out instanceof Location[]) {
-                    plugin.getLogger().info("WorldEdit: cached helper returned selection");
+                    plugin.getLogger().fine("WorldEdit: cached helper returned selection");
                     return (Location[]) out;
                 }
             } catch (Exception ex) {
@@ -99,20 +99,20 @@ public class WorldEditIntegration extends Integration {
         for (String cand : candidates) {
             try {
                 Class<?> helper = Class.forName(cand);
-                plugin.getLogger().info("WorldEdit: trying helper " + cand);
+                plugin.getLogger().fine("WorldEdit: trying helper " + cand);
                 java.lang.reflect.Method m = helper.getMethod("getSelectionLocations", EzAfk.class, Player.class);
                 Object out = m.invoke(null, plugin, p);
                 if (out instanceof Location[]) {
                     // cache in-memory for faster future lookups
                     cachedHelperClass = cand;
-                    plugin.getLogger().info("WorldEdit: helper " + cand + " returned selection");
+                    plugin.getLogger().fine("WorldEdit: helper " + cand + " returned selection");
                     return (Location[]) out;
                 }
             } catch (ClassNotFoundException | NoSuchMethodException ignored) {
                 // try next candidate
             } catch (Exception ex) {
                 try {
-                    plugin.getLogger().info("integration helper " + cand + " threw: " + ex.getMessage());
+                    plugin.getLogger().fine("integration helper " + cand + " threw: " + ex.getMessage());
                 } catch (Exception ignored) {
                 }
             }
