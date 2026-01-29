@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.integration;
+package com.gyvex.ezafk.integration.voicechat;
 
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;

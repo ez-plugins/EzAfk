@@ -1,25 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.state.AfkState;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.logging.Level;
-import me.neznamy.tab.api.TabAPI;
-import me.neznamy.tab.api.TabPlayer;
-import me.neznamy.tab.api.placeholder.PlaceholderManager;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-package com.gyvex.ezafk.integration;
-
-import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -189,7 +171,7 @@ public class TabIntegration extends Integration {
 
     private PlayerListNameAdapter createTabApiAdapter() {
         try {
-            Class<?> adapterClass = Class.forName("com.gyvex.ezafk.integration.TabApiPlayerListNameAdapter");
+            Class<?> adapterClass = Class.forName("com.gyvex.ezafk.integration.tab.TabApiPlayerListNameAdapter");
             if (!PlayerListNameAdapter.class.isAssignableFrom(adapterClass)) {
                 return null;
             }

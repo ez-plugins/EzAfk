@@ -43,9 +43,10 @@ permissions:
     description: "Bypass the economy cost for going AFK"
     default: false
 softdepend:
-  - "TAB"
-  - "WorldGuard"
-  - "Vault"
-  - "PlaceholderAPI"
-  - "EzEconomy"
-  - "voicechat"
+- "TAB"
+- "Vault"
+- "PlaceholderAPI"
+- "EzEconomy"
+- "voicechat"
+- "WorldGuard"
+- "WorldEdit"

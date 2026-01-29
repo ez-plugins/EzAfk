@@ -1,10 +1,12 @@
-package com.gyvex.ezafk.gui;
+package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.compatibility.LoreUtil;
-import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI.PlayerListType;
+import com.gyvex.ezafk.gui.GuiAction;
+import com.gyvex.ezafk.gui.GuiActionFactory;
+import com.gyvex.ezafk.listener.AfkPlayerOverviewGUI.PlayerListType;
 import com.gyvex.ezafk.manager.MessageManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -203,7 +205,7 @@ public class AfkPlayerActionsGUI implements Listener {
         returnPages.remove(playerId);
         returnListTypes.remove(playerId);
 
-        AfkPlayerOverviewGUI overviewGUI = new AfkPlayerOverviewGUI();
+        com.gyvex.ezafk.listener.AfkPlayerOverviewGUI overviewGUI = new com.gyvex.ezafk.listener.AfkPlayerOverviewGUI();
         overviewGUI.openGUI(player, page, listType);
     }
 

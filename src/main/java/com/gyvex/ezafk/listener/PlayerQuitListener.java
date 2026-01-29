@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.event;
+package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.AfkTimeManager;

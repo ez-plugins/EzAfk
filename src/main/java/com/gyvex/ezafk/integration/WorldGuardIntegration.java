@@ -1,43 +1,26 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.Flag;
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
+import com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag;
+import com.gyvex.ezafk.integration.worldguard.FlagRegistrar;
+import com.sk89q.worldguard.protection.flags.StateFlag;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.event.HandlerList;
+import org.bukkit.plugin.Plugin;
 import com.sk89q.worldguard.protection.flags.registry.FlagConflictException;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
-import org.bukkit.entity.Player;
 
 import java.util.logging.Level;
 
 public class WorldGuardIntegration extends Integration {
-    public static StateFlag AFK_BYPASS = new StateFlag("afk-bypass", false);
+    private boolean apiAvailable = false;
+    private Listener pluginEnableListener = null;
 
-    public static boolean isInAfkBypassSection(Player player) {
-        RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-        RegionManager regions = container.get(BukkitAdapter.adapt(player.getWorld()));
-
-        if (regions == null) {
-            return false;
-        }
-
-        ApplicableRegionSet set = regions.getApplicableRegions(BukkitAdapter.asBlockVector(player.getLocation()));
-
-        for (ProtectedRegion region : set) {
-            if (region.getFlags().containsKey(AFK_BYPASS) &&
-                    region.getFlag(AFK_BYPASS) == StateFlag.State.ALLOW) {
-                return true;
-            }
-        }
-
-        return false;
-    }
+    // Region checks are handled directly by callers using AfkBypassFlag.get().
 
     public void setupTags() {
         EzAfk plugin = Registry.get().getPlugin();
@@ -48,34 +31,20 @@ public class WorldGuardIntegration extends Integration {
 
         plugin.getLogger().info("WorldGuard integration is enabled");
 
-        try {
-            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
-
             try {
-                registry.register(AFK_BYPASS);
-                plugin.getLogger().info("AFK BYPASS flag registered in WorldGuard");
-                this.isSetup = true;
-            } catch (FlagConflictException e) {
-                Flag<?> existing = registry.get(AFK_BYPASS.getName());
-
-                if (existing instanceof StateFlag) {
-                    AFK_BYPASS = (StateFlag) existing;
-                    plugin.getLogger().info("Using existing AFK BYPASS flag from WorldGuard");
+                boolean ok = com.gyvex.ezafk.integration.worldguard.WorldGuardSupport.registerFlagsIfPossible(plugin, plugin.getLogger());
+                if (ok) {
+                    plugin.getLogger().info("AFK BYPASS flag ready in WorldGuard");
                     this.isSetup = true;
-                } else {
-                    plugin.getLogger().log(
-                            Level.SEVERE,
-                            "Something went wrong while registering WorldGuard flag " + AFK_BYPASS.getName(),
-                            e
-                    );
                 }
-            }
-        } catch (NoClassDefFoundError | IllegalStateException ex) {
+        } catch (NoClassDefFoundError ex) {
             plugin.getLogger().log(
                     Level.WARNING,
                     "WorldGuard API not available. Skipping WorldGuard integration setup.",
                     ex
             );
+            // If WorldGuard isn't present yet, listen for it being enabled so we can try again.
+            tryRegisterOnEnableFallback();
         }
     }
 
@@ -86,13 +55,64 @@ public class WorldGuardIntegration extends Integration {
             Class.forName("com.sk89q.worldguard.WorldGuard");
             Class.forName("com.sk89q.worldguard.protection.flags.registry.FlagRegistry");
             Class.forName("com.sk89q.worldguard.protection.flags.StateFlag");
-            this.isSetup = true;
+            this.apiAvailable = true;
         } catch (ClassNotFoundException | NoClassDefFoundError ex) {
+            this.apiAvailable = false;
             this.isSetup = false;
+            // If the WorldGuard API classes are not present at load time, we still
+            // register a listener so that if WorldGuard is later enabled we can
+            // attempt registration then.
+            tryRegisterOnEnableFallback();
+            return;
         }
+
+        // If API classes are present, attempt immediate setup.
+        if (this.apiAvailable) {
+            setupTags();
+        }
+    }
+
+    public boolean isApiAvailable() {
+        return apiAvailable;
     }
 
     @Override
     public void unload() {
+        // Unregister any listener we created.
+        if (this.pluginEnableListener != null) {
+            try {
+                HandlerList.unregisterAll(this.pluginEnableListener);
+            } catch (Throwable ignored) {
+            }
+            this.pluginEnableListener = null;
+        }
+    }
+
+    private void tryRegisterOnEnableFallback() {
+        // Avoid creating multiple listeners.
+        if (this.pluginEnableListener != null) return;
+
+        EzAfk plugin = Registry.get().getPlugin();
+
+        this.pluginEnableListener = new Listener() {
+            @EventHandler
+            public void onPluginEnable(PluginEnableEvent event) {
+                if (event.getPlugin().getName().equalsIgnoreCase("WorldGuard")) {
+                    // Attempt to setup now that WorldGuard is present.
+                    setupTags();
+                    // Once attempted, unregister this listener.
+                    try {
+                        HandlerList.unregisterAll(this);
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        };
+
+        try {
+            plugin.getServer().getPluginManager().registerEvents(this.pluginEnableListener, plugin);
+        } catch (Throwable ex) {
+            plugin.getLogger().warning("Failed to register plugin-enable listener for WorldGuard fallback: " + ex.getMessage());
+        }
     }
 }

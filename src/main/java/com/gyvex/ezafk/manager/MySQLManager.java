@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import org.bukkit.configuration.file.FileConfiguration;
 
 import java.sql.*;
@@ -49,9 +49,8 @@ public class MySQLManager {
 
         enabled = mysqlConfig.getBoolean("enabled");
         if (!enabled) {
-            closeConnection();
-            shutdownExecutor();
-            LOGGER.info("MySQL is disabled in configuration.");
+            // MySQL is explicitly disabled in mysql.yml; do not attempt to initialize or close resources here.
+            // The bootstrap/reload flows decide whether to call setup() based on configured storage type.
             return;
         }
 

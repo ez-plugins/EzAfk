@@ -1,7 +1,7 @@
-package com.gyvex.ezafk.integration;
+package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.event.EventHandler;
@@ -20,7 +20,7 @@ public class EconomyServiceListener implements Listener {
             return;
         }
 
-        EconomyIntegration economyIntegration = getEconomyIntegration();
+        com.gyvex.ezafk.integration.EconomyIntegration economyIntegration = getEconomyIntegration();
 
         if (economyIntegration == null) {
             return;
@@ -39,7 +39,7 @@ public class EconomyServiceListener implements Listener {
             return;
         }
 
-        EconomyIntegration economyIntegration = getEconomyIntegration();
+        com.gyvex.ezafk.integration.EconomyIntegration economyIntegration = getEconomyIntegration();
 
         if (economyIntegration == null) {
             return;
@@ -53,11 +53,11 @@ public class EconomyServiceListener implements Listener {
         return provider != null && Economy.class.equals(provider.getService());
     }
 
-    private EconomyIntegration getEconomyIntegration() {
-        Integration integration = IntegrationManager.getIntegration("economy");
+    private com.gyvex.ezafk.integration.EconomyIntegration getEconomyIntegration() {
+        com.gyvex.ezafk.integration.Integration integration = IntegrationManager.getIntegration("economy");
 
-        if (integration instanceof EconomyIntegration) {
-            return (EconomyIntegration) integration;
+        if (integration instanceof com.gyvex.ezafk.integration.EconomyIntegration) {
+            return (com.gyvex.ezafk.integration.EconomyIntegration) integration;
         }
 
         return null;
@@ -77,4 +77,3 @@ public class EconomyServiceListener implements Listener {
         }
     }
 }
-

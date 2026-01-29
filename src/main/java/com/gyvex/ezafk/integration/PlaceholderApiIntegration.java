@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.integration.placeholder.EzAfkPlaceholderExpansion;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;

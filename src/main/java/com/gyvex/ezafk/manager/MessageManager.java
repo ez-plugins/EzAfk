@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
@@ -34,11 +34,9 @@ public final class MessageManager {
     }
 
     public static String getMessage(String path, String fallback, Map<String, String> placeholders) {
-        EzAfk plugin = Registry.get().getPlugin();
         String message = null;
-
-        if (plugin != null && plugin.getMessages() != null) {
-            message = plugin.getMessages().getString(path);
+        if (Registry.get().getConfigManager() != null && Registry.get().getConfigManager().getMessages() != null) {
+            message = Registry.get().getConfigManager().getMessages().getString(path);
         }
 
         if (message == null) {

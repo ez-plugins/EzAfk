@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.integration;
 
 import org.bukkit.plugin.java.JavaPlugin;
-import com.gyvex.ezafk.integration.EzAfkVoicechatServiceRegistrar;
+import com.gyvex.ezafk.integration.voicechat.EzAfkVoicechatServiceRegistrar;
 
 /**
  * Integration wrapper for Simple Voice Chat registration via IntegrationManager.

@@ -1,7 +1,7 @@
-package com.gyvex.ezafk.gui;
+package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.state.AfkState;
@@ -327,7 +327,7 @@ public class AfkPlayerOverviewGUI implements Listener {
                 return;
             }
 
-            AfkPlayerActionsGUI actionsGUI = AfkPlayerActionsGUI.getInstance();
+            com.gyvex.ezafk.listener.AfkPlayerActionsGUI actionsGUI = com.gyvex.ezafk.listener.AfkPlayerActionsGUI.getInstance();
             if (actionsGUI == null) {
                 Registry.get().getLogger().warning("Player actions GUI is not initialized. Unable to open player actions view.");
                 return;

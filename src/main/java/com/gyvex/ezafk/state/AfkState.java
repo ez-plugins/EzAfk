@@ -1,14 +1,13 @@
 package com.gyvex.ezafk.state;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
-import com.gyvex.ezafk.manager.MySQLManager;
 import com.gyvex.ezafk.event.PlayerAfkStatusChangeEvent;
 import com.gyvex.ezafk.state.AfkReason;
 import org.bukkit.Bukkit;
@@ -149,8 +148,10 @@ public class AfkState {
             }
         }
 
-        if (MySQLManager.isEnabled()) {
-            MySQLManager.addAfkPlayerAsync(playerId, LastActiveState.getLastActive(player));
+        if (Registry.get() != null && Registry.get().getStorageRepository() != null) {
+            try {
+                Registry.get().getStorageRepository().savePlayerAfkTime(playerId, LastActiveState.getLastActive(player));
+            } catch (Exception ignored) {}
         }
 
         if (mode == AfkActivationMode.STANDARD && IntegrationManager.hasIntegration("tab")) {
@@ -193,8 +194,10 @@ public class AfkState {
             integration.update();
         }
 
-        if (MySQLManager.isEnabled()) {
-            MySQLManager.removeAfkPlayerAsync(playerId);
+        if (Registry.get() != null && Registry.get().getStorageRepository() != null) {
+            try {
+                Registry.get().getStorageRepository().deletePlayer(playerId);
+            } catch (Exception ignored) {}
         }
 
         if (mode == AfkActivationMode.STANDARD && Registry.get().getPlugin().getConfig().getBoolean("unafk.animation.enabled")) {

@@ -13,12 +13,24 @@ public class LegacyWorldEditHelper {
 
     public static Location[] getSelectionLocations(EzAfk plugin, Player p) {
         org.bukkit.plugin.Plugin wePlugin = plugin.getServer().getPluginManager().getPlugin("WorldEdit");
-        if (wePlugin == null) return null;
+        if (wePlugin == null) {
+            return null;
+        }
         try {
             Class<?> weClass = Class.forName("com.sk89q.worldedit.bukkit.WorldEditPlugin");
             if (!weClass.isInstance(wePlugin)) return null;
-            java.lang.reflect.Method getSelection = weClass.getMethod("getSelection", org.bukkit.entity.Player.class);
-            Object selection = getSelection.invoke(wePlugin, p);
+            java.lang.reflect.Method getSelection = null;
+            Object selection = null;
+            for (java.lang.reflect.Method m : weClass.getMethods()) {
+                if (!m.getName().equals("getSelection")) continue;
+                if (m.getParameterCount() != 1) continue;
+                try {
+                    selection = m.invoke(wePlugin, p);
+                    break;
+                } catch (IllegalArgumentException ignored) {
+                    // try next overload
+                }
+            }
             if (selection == null) return null;
             Class<?> selClass = selection.getClass();
             java.lang.reflect.Method getMinimumPoint = selClass.getMethod("getMinimumPoint");

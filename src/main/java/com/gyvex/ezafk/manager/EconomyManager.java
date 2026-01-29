@@ -1,7 +1,7 @@
 package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
-import com.gyvex.ezafk.registry.Registry;
+import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.integration.EconomyIntegration;
 import com.gyvex.ezafk.integration.Integration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
@@ -292,9 +292,24 @@ public final class EconomyManager {
             return false;
         }
 
-        if (IntegrationManager.hasIntegration("worldguard")
-                && WorldGuardIntegration.isInAfkBypassSection(player)) {
-            return true;
+        // Use AfkBypassFlag to check WorldGuard regions directly instead of delegating
+        // to WorldGuardIntegration. This avoids indirection and keeps the check localized.
+        try {
+            com.sk89q.worldguard.protection.flags.StateFlag flag = com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag.get();
+            if (flag != null) {
+                com.sk89q.worldguard.protection.regions.RegionContainer container = com.sk89q.worldguard.WorldGuard.getInstance().getPlatform().getRegionContainer();
+                com.sk89q.worldguard.protection.managers.RegionManager regions = container.get(com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(player.getWorld()));
+                if (regions != null) {
+                    com.sk89q.worldguard.protection.ApplicableRegionSet set = regions.getApplicableRegions(com.sk89q.worldedit.bukkit.BukkitAdapter.asBlockVector(player.getLocation()));
+                    for (com.sk89q.worldguard.protection.regions.ProtectedRegion region : set) {
+                        if (region.getFlags().containsKey(flag) && region.getFlag(flag) == com.sk89q.worldguard.protection.flags.StateFlag.State.ALLOW) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (NoClassDefFoundError | Exception ignored) {
+            // WorldGuard not available or error while checking regions; fall through.
         }
 
         String permission = plugin.getConfig().getString("economy.bypass-permission", "");

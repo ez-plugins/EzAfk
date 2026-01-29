@@ -2,13 +2,12 @@ package com.gyvex.ezafk.command;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
-import com.gyvex.ezafk.gui.AfkPlayerActionsGUI;
-import com.gyvex.ezafk.gui.AfkPlayerOverviewGUI;
+import com.gyvex.ezafk.listener.AfkPlayerActionsGUI;
+import com.gyvex.ezafk.listener.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
-import com.gyvex.ezafk.manager.MySQLManager;
 import com.gyvex.ezafk.state.AfkReason;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.AfkStatusDetails;
@@ -124,9 +123,15 @@ public class EzAfkCommand implements CommandExecutor {
             tabIntegration.reloadFromConfig();
             tabIntegration.update();
         }
-
-        MySQLManager.shutdown();
-        MySQLManager.setup();
+        // Reload storage repository according to new configuration
+        try {
+            Registry.get().reloadStorageRepository();
+        } catch (Exception ignored) {}
+        // Reload zones configuration (zones.yml) and refresh in-memory zones
+        try {
+            Registry.get().reloadZonesConfig();
+            com.gyvex.ezafk.manager.AfkZoneManager.load(Registry.get().getPlugin());
+        } catch (Exception ignored) {}
         AfkPlayerActionsGUI.reloadConfiguredActions();
         MessageManager.sendMessage(sender, "command.reload.success", "&aConfig reloaded.");
     }
@@ -261,6 +266,29 @@ public class EzAfkCommand implements CommandExecutor {
 
     private void handleTime(CommandSender sender, String[] args, int startIndex) {
         int remainingArguments = Math.max(0, args.length - startIndex);
+
+        // Support: /afk time reset <player>
+        if (remainingArguments >= 2 && args[startIndex].equalsIgnoreCase("reset")) {
+            if (!sender.hasPermission("ezafk.time.reset")) {
+                MessageManager.sendMessage(sender, "command.time.reset.no-permission", "&cYou don't have permission to reset player AFK time.");
+                return;
+            }
+
+            String targetName = args[startIndex + 1];
+            OfflinePlayer target = Bukkit.getOfflinePlayer(targetName);
+            if (target == null || (target.getName() == null && !target.hasPlayedBefore() && !target.isOnline())) {
+                MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
+                return;
+            }
+
+            boolean ok = AfkTimeManager.resetPlayer(target.getUniqueId());
+            if (ok) {
+                MessageManager.sendMessage(sender, "command.time.reset.success", "&aReset AFK time for %player%.", Map.of("player", target.getName() != null ? target.getName() : target.getUniqueId().toString()));
+            } else {
+                MessageManager.sendMessage(sender, "command.time.reset.failed", "&cFailed to reset AFK time for %player%.", Map.of("player", target.getName() != null ? target.getName() : target.getUniqueId().toString()));
+            }
+            return;
+        }
 
         if (remainingArguments > 1) {
             MessageManager.sendMessage(sender, "command.usage", getUsageFallback());

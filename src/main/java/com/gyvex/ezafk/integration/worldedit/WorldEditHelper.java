@@ -15,6 +15,7 @@ public class WorldEditHelper {
      */
     public static Location[] getSelectionLocations(EzAfk plugin, Player p) {
         try {
+            // no-op: diagnostic removed
             // WorldEdit main class
             Class<?> weClass = Class.forName("com.sk89q.worldedit.WorldEdit");
             java.lang.reflect.Method getInstance = weClass.getMethod("getInstance");
@@ -25,9 +26,50 @@ public class WorldEditHelper {
             Object sessionManager = getSessionManager.invoke(weInstance);
 
             // sessionManager.get(player) -> LocalSession
-            java.lang.reflect.Method getSession = sessionManager.getClass().getMethod("get", org.bukkit.entity.Player.class);
-            Object localSession = getSession.invoke(sessionManager, p);
-            if (localSession == null) return null;
+            Object localSession = null;
+            
+            for (java.lang.reflect.Method m : sessionManager.getClass().getMethods()) {
+                if (!m.getName().equals("get")) continue;
+                if (m.getParameterCount() != 1) continue;
+                Class<?> param = m.getParameterTypes()[0];
+                Object arg = null;
+                // If the method accepts org.bukkit.entity.Player directly
+                if (param.isInstance(p)) {
+                    arg = p;
+                } else {
+                    // Try adapting via BukkitAdapter.adapt(Player) if available and returns correct type
+                    try {
+                        Class<?> ba = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+                        for (java.lang.reflect.Method am : ba.getMethods()) {
+                            if (!am.getName().equals("adapt")) continue;
+                            if (am.getParameterCount() != 1) continue;
+                            if (!am.getParameterTypes()[0].isAssignableFrom(org.bukkit.entity.Player.class)) continue;
+                            if (!param.isAssignableFrom(am.getReturnType())) continue;
+                            try {
+                                arg = am.invoke(null, p);
+                                break;
+                            } catch (Exception ignored) {
+                            }
+                        }
+                    } catch (ClassNotFoundException ignored) {
+                    }
+                    // Try passing name or UUID if method accepts those
+                    if (arg == null) {
+                        if (param.isAssignableFrom(String.class)) arg = p.getName();
+                        else if (param.isAssignableFrom(java.util.UUID.class)) arg = p.getUniqueId();
+                    }
+                }
+                if (arg == null) continue;
+                try {
+                    localSession = m.invoke(sessionManager, arg);
+                    if (localSession != null) break;
+                } catch (IllegalArgumentException ignored) {
+                    // try next overload
+                }
+            }
+            if (localSession == null) {
+                return null;
+            }
 
             // Adapt Bukkit world to WorldEdit world using BukkitAdapter.adapt(World)
             Class<?> bukkitAdapter = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
@@ -35,9 +77,20 @@ public class WorldEditHelper {
             Object weWorld = adaptWorld.invoke(null, p.getWorld());
 
             // LocalSession.getSelection(World) -> Region
-            java.lang.reflect.Method getSelection = localSession.getClass().getMethod("getSelection", weWorld.getClass());
-            Object region = getSelection.invoke(localSession, weWorld);
-            if (region == null) return null;
+            Object region = null;
+            for (java.lang.reflect.Method m : localSession.getClass().getMethods()) {
+                if (!m.getName().equals("getSelection")) continue;
+                if (m.getParameterCount() != 1) continue;
+                try {
+                    region = m.invoke(localSession, weWorld);
+                    break;
+                } catch (IllegalArgumentException ignored) {
+                    // try next overload
+                }
+            }
+            if (region == null) {
+                return null;
+            }
 
             // Region.getMinimumPoint()/getMaximumPoint() -> BlockVector3-like
             java.lang.reflect.Method getMin = region.getClass().getMethod("getMinimumPoint");
@@ -53,7 +106,9 @@ public class WorldEditHelper {
             Double maxY = reflectGetNumber(maxObj, "getY");
             Double maxZ = reflectGetNumber(maxObj, "getZ");
 
-            if (minX == null || minY == null || minZ == null || maxX == null || maxY == null || maxZ == null) return null;
+            if (minX == null || minY == null || minZ == null || maxX == null || maxY == null || maxZ == null) {
+                return null;
+            }
 
             Location minLoc = new Location(p.getWorld(), Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ));
             Location maxLoc = new Location(p.getWorld(), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));

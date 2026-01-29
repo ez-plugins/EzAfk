@@ -1,4 +1,4 @@
-package com.gyvex.ezafk.event;
+package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.manager.MessageManager;
