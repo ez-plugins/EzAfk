@@ -120,5 +120,12 @@ public final class AfkZoneManager {
         return null;
     }
 
+    /**
+     * Returns a copy of the currently loaded zones.
+     */
+    public static java.util.List<Zone> getZones() {
+        return new java.util.ArrayList<>(zones);
+    }
+
     // Zone class moved to com.gyvex.ezafk.manager.zone.Zone
 }

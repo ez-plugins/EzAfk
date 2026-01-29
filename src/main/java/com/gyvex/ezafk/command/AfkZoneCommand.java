@@ -52,6 +52,58 @@ public class AfkZoneCommand {
                     MessageManager.sendMessage(sender, "afkzone.list.entry", "&e%name% &7(%world%): &f%coords%", Map.of("name", name, "world", world, "coords", coords));
                 }
                 return;
+            case "players":
+                if (!CommandUtil.checkPermission(sender, "ezafk.zone.list", "command.usage", "&cYou don't have permission.")) return;
+                java.util.List<com.gyvex.ezafk.zone.Zone> loadedZones = AfkZoneManager.getZones();
+                if (loadedZones == null || loadedZones.isEmpty()) {
+                    // Try to (re)load zones from configuration in case they were not loaded yet
+                    try {
+                        AfkZoneManager.load(plugin);
+                    } catch (Exception ignored) {}
+                    loadedZones = AfkZoneManager.getZones();
+                }
+                if (loadedZones == null || loadedZones.isEmpty()) {
+                    // Fallback: if still empty, enumerate configured regions so command shows something useful
+                    List<?> regionsList = Registry.get().getZonesConfig().getMapList("regions");
+                    if (regionsList == null || regionsList.isEmpty()) {
+                        MessageManager.sendMessage(sender, "afkzone.list.empty", "&eNo AFK zones configured.");
+                        return;
+                    }
+                    java.util.Map<String, java.util.List<String>> playersByZoneCfg = new java.util.LinkedHashMap<>();
+                    for (Object o : regionsList) {
+                        if (!(o instanceof java.util.Map)) continue;
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<Object, Object> map = (java.util.Map<Object, Object>) o;
+                        String zoneName = String.valueOf(map.getOrDefault("name", "<unnamed>"));
+                        playersByZoneCfg.put(zoneName, new java.util.ArrayList<>());
+                    }
+                    MessageManager.sendMessage(sender, "afkzone.players.header", "&6Players in AFK Zones:");
+                    for (java.util.Map.Entry<String, java.util.List<String>> e : playersByZoneCfg.entrySet()) {
+                        String zn = e.getKey();
+                        MessageManager.sendMessage(sender, "afkzone.players.entry", "&e%name%: &f%players%", java.util.Map.of("name", zn, "players", "<none>"));
+                    }
+                    return;
+                }
+                java.util.Map<String, java.util.List<String>> playersByZone = new java.util.LinkedHashMap<>();
+                for (com.gyvex.ezafk.zone.Zone z : loadedZones) {
+                    String zoneName = z.name == null || z.name.isEmpty() ? "<unnamed>" : z.name;
+                    playersByZone.put(zoneName, new java.util.ArrayList<>());
+                }
+                for (org.bukkit.entity.Player online : org.bukkit.Bukkit.getOnlinePlayers()) {
+                    com.gyvex.ezafk.zone.Zone z = AfkZoneManager.getZoneForPlayer(online);
+                    if (z != null) {
+                        String zn = z.name == null || z.name.isEmpty() ? "<unnamed>" : z.name;
+                        playersByZone.computeIfAbsent(zn, k -> new java.util.ArrayList<>()).add(online.getName());
+                    }
+                }
+                MessageManager.sendMessage(sender, "afkzone.players.header", "&6Players in AFK Zones:");
+                for (java.util.Map.Entry<String, java.util.List<String>> e : playersByZone.entrySet()) {
+                    String zn = e.getKey();
+                    java.util.List<String> listPlayers = e.getValue();
+                    String playersStr = listPlayers.isEmpty() ? "<none>" : String.join(", ", listPlayers);
+                    MessageManager.sendMessage(sender, "afkzone.players.entry", "&e%name%: &f%players%", java.util.Map.of("name", zn, "players", playersStr));
+                }
+                return;
             case "add":
                 if (!CommandUtil.checkPermission(sender, "ezafk.zone.manage", "command.usage", "&cYou don't have permission.")) return;
                 if (!(sender instanceof Player)) {

@@ -13,6 +13,7 @@ import com.sk89q.worldguard.protection.regions.ProtectedRegion;
 import com.sk89q.worldguard.protection.regions.RegionContainer;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.gyvex.ezafk.manager.AfkZoneManager;
+import com.gyvex.ezafk.zone.Zone;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
@@ -55,8 +56,9 @@ public class AfkCheckTask extends BukkitRunnable {
                 continue;
             }
 
-            // Config-defined AFK zones (configured via afk.zones) bypass AFK checks
-            if (AfkZoneManager.isInAfkZone(player)) {
+            // Config-defined AFK zones: only bypass AFK checks if zone exists and rewards are disabled
+            Zone zone = AfkZoneManager.getZoneForPlayer(player);
+            if (zone != null && !zone.rewardEnabled) {
                 continue;
             }
 

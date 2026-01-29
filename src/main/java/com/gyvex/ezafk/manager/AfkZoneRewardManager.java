@@ -127,6 +127,7 @@ public final class AfkZoneRewardManager {
             }
 
             boolean grantSuccess = false;
+            String grantFailReason = null;
             String rewardType = zone.rewardType == null ? "economy" : zone.rewardType.toLowerCase();
 
             if ("economy".equals(rewardType)) {
@@ -135,15 +136,20 @@ public final class AfkZoneRewardManager {
                     try {
                         net.milkbowl.vault.economy.EconomyResponse resp = econ.depositPlayer(player, totalAmount);
                         grantSuccess = resp.transactionSuccess();
+                        if (!grantSuccess) {
+                            grantFailReason = resp.errorMessage == null ? "transaction-failed" : "transaction-failed: " + resp.errorMessage;
+                        }
                     } catch (Throwable ex) {
                         grantSuccess = false;
+                        grantFailReason = "exception: " + ex.getClass().getSimpleName();
                     }
                 } else {
                     plugin.getLogger().log(Level.FINE, "No economy provider available for AFK zone rewards (zone=" + zone.name + ")");
                     grantSuccess = false;
+                    grantFailReason = "no-economy-provider";
                 }
                 if (grantSuccess) {
-                    plugin.getLogger().info("Granted AFK zone economy reward to " + player.getName() + " zone=" + zone.name + " amount=" + (zone.rewardAmount * toGrant) + " (" + toGrant + ")");
+                    plugin.getLogger().log(Level.FINE, "Granted AFK zone economy reward to " + player.getName() + " zone=" + zone.name + " amount=" + (zone.rewardAmount * toGrant) + " (" + toGrant + ")");
                 }
             } else if ("command".equals(rewardType)) {
                 // Execute configured command as console, replacing %player% and %amount%
@@ -158,7 +164,7 @@ public final class AfkZoneRewardManager {
                         }
                     }
                     grantSuccess = true;
-                    plugin.getLogger().info("Executed AFK zone command reward for " + player.getName() + " zone=" + zone.name + " (" + toGrant + ")");
+                    plugin.getLogger().log(Level.FINE, "Executed AFK zone command reward for " + player.getName() + " zone=" + zone.name + " (" + toGrant + ")");
                 }
             } else if ("item".equals(rewardType)) {
                 if (zone.rewardItemMaterial != null && !zone.rewardItemMaterial.isBlank()) {
@@ -175,7 +181,7 @@ public final class AfkZoneRewardManager {
                                 }
                             }
                             grantSuccess = true;
-                            plugin.getLogger().info("Granted AFK zone item reward to " + player.getName() + " zone=" + zone.name + " item=" + zone.rewardItemMaterial + " count=" + totalItems);
+                            plugin.getLogger().log(Level.FINE, "Granted AFK zone item reward to " + player.getName() + " zone=" + zone.name + " item=" + zone.rewardItemMaterial + " count=" + totalItems);
                         } else {
                             plugin.getLogger().log(Level.FINE, "Invalid material for AFK zone item reward: " + zone.rewardItemMaterial);
                         }
@@ -229,6 +235,15 @@ public final class AfkZoneRewardManager {
                     }
                 } else {
                     rs.nextScheduled = now + intervalMs; // schedule next attempt
+                    // If the player is an operator, notify them about the failure to aid debugging
+                    try {
+                        if (player.isOp()) {
+                            Map<String, String> ph = new HashMap<>();
+                            ph.put("zone", zone.name == null ? "" : zone.name);
+                            ph.put("reason", grantFailReason == null ? "unknown" : grantFailReason);
+                            MessageManager.sendMessage(player, "afkzone.reward.failed", "&cAFK zone reward failed for %zone%: %reason%", ph);
+                        }
+                    } catch (Throwable ignored) {}
                 }
         }
     }

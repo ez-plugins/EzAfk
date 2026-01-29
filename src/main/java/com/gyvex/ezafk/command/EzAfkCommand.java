@@ -127,6 +127,11 @@ public class EzAfkCommand implements CommandExecutor {
         try {
             Registry.get().reloadStorageRepository();
         } catch (Exception ignored) {}
+        // Reload zones configuration (zones.yml) and refresh in-memory zones
+        try {
+            Registry.get().reloadZonesConfig();
+            com.gyvex.ezafk.manager.AfkZoneManager.load(Registry.get().getPlugin());
+        } catch (Exception ignored) {}
         AfkPlayerActionsGUI.reloadConfiguredActions();
         MessageManager.sendMessage(sender, "command.reload.success", "&aConfig reloaded.");
     }

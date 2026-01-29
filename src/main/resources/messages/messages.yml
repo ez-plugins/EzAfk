@@ -96,6 +96,9 @@ afkzone:
       item: "&aYou received %count%x %item% for staying AFK in %zone%."
       default: "&aYou received a reward for staying AFK in %zone%."
 
+  reward:
+    failed: "&cAFK zone reward failed for %zone%: %reason%"
+
   add:
     selection-missing: "&cNo WorldEdit selection found - please select a region or provide explicit coordinates."
     coords-required: "&cWorldEdit not available. Provide coordinates: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
