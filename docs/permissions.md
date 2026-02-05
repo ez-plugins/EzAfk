@@ -18,6 +18,11 @@ This document lists all permissions used by EzAfk, their effects, and recommende
 | ezafk.time.others           | Allows viewing total AFK time for other players          | OP           |
 | ezafk.top                   | Allows viewing the AFK leaderboard                       | OP           |
 | ezafk.economy.bypass        | Exempts player from economy-based AFK costs              | OP           |
+| ezafk.time.reset            | Allows resetting a player's total AFK time               | OP           |
+| ezafk.zone.list             | Allows listing configured AFK zones and players in them  | OP           |
+| ezafk.zone.manage           | Allows creating/removing/managing AFK zones and positions| OP           |
+| ezafk.gui.view-active       | Allows viewing active (online) players in the AFK GUI    | OP           |
+| ezafk.gui.actions           | Allows using player actions in the AFK GUI               | OP           |
 
 ---
 
@@ -33,6 +38,11 @@ This document lists all permissions used by EzAfk, their effects, and recommende
 - **ezafk.time.others**: Allows `/afk time <player>` for others.
 - **ezafk.top**: Allows `/afk top`.
 - **ezafk.economy.bypass**: Exempts from all AFK-related economy costs.
+- **ezafk.time.reset**: Required to use `/afk time reset <player>` to reset a player's stored AFK time.
+- **ezafk.zone.list**: Required to list configured AFK zones and view players in zones (`/afk zone list`, `/afk zone players`).
+- **ezafk.zone.manage**: Required to manage AFK zones (`/afk zone add`, `/afk zone remove`, `pos1`, `pos2`, `clearpos`, `reset`).
+- **ezafk.gui.view-active**: Allows viewing active (online) players inside the AFK overview GUI.
+- **ezafk.gui.actions**: Allows using configured player actions from the AFK overview GUI.
 
 ---
 

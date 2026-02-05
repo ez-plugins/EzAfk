@@ -45,7 +45,18 @@ Refer to these documents for setup, customization, and advanced usage.
 - `/afk bypass <player>` — Toggle AFK bypass for a player
 - `/afk info <player>` — Show AFK info for a player
 - `/afk time [player]` — Show total AFK time
+- `/afk time reset <player>` — Reset a player's total AFK time (admin)
 - `/afk top` — Show AFK leaderboard
+- `/afk zone list` — List configured AFK zones
+- `/afk zone players` — List players currently in AFK zones
+- `/afk zone add <name>` — Add a new AFK zone (uses WorldEdit selection, stored pos1/pos2, or coordinates)
+- `/afk zone remove <name>` — Remove a configured AFK zone
+- `/afk zone pos1` — Store position 1 for zone creation
+- `/afk zone pos2` — Store position 2 for zone creation
+- `/afk zone clearpos [player]` — Clear stored positions for yourself or target player
+- `/afk zone reset <player> [zone]` — Reset zone reward counts for a player (optionally for a specific zone)
+
+- Aliases: you can run the same commands via `/ezafk` or the short alias `/ea`. The plugin also registers `afktime`, `afktop`, and `afkzone` as command aliases.
 
 ## Permissions
 See the documentation for a full list of permissions.
