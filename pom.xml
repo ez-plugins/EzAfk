@@ -6,7 +6,7 @@
 
     <groupId>com.gyvex</groupId>
     <artifactId>EzAfk</artifactId>
-    <version>2.3.0</version>
+    <version>2.3.1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -17,6 +17,8 @@
         <worldguard.version>7.0.13</worldguard.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
+        <!-- GitHub repository used for publishing to GitHub Packages -->
+        <github.repository>ez-plugins/EzAfk</github.repository>
     </properties>
 
     <repositories>
@@ -217,4 +219,12 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/${github.repository}</url>
+        </repository>
+    </distributionManagement>
 </project>
