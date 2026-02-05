@@ -21,6 +21,12 @@ permissions:
   ezafk.gui.actions:
     description: "Allows using player actions in the AFK GUI"
     default: op
+  ezafk.gui.view-active:
+    description: "Allows viewing active (online) players in the AFK GUI"
+    default: op
+  ezafk.gui.actions:
+    description: "Allows using player actions in the AFK GUI"
+    default: op
   ezafk.toggle:
     description: "Allows toggling other players' AFK state"
     default: op
@@ -30,9 +36,18 @@ permissions:
   ezafk.info:
     description: "Allows viewing AFK reports for players"
     default: op
+  ezafk.time.reset:
+    description: "Allows resetting a player's total AFK time"
+    default: op
   ezafk.time:
     description: "Allows viewing your own total AFK time"
     default: true
+  ezafk.zone.list:
+    description: "Allows listing AFK zones and viewing players in zones"
+    default: op
+  ezafk.zone.manage:
+    description: "Allows creating/removing/managing AFK zones and stored positions"
+    default: op
   ezafk.time.others:
     description: "Allows viewing other players' total AFK time"
     default: op
