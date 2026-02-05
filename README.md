@@ -1,5 +1,10 @@
 # EzAfk
 
+[![Build](https://github.com/ez-plugins/EzAfk/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ez-plugins/EzAfk/actions)
+[![Release](https://img.shields.io/github/v/release/ez-plugins/EzAfk)](https://github.com/ez-plugins/EzAfk/releases)
+[![Downloads](https://img.shields.io/github/downloads/ez-plugins/EzAfk/total)](https://github.com/ez-plugins/EzAfk/releases)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+
 EzAfk is a powerful and flexible AFK (Away From Keyboard) management plugin for Minecraft servers. It provides advanced AFK detection, player management, and integration with popular plugins and server features.
 
 ## Features
