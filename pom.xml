@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.gyvex</groupId>
-    <artifactId>EzAfk</artifactId>
+    <artifactId>ezafk</artifactId>
     <version>2.3.1</version>
 
     <properties>
