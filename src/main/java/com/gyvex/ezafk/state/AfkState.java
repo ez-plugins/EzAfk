@@ -238,6 +238,13 @@ public class AfkState {
 
             CompatibilityUtil.sendTitle(player, title, subtitle, 10, 70, 20);
         }
+
+        // Play a return-from-AFK sound when applicable. If Simple Voice Chat integration is available
+        // it will be handled by the integration listener; otherwise play a default Bukkit-compatible sound.
+        if (mode == AfkActivationMode.STANDARD && !IntegrationManager.hasIntegration("voicechat")
+                && Registry.get().getConfigManager().isUnafkSoundEnabled()) {
+            CompatibilityUtil.playSound(player, 1.0f, 1.0f, "ENTITY_EXPERIENCE_ORB_PICKUP", "ORB_PICKUP", "ENTITY_ORB_PICKUP");
+        }
     }
 
     public static boolean isAfk(UUID playerId) {

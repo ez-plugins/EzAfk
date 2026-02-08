@@ -72,6 +72,48 @@ public class SimpleVoiceChatIntegration {
     }
 
     /**
+     * Plays the return-from-AFK sound for the specified player using Simple Voice Chat.
+     */
+    public void playReturnSound(Player player) {
+        if (!Registry.get().getConfigManager().isUnafkSoundEnabled()) return;
+        String soundFile = Registry.get().getConfigManager().getUnafkSoundFile();
+        java.io.File mp3File = new java.io.File(Registry.get().getPlugin().getDataFolder(), soundFile);
+        if (!mp3File.exists()) {
+            Registry.get().getLogger().warning("Return AFK sound file not found: " + mp3File.getAbsolutePath());
+            return;
+        }
+        java.io.InputStream mp3Stream;
+        try {
+            mp3Stream = new java.io.FileInputStream(mp3File);
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("Failed to open return AFK sound file: " + e.getMessage());
+            return;
+        }
+
+        VoicechatServerApi api = EzAfkVoicechatPlugin.getApi();
+        if (api == null) return;
+
+        VoicechatConnection connection = api.getConnectionOf(player.getUniqueId());
+        if (connection == null) return;
+
+        short[] audio;
+        try {
+            audio = decodeMp3ToPcm(mp3Stream);
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("Failed to decode return AFK sound: " + e.getMessage());
+            return;
+        }
+        if (audio == null || audio.length == 0) return;
+
+        java.util.UUID channelId = java.util.UUID.randomUUID();
+        StaticAudioChannel channel = api.createStaticAudioChannel(channelId, api.fromServerLevel(player.getWorld()), connection);
+        if (channel == null) return;
+
+        AudioPlayer audioPlayer = api.createAudioPlayer(channel, api.createEncoder(), audio);
+        audioPlayer.startPlaying();
+    }
+
+    /**
      * Decodes an MP3 file to 48kHz 16-bit PCM samples (short[]).
      * You may use a library like Tritonus, JLayer, or JavaSound for actual decoding.
      * This is a stub and must be implemented for production use.

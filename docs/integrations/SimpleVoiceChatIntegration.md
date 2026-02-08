@@ -4,6 +4,7 @@ EzAfk supports integration with the Simple Voice Chat plugin to play custom soun
 
 ## Features
 - Plays a configurable MP3 sound to the player when they go AFK.
+- Plays a configurable MP3 sound to the player when they go AFK, and optionally when they return from AFK.
 - Optional integration: EzAfk works with or without Simple Voice Chat installed.
 - Auto-detection: Enable, disable, or auto-detect integration via config.
 
@@ -18,6 +19,10 @@ EzAfk supports integration with the Simple Voice Chat plugin to play custom soun
        sound:
          enabled: true
          file: "mp3/ezafk-sound.mp3" # Path relative to plugins/EzAfk/
+    unafk:
+      sound:
+        enabled: true
+        file: "mp3/ezafk-sound.mp3"
      integration:
        voicechat: auto # Options: true, false, auto
      ```

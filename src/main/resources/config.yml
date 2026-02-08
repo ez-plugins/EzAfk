@@ -65,6 +65,10 @@ unafk:
     enabled: true
   animation:
     enabled: true
+  sound:
+    enabled: true
+    # Path to the MP3 file to play when returning from AFK (relative to plugin folder)
+    file: "mp3/ezafk-sound.mp3"
 economy:
   # Enable economy-based costs for going AFK. Requires Vault with an economy provider installed.
   enabled: false

@@ -19,6 +19,8 @@ public class SimpleVoiceChatAfkListener implements Listener {
     public void onAfkStatusChange(PlayerAfkStatusChangeEvent event) {
         if (event.isAfk()) {
             svcIntegration.playAfkSound(event.getPlayer());
+        } else {
+            svcIntegration.playReturnSound(event.getPlayer());
         }
     }
 }
