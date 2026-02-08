@@ -18,7 +18,7 @@
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
         <!-- GitHub repository used for publishing to GitHub Packages -->
-        <github.repository>ez-plugins/EzAfk</github.repository>
+        <github.repository>ez-plugins/ezafk</github.repository>
     </properties>
 
     <repositories>

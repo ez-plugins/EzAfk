@@ -18,6 +18,8 @@ public class ConfigManager {
     public FileConfiguration config;
     private boolean afkSoundEnabled;
     private String afkSoundFile;
+    private boolean unafkSoundEnabled;
+    private String unafkSoundFile;
     private FileConfiguration messagesConfig;
     private FileConfiguration guiConfig;
     private FileConfiguration mysqlConfig;
@@ -43,6 +45,9 @@ public class ConfigManager {
         // Load AFK sound config
         afkSoundEnabled = config.getBoolean("afk.sound.enabled", true);
         afkSoundFile = config.getString("afk.sound.file", "plugins/EzAfk/afk-sound.mp3");
+        // Load return-from-AFK sound config
+        unafkSoundEnabled = config.getBoolean("unafk.sound.enabled", true);
+        unafkSoundFile = config.getString("unafk.sound.file", "mp3/ezafk-sound.mp3");
         return this.config;
     }
 
@@ -52,6 +57,14 @@ public class ConfigManager {
 
     public String getAfkSoundFile() {
         return afkSoundFile;
+    }
+
+    public boolean isUnafkSoundEnabled() {
+        return unafkSoundEnabled;
+    }
+
+    public String getUnafkSoundFile() {
+        return unafkSoundFile;
     }
 
     public FileConfiguration getMessages() {
