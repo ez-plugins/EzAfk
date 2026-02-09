@@ -42,10 +42,16 @@ public final class LoreUtil {
                     else lore.add(deserializeToLegacyString(resolvedLine));
                 }
                 Method loreMethod = meta.getClass().getMethod("lore", List.class);
-                loreMethod.invoke(meta, lore);
+                // ensure we can access the reflective method (avoid illegal-access warnings)
+                if (!loreMethod.canAccess(meta)) {
+                    if (logger != null) logger.fine("Component lore method not accessible; falling back to legacy lore.");
+                } else {
+                    loreMethod.invoke(meta, lore);
+                    return;
+                }
                 return;
             } catch (Exception e) {
-                if (logger != null) logger.warning("Failed to set component lore reflectively: " + e.getMessage());
+                if (logger != null) logger.fine("Failed to set component lore reflectively: " + e.getMessage());
                 // fall through to legacy path
             }
         }
@@ -86,11 +92,21 @@ public final class LoreUtil {
         if (hasComponentDisplayMethod && isAdventureAvailable()) {
             try {
                 Object component = deserializeToComponent(resolvedName);
-                Method displayMethod = meta.getClass().getMethod("displayName", component.getClass());
-                displayMethod.invoke(meta, component);
-                return;
-            } catch (Exception e) {
-                if (logger != null) logger.warning("Failed to set displayName reflectively: " + e.getMessage());
+                if (component != null) {
+                    // prefer the standard Adventure Component parameter type to avoid using component.getClass()
+                    Class<?> compCls = Class.forName("net.kyori.adventure.text.Component");
+                    Method displayMethod = meta.getClass().getMethod("displayName", compCls);
+                    if (!displayMethod.canAccess(meta)) {
+                        if (logger != null) logger.fine("Component displayName method not accessible; falling back to legacy display name.");
+                    } else {
+                        displayMethod.invoke(meta, component);
+                        return;
+                    }
+                } else {
+                    if (logger != null) logger.fine("MiniMessage deserialized to null; using legacy display name.");
+                }
+            } catch (Throwable e) {
+                if (logger != null) logger.fine("Failed to set displayName reflectively: " + e.getMessage());
             }
         }
 
