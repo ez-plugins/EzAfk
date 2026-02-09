@@ -3,6 +3,8 @@ package com.gyvex.ezafk.listener;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.state.AfkState;
+import com.gyvex.ezafk.zone.ZoneCache;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,6 +20,9 @@ public class PlayerQuitListener implements Listener {
         UUID playerId = player.getUniqueId();
         AfkTimeManager.flushActiveSessions(java.util.Map.of(playerId, System.currentTimeMillis()));
 
+        // Ensure any stored zone positions are cleared when the player quits
+        ZoneCache.clearPositions(playerId);
+
         if (!AfkState.afkPlayers.contains(playerId)) {
             AfkState.forgetDisplayName(playerId);
             EconomyManager.onDisable(playerId);
@@ -27,7 +32,5 @@ public class PlayerQuitListener implements Listener {
         AfkState.afkPlayers.remove(playerId);
         AfkState.forgetDisplayName(playerId);
         EconomyManager.onDisable(playerId);
-        // Clear any stored AFK zone pos1/pos2 for this player
-        com.gyvex.ezafk.zone.ZoneCache.clearPositions(playerId);
     }
 }

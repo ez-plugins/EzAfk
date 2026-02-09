@@ -23,12 +23,20 @@ public class MetricsIntegration extends Integration {
 
     @Override
     public void load() {
-        this.setupMetrics();
-        this.isSetup = true;
+        try {
+            this.setupMetrics();
+            this.isSetup = true;
+        } catch (IllegalStateException | NoClassDefFoundError ex) {
+            Registry.get().getLogger().warning("bStats Metrics unavailable or not relocated; skipping metrics setup in this environment.");
+            this.metrics = null;
+            this.isSetup = false;
+        }
     }
 
     @Override
     public void unload() {
-        metrics.shutdown();
+        if (metrics != null) {
+            metrics.shutdown();
+        }
     }
 }

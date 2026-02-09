@@ -12,11 +12,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <adventure.scope>provided</adventure.scope>
         <maven.compiler.release>21</maven.compiler.release>
-        <paper.version>1.17.1-R0.1-SNAPSHOT</paper.version>
+        <paper.version>1.21.11-R0.1-SNAPSHOT</paper.version>
         <bstats.version>3.1.0</bstats.version>
         <worldguard.version>7.0.13</worldguard.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
+        <mockbukkit.groupId>org.mockbukkit.mockbukkit</mockbukkit.groupId>
+        <mockbukkit.artifactId>mockbukkit-v1.21</mockbukkit.artifactId>
+        <mockbukkit.version>4.101.0</mockbukkit.version>
         <!-- GitHub repository used for publishing to GitHub Packages -->
         <github.repository>ez-plugins/ezafk</github.repository>
     </properties>
@@ -31,9 +34,15 @@
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
         <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
+        <!-- JitPack (used for MockBukkit coordinates) -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -55,6 +64,7 @@
             <version>${paper.version}</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Note: `paper-api` is declared with `provided` scope above; do not duplicate it here -->
         <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
@@ -131,6 +141,19 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- MockBukkit for plugin tests (mock server environment) -->
+        <dependency>
+            <groupId>${mockbukkit.groupId}</groupId>
+            <artifactId>${mockbukkit.artifactId}</artifactId>
+            <version>${mockbukkit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.5.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

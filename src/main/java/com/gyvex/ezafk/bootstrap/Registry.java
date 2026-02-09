@@ -45,7 +45,6 @@ public class Registry {
         }
 
         this.configManager = new ConfigManager(plugin);
-        this.taskManager = new TaskManager();
         this.bootstrap = new Bootstrap(plugin);
         
         // initialize storage after Registry is available
@@ -80,6 +79,7 @@ public class Registry {
     }
 
     public TaskManager getTaskManager() {
+        if (this.taskManager == null) this.taskManager = new TaskManager();
         return taskManager;
     }
 
@@ -122,8 +122,12 @@ public class Registry {
     }
 
     public void registerListener(Listener listener) {
-        plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-        registeredListeners.add(listener);
+        try {
+            plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+            registeredListeners.add(listener);
+        } catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
+            logger.warning("Failed to register listener " + listener.getClass().getSimpleName() + " during registry init: " + ex.getMessage());
+        }
     }
 
     public void unregisterAllListeners() {

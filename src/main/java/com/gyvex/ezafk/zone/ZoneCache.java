@@ -2,16 +2,16 @@ package com.gyvex.ezafk.zone;
 
 import org.bukkit.Location;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.UUID;
 
 public class ZoneCache {
-    public static final Map<UUID, Location> zonePos1 = new HashMap<>();
-    public static final Map<UUID, Location> zonePos2 = new HashMap<>();
-    public static final Map<UUID, Long> zonePos1Time = new HashMap<>();
-    public static final Map<UUID, Long> zonePos2Time = new HashMap<>();
+    public static final Map<UUID, Location> zonePos1 = new ConcurrentHashMap<>();
+    public static final Map<UUID, Location> zonePos2 = new ConcurrentHashMap<>();
+    public static final Map<UUID, Long> zonePos1Time = new ConcurrentHashMap<>();
+    public static final Map<UUID, Long> zonePos2Time = new ConcurrentHashMap<>();
 
     public static void clearPositions(UUID playerId) {
         zonePos1.remove(playerId);

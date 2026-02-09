@@ -4,7 +4,6 @@ import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.integration.EconomyIntegration;
 import com.gyvex.ezafk.integration.Integration;
-import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.state.AfkState;
 import net.milkbowl.vault.economy.Economy;
 import net.milkbowl.vault.economy.EconomyResponse;
@@ -293,22 +292,47 @@ public final class EconomyManager {
         }
 
         // Use AfkBypassFlag to check WorldGuard regions directly instead of delegating
-        // to WorldGuardIntegration. This avoids indirection and keeps the check localized.
+        // to WorldGuardIntegration. Avoid compile-time references to WorldGuard
+        // classes by using reflection so the plugin can load without WorldGuard.
         try {
-            com.sk89q.worldguard.protection.flags.StateFlag flag = com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag.get();
+            Object flag = com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag.get();
             if (flag != null) {
-                com.sk89q.worldguard.protection.regions.RegionContainer container = com.sk89q.worldguard.WorldGuard.getInstance().getPlatform().getRegionContainer();
-                com.sk89q.worldguard.protection.managers.RegionManager regions = container.get(com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(player.getWorld()));
+                // WorldGuard.getInstance().getPlatform().getRegionContainer();
+                Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+                Object wgInstance = worldGuardClass.getMethod("getInstance").invoke(null);
+                Object platform = wgInstance.getClass().getMethod("getPlatform").invoke(wgInstance);
+                Object container = platform.getClass().getMethod("getRegionContainer").invoke(platform);
+
+                // adapter for world -> region manager
+                Class<?> bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+                Object adaptedWorld = bukkitAdapterClass.getMethod("adapt", org.bukkit.World.class).invoke(null, player.getWorld());
+
+                Object regions = container.getClass().getMethod("get", adaptedWorld.getClass()).invoke(container, adaptedWorld);
                 if (regions != null) {
-                    com.sk89q.worldguard.protection.ApplicableRegionSet set = regions.getApplicableRegions(com.sk89q.worldedit.bukkit.BukkitAdapter.asBlockVector(player.getLocation()));
-                    for (com.sk89q.worldguard.protection.regions.ProtectedRegion region : set) {
-                        if (region.getFlags().containsKey(flag) && region.getFlag(flag) == com.sk89q.worldguard.protection.flags.StateFlag.State.ALLOW) {
-                            return true;
+                    Object blockVector = bukkitAdapterClass.getMethod("asBlockVector", org.bukkit.Location.class).invoke(null, player.getLocation());
+                    Object set = regions.getClass().getMethod("getApplicableRegions", blockVector.getClass()).invoke(regions, blockVector);
+                    // Iterate over set (it is Iterable<ProtectedRegion>)
+                    for (Object region : (Iterable<?>) set) {
+                        try {
+                            Object flagsMap = region.getClass().getMethod("getFlags").invoke(region);
+                            boolean contains = (boolean) flagsMap.getClass().getMethod("containsKey", Object.class).invoke(flagsMap, flag);
+                            if (contains) {
+                                Object flagVal = region.getClass().getMethod("getFlag", flag.getClass()).invoke(region, flag);
+                                // Compare to StateFlag.State.ALLOW
+                                Class<?> stateFlagClass = Class.forName("com.sk89q.worldguard.protection.flags.StateFlag");
+                                Class<?> stateEnum = Class.forName("com.sk89q.worldguard.protection.flags.StateFlag$State");
+                                Object allow = java.lang.Enum.valueOf((Class<Enum>) stateEnum, "ALLOW");
+                                if (allow.equals(flagVal)) {
+                                    return true;
+                                }
+                            }
+                        } catch (NoSuchMethodException nsme) {
+                            // older/newer API mismatch; ignore and continue
                         }
                     }
                 }
             }
-        } catch (NoClassDefFoundError | Exception ignored) {
+        } catch (Throwable ignored) {
             // WorldGuard not available or error while checking regions; fall through.
         }
 
