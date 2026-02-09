@@ -36,7 +36,7 @@ import java.util.logging.Level;
 public class Bootstrap {
     private final EzAfk plugin;
     private final ArrayList<Listener> registeredListeners = new ArrayList<>();
-    private final TaskManager taskManager = new TaskManager();
+    private TaskManager taskManager = null;
     private com.gyvex.ezafk.listener.EconomyServiceListener economyServiceListener;
 
     public Bootstrap(EzAfk plugin) {
@@ -85,7 +85,11 @@ public class Bootstrap {
         AfkTimeManager.load(plugin);
 
         economyServiceListener = new EconomyServiceListener();
-        plugin.getServer().getPluginManager().registerEvents(economyServiceListener, plugin);
+        try {
+            plugin.getServer().getPluginManager().registerEvents(economyServiceListener, plugin);
+        } catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
+            plugin.getLogger().warning("Failed to register EconomyServiceListener during enable: " + ex.getMessage());
+        }
 
         registerListener(new MoveListener(plugin));
         registerListener(new PlayerActivityListener());
@@ -98,9 +102,15 @@ public class Bootstrap {
             registerListener(new SimpleVoiceChatAfkListener(plugin));
         }
 
-        plugin.getCommand("ezafk").setExecutor(new EzAfkCommand(plugin));
-        plugin.getCommand("ezafk").setTabCompleter(new EzAfkTabCompleter());
+        if (plugin.getCommand("ezafk") != null) {
+            plugin.getCommand("ezafk").setExecutor(new EzAfkCommand(plugin));
+            plugin.getCommand("ezafk").setTabCompleter(new EzAfkTabCompleter());
+        } else {
+            plugin.getLogger().warning("Command 'ezafk' not found in plugin description; skipping command registration.");
+        }
 
+        // Initialize and start task manager here to avoid loading task classes during onLoad/init.
+        this.taskManager = new TaskManager();
         taskManager.startAfkCheckTask(plugin);
     }
 
@@ -147,7 +157,10 @@ public class Bootstrap {
             economyServiceListener = null;
         }
 
-        taskManager.cancelTasks();
+        if (taskManager != null) {
+            taskManager.cancelTasks();
+            taskManager = null;
+        }
 
         IntegrationManager.unload();
         EconomyManager.reset();
@@ -155,11 +168,16 @@ public class Bootstrap {
     }
 
     private void registerListener(Listener listener) {
-        plugin.getServer().getPluginManager().registerEvents(listener, plugin);
-        registeredListeners.add(listener);
+        try {
+            plugin.getServer().getPluginManager().registerEvents(listener, plugin);
+            registeredListeners.add(listener);
+        } catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
+            plugin.getLogger().warning("Failed to register listener " + listener.getClass().getSimpleName() + " during enable: " + ex.getMessage());
+        }
     }
 
     private void maybeRegisterWorldGuardIntegration() {
+
         if (!plugin.getConfig().getBoolean("integration.worldguard")) {
             plugin.getLogger().fine("WorldGuard integration disabled via config");
             return;
@@ -178,6 +196,12 @@ public class Bootstrap {
         // its `load()` method until IntegrationManager.load() runs in onEnable().
         // This prevents double-invocation of setup logic.
         try {
+            // Allow test/runtime overrides to block registration
+            // (IntegrationManager.setRegistrationAllowed can be used by tests)
+            if (!IntegrationManager.isRegistrationAllowed("worldguard")) {
+                plugin.getLogger().info("WorldGuard integration explicitly disabled by test override.");
+                return;
+            }
             WorldGuardIntegration integration = new WorldGuardIntegration();
             IntegrationManager.addIntegration("worldguard", integration);
             plugin.getLogger().info("WorldGuard integration registered.");

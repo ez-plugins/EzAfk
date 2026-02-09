@@ -1,9 +1,6 @@
 package com.gyvex.ezafk.integration.worldguard;
 
 import com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
@@ -28,24 +25,31 @@ public final class WorldGuardSupport {
         if (FLAGS_REGISTERED.get()) return true;
 
         try {
-            FlagRegistry registry = WorldGuard.getInstance().getFlagRegistry();
+            Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+            Object wgInstance = worldGuardClass.getMethod("getInstance").invoke(null);
+            Object registry = wgInstance.getClass().getMethod("getFlagRegistry").invoke(wgInstance);
+
             String mode = plugin.getConfig().getString("integration.flag-registration", "auto").trim().toLowerCase();
 
-            // If the registry already contains the flag, adopt it without extra logging.
-            com.sk89q.worldguard.protection.flags.Flag<?> existing = registry.get("afk-bypass");
-            if (existing instanceof StateFlag) {
-                AfkBypassFlag.set((StateFlag) existing);
-                FLAGS_REGISTERED.set(true);
-                return true;
+            // Try to adopt an existing flag if present
+            try {
+                Object existing = registry.getClass().getMethod("get", String.class).invoke(registry, "afk-bypass");
+                if (existing != null) {
+                    AfkBypassFlag.set(existing);
+                    FLAGS_REGISTERED.set(true);
+                    return true;
+                }
+            } catch (Throwable ignored) {
+                // ignore and continue to attempt registration
             }
 
-            StateFlag active = AfkBypassFlag.ensureRegistered(registry, logger, mode);
+            Object active = AfkBypassFlag.ensureRegistered(registry, logger, mode);
             if (active != null) {
                 FLAGS_REGISTERED.set(true);
                 return true;
             }
             return false;
-        } catch (NoClassDefFoundError | Exception ex) {
+        } catch (Throwable ex) {
             logger.log(Level.FINE, "WorldGuard not available or registration failed: " + ex.getMessage());
             return false;
         }

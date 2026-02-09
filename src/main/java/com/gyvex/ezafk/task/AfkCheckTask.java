@@ -5,13 +5,6 @@ import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.compatibility.CompatibilityUtil;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
 import com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.managers.RegionManager;
-import com.sk89q.worldguard.protection.regions.ProtectedRegion;
-import com.sk89q.worldguard.protection.regions.RegionContainer;
-import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.zone.Zone;
 import com.gyvex.ezafk.manager.EconomyManager;
@@ -87,24 +80,41 @@ public class AfkCheckTask extends BukkitRunnable {
     }
 
     private boolean shouldBypassWorldGuard(Player player) {
-        // Prefer direct check using the registered AFK BYPASS flag from AfkBypassFlag.
-        StateFlag flag = AfkBypassFlag.get();
+        Object flag = AfkBypassFlag.get();
         if (flag == null) return false;
 
         try {
-            RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionManager regions = container.get(BukkitAdapter.adapt(player.getWorld()));
+            Class<?> worldGuardClass = Class.forName("com.sk89q.worldguard.WorldGuard");
+            Object wgInstance = worldGuardClass.getMethod("getInstance").invoke(null);
+            Object platform = wgInstance.getClass().getMethod("getPlatform").invoke(wgInstance);
+            Object container = platform.getClass().getMethod("getRegionContainer").invoke(platform);
 
+            Class<?> bukkitAdapterClass = Class.forName("com.sk89q.worldedit.bukkit.BukkitAdapter");
+            Object adaptedWorld = bukkitAdapterClass.getMethod("adapt", org.bukkit.World.class).invoke(null, player.getWorld());
+
+            Object regions = container.getClass().getMethod("get", adaptedWorld.getClass()).invoke(container, adaptedWorld);
             if (regions == null) return false;
 
-            ApplicableRegionSet set = regions.getApplicableRegions(BukkitAdapter.asBlockVector(player.getLocation()));
+            Object blockVector = bukkitAdapterClass.getMethod("asBlockVector", org.bukkit.Location.class).invoke(null, player.getLocation());
+            Object set = regions.getClass().getMethod("getApplicableRegions", blockVector.getClass()).invoke(regions, blockVector);
 
-            for (ProtectedRegion region : set) {
-                if (region.getFlags().containsKey(flag) && region.getFlag(flag) == StateFlag.State.ALLOW) {
-                    return true;
+            for (Object region : (Iterable<?>) set) {
+                try {
+                    Object flagsMap = region.getClass().getMethod("getFlags").invoke(region);
+                    boolean contains = (boolean) flagsMap.getClass().getMethod("containsKey", Object.class).invoke(flagsMap, flag);
+                    if (contains) {
+                        Object flagVal = region.getClass().getMethod("getFlag", flag.getClass()).invoke(region, flag);
+                        Class<?> stateEnum = Class.forName("com.sk89q.worldguard.protection.flags.StateFlag$State");
+                        Object allow = java.lang.Enum.valueOf((Class<Enum>) stateEnum, "ALLOW");
+                        if (allow.equals(flagVal)) {
+                            return true;
+                        }
+                    }
+                } catch (NoSuchMethodException nsme) {
+                    // API mismatch; ignore this region and continue
                 }
             }
-        } catch (NoClassDefFoundError | Exception ignored) {
+        } catch (Throwable ignored) {
             // WorldGuard not available or error while checking regions.
             return false;
         }

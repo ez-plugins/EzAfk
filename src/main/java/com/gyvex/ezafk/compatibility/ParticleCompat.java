@@ -7,7 +7,11 @@ public class ParticleCompat {
         try {
             return Particle.valueOf("HAPPY_VILLAGER");
         } catch (IllegalArgumentException e) {
-            return Particle.VILLAGER_HAPPY; // legacy fallback
+            try {
+                return Enum.valueOf(Particle.class, "VILLAGER_HAPPY");
+            } catch (IllegalArgumentException e2) {
+                return null;
+            }
         }
     }
 
@@ -15,7 +19,11 @@ public class ParticleCompat {
         try {
             return Particle.valueOf("BLOCK");
         } catch (IllegalArgumentException e) {
-            return Particle.BLOCK_CRACK; // legacy fallback
+            try {
+                return Enum.valueOf(Particle.class, "BLOCK_CRACK");
+            } catch (IllegalArgumentException e2) {
+                return null;
+            }
         }
     }
 
@@ -31,7 +39,11 @@ public class ParticleCompat {
         try {
             return Particle.valueOf("SMOKE");
         } catch (IllegalArgumentException e) {
-            return Particle.SMOKE_NORMAL; // legacy fallback
+            try {
+                return Enum.valueOf(Particle.class, "SMOKE_NORMAL");
+            } catch (IllegalArgumentException e2) {
+                return null;
+            }
         }
     }
 }
