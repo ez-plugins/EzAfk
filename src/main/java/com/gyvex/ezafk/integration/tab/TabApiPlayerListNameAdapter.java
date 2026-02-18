@@ -16,7 +16,7 @@ import org.bukkit.entity.Player;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.PlayerListNameAdapter {
+public class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.PlayerListNameAdapter {
     private enum ApplyValueType {
         STRING,
         KYORI_COMPONENT,
@@ -42,7 +42,7 @@ class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.PlayerL
     private final TargetMethods targetMethods;
     private final Logger logger = Bukkit.getLogger();
 
-    TabApiPlayerListNameAdapter() {
+    public TabApiPlayerListNameAdapter() {
         TabAPI api = TabAPI.getInstance();
         if (api == null) {
             throw new IllegalStateException("TAB API returned null instance");

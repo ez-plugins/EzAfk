@@ -6,7 +6,7 @@
 
     <groupId>com.gyvex</groupId>
     <artifactId>ezafk</artifactId>
-    <version>2.3.2</version>
+    <version>2.3.3</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -122,7 +122,7 @@
         <dependency>
             <groupId>com.github.NEZNAMY</groupId>
             <artifactId>TAB-API</artifactId>
-            <version>5.3.2</version>
+            <version>5.5.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
