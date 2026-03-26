@@ -128,7 +128,7 @@ EzAfk ships with dedicated files to keep settings organized:
 [*][B]config.yml[/B]: Core AFK behaviour, broadcasts, display-name styling, TAB integration, and punishment logic.
 [*][B]gui.yml[/B]: Inventory size and per-slot actions for the staff GUI.
 [*][B]mysql.yml[/B]: Connection details for optional persistent storage.
-[*][B]messages_*.yml[/B]: Localised player-facing messages for English, Spanish, Dutch, Russian, and Chinese out of the box.
+[*][B]messages_*.yml[/B]: Localised player-facing messages for English, Spanish, Dutch, Russian, Chinese, and German out of the box.
 [/LIST]
 
 [spoiler=Core config (config.yml)]
@@ -137,7 +137,7 @@ EzAfk ships with dedicated files to keep settings organized:
 # GUI settings have moved to gui.yml.
 # MySQL settings have moved to mysql.yml.
 messages:
-  # Default language for the generated messages file. Supported values: en, es, nl, ru, zh
+  # Default language for the generated messages file. Supported values: en, es, nl, ru, zh, de
   # Language files are located in the messages/ directory.
   language: en
 afk:

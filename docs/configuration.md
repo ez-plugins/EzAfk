@@ -7,7 +7,7 @@ This document provides advanced documentation for every configuration option in 
 ## config.yml
 
 ### messages
-- `language`: Default language for plugin messages. Supported: `en`, `es`, `nl`, `ru`, `zh`. Determines which file in `messages/` is loaded.
+- `language`: Default language for plugin messages. Supported: `en`, `es`, `nl`, `ru`, `zh`, `de`. Determines which file in `messages/` is loaded.
 
 ### afk
 - `timeout`: (int, seconds) Time of inactivity before a player is marked AFK.

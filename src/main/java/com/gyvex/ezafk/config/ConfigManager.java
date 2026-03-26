@@ -154,11 +154,15 @@ public class ConfigManager {
                 return resolveMessagesFileName("ru", "messages_ru.yml");
             case "zh":
                 return resolveMessagesFileName("zh", "messages_zh.yml");
+            case "ja":
+                return resolveMessagesFileName("ja", "messages_ja.yml");
             case "en":
                 return resolveEnglishMessagesFileName();
             default:
-                plugin.getLogger().log(Level.WARNING, "Unknown messages.language '" + language + "', defaulting to en");
-                return resolveEnglishMessagesFileName();
+                // Allow custom language codes (for example 'fr', 'de', 'pt', etc.).
+                // The plugin will look for messages/messages_<language>.yml in the
+                // plugin data folder, or copy the bundled resource if it exists.
+                return resolveMessagesFileName(language);
         }
     }
 

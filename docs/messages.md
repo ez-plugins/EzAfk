@@ -19,6 +19,8 @@ EzAfk supports full message customization and translation through YAML files in 
 2. Translate the values for each key.
 3. Set `messages.language: fr` in `config.yml`.
 
+Custom languages: You can add an arbitrary language by creating a file named `messages/messages_<code>.yml` (for example `messages/messages_fr.yml`) in the plugin data folder, or bundle it under `src/main/resources/messages/` in the plugin JAR. Then set `messages.language: <code>` in `config.yml`. The plugin will load `messages/messages_<code>.yml` if present (and copy the bundled resource on first launch if included in the JAR).
+
 ## Placeholders
 Many messages support placeholders that are replaced at runtime:
 - `%player%`: Player's display name
