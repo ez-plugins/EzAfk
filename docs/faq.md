@@ -10,7 +10,7 @@ This document answers common questions and provides solutions to frequent issues
 A: Place the EzAfk jar in your server's `plugins` folder and restart the server.
 
 **Q: How do I change the plugin language?**
-A: Set `messages.language` in `config.yml` to your desired language code (e.g., `en`, `es`, `nl`, `ru`, `zh`).
+A: Set `messages.language` in `config.yml` to your desired language code (e.g., `en`, `es`, `nl`, `ru`, `zh`, `ja`, `de`).
 
 **Q: How do I reload the configuration?**
 A: Use `/afk reload` (requires `ezafk.reload` permission).
