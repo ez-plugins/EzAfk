@@ -1,8 +1,15 @@
+---
+title: AfkReasons
+nav_order: 2
+parent: Developer API
+---
+
 # AfkReasons
 
 EzAfk uses the `AfkReason` enum to describe why a player's AFK status changed. Below are all possible reasons:
 
 ## Possible AfkReasons
+
 - `MANUAL` — Player toggled AFK manually.
 - `COMMAND_FORCED` — Marked AFK by a staff command.
 - `INACTIVITY` — No recent player activity was detected.

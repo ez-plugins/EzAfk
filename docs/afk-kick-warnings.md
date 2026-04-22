@@ -1,5 +1,7 @@
 ---
 title: AFK Kick Warnings
+nav_order: 1
+parent: Configuration
 ---
 
 # AFK Kick Warnings Feature

@@ -1,4 +1,9 @@
-# EzAfk FAQ (Frequently Asked Questions)
+---
+title: FAQ & Troubleshooting
+nav_order: 9
+---
+
+# FAQ & Troubleshooting
 
 This document answers common questions and provides solutions to frequent issues with EzAfk.
 
