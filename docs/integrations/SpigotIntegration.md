@@ -7,6 +7,7 @@ parent: Integrations
 # SpigotIntegration
 
 ## Features
+
 - Integrates EzAfk with Spigot-specific APIs and features.
 
 ## Setup

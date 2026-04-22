@@ -22,6 +22,7 @@ EzAfk exposes custom events to allow other plugins to hook into AFK status chang
   - `String getDetail()` — Additional details about the change
 
 ### Example Listener
+
 ```java
 import com.gyvex.ezafk.event.PlayerAfkStatusChangeEvent;
 import org.bukkit.event.EventHandler;

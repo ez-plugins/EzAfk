@@ -32,3 +32,6 @@ MD024:
 # MD007 — Unordered list indentation: use 2-space indent under list items
 MD007:
   indent: 2
+
+# MD046 — Code block style: fenced blocks are used throughout (not indented)
+MD046: false

@@ -12,6 +12,7 @@ EzAfk supports integration with several popular Minecraft plugins to enhance AFK
 
 Register your listener as usual in your plugin to receive these events.
 ### WorldGuard
+
 - **Purpose:** Allows region-based AFK bypass and custom flags.
 - **Setup:**
   - Install WorldGuard on your server.
@@ -22,6 +23,7 @@ Register your listener as usual in your plugin to receive these events.
   - Check server logs for integration errors.
 
 ### TAB
+
 - **Purpose:** Customizes player names in the tab list when AFK.
 - **Setup:**
   - Install the TAB plugin.
@@ -31,6 +33,7 @@ Register your listener as usual in your plugin to receive these events.
   - Ensure TAB is enabled and compatible with your server version.
 
 ### Vault (Economy)
+
 - **Purpose:** Enables economy-based AFK costs and rewards.
 - **Setup:**
   - Install Vault and an economy provider (e.g., EssentialsX Economy).
@@ -41,6 +44,7 @@ Register your listener as usual in your plugin to receive these events.
   - Check for errors in the server log.
 
 ### PlaceholderAPI
+
 - **Purpose:** Adds placeholders for AFK status, time, and more.
 - **Setup:**
   - Install PlaceholderAPI.
@@ -49,6 +53,7 @@ Register your listener as usual in your plugin to receive these events.
   - Use `/papi ecloud download EzAfk` if available.
 
 ### Playtime
+
 - **Purpose:** Adjusts playtime statistics to exclude AFK time.
 - **Setup:**
   - Install Playtime plugin.
@@ -56,6 +61,7 @@ Register your listener as usual in your plugin to receive these events.
   - Configure the playtime placeholder as needed.
 
 ### Simple Voice Chat
+
 - **Purpose:** Plays a custom MP3 sound to the player when they go AFK using Simple Voice Chat.
 - **Setup:**
   - Install the Simple Voice Chat plugin on your server and mod on your client.
@@ -71,6 +77,7 @@ Register your listener as usual in your plugin to receive these events.
 ---
 
 ## General Troubleshooting
+
 - Ensure all plugins are compatible with your server version.
 - Reload or restart the server after installing new plugins.
 - Check the server log for integration-related errors or warnings.
