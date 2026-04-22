@@ -64,7 +64,7 @@ Grant `ezafk.*` to administrators or assign individual nodes — see the
 | [Getting Started](getting-started) | Install, first config, verify it works |
 | [Commands](commands) | All `/afk` commands, arguments, and permission nodes |
 | [Configuration](configuration) | Every config option explained |
-| [Configuration → AFK Kick Warnings](afk-kick-warnings) | Multi-stage kick warning system |
+| [Features](features/) | AFK detection, anti-bypass, kick, GUI, zones, economy, leaderboard — each with config |
 | [Permissions](permissions) | Permission nodes and defaults |
 | [Messages](messages) | Customising plugin messages and language files |
 | [Storage](mysql) | YAML, SQLite, and MySQL storage backends |

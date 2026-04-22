@@ -1,6 +1,6 @@
 ---
 title: Messages
-nav_order: 6
+nav_order: 7
 ---
 
 # EzAfk Messages & Localization Guide

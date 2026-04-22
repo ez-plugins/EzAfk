@@ -11,8 +11,8 @@ This page walks you through installing EzAfk on your server and running it for t
 
 ## Requirements
 
-- Paper, Spigot, Bukkit, or Purpur **1.19+**
-- Java **17** or newer
+- Paper, Spigot, Bukkit, or Purpur **1.26+**
+- Java **25** or newer
 
 ---
 
@@ -97,6 +97,7 @@ Run `/afk reload` to hot-reload config changes at any time (requires `ezafk.relo
 |---|---|
 | See all commands | [Commands](commands) |
 | Tune every config option | [Configuration](configuration) |
+| Understand each feature in depth | [Features](features/) |
 | Set up MySQL for persistence | [Storage](mysql) |
 | Connect PlaceholderAPI / WorldGuard / Economy | [Integrations](integrations) |
 | Customise plugin messages | [Messages](messages) |

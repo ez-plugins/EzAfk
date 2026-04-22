@@ -1,12 +1,12 @@
 ---
 title: Configuration
 nav_order: 4
-has_children: true
 ---
 
-# EzAfk Configuration Guide (Advanced)
+# EzAfk Configuration Guide
 
-This document provides advanced documentation for every configuration option in EzAfk's main configuration files.
+This page lists every configuration option in EzAfk's main files.
+For feature-level documentation — explained config options, behaviour walkthroughs, and examples — see the **[Features](features/)** section.
 
 ---
 
@@ -17,6 +17,8 @@ This document provides advanced documentation for every configuration option in 
 - `language`: Default language for plugin messages. Supported: `en`, `es`, `nl`, `ru`, `zh`, `de`. Determines which file in `messages/` is loaded.
 
 ### afk
+
+See [AFK Detection](features/afk-detection) for a full walkthrough of these options.
 
 - `timeout`: (int, seconds) Time of inactivity before a player is marked AFK.
 - `bypass.enabled`: (bool) If true, enables the `ezafk.bypass` permission (OPs by default).
@@ -53,6 +55,8 @@ This document provides advanced documentation for every configuration option in 
 
 ### economy
 
+See [Economy Costs](features/economy-costs) for a full walkthrough of these options.
+
 - `enabled`: (bool) Enable economy-based AFK costs (requires Vault).
 - `bypass-permission`: (string) Permission to bypass AFK costs.
 - `cost.enter.enabled`: (bool) Charge when a player becomes AFK.
@@ -66,6 +70,8 @@ This document provides advanced documentation for every configuration option in 
 - `cost.recurring.kick-on-fail`: (bool) If true, removes AFK state on failed optional charge.
 
 ### kick
+
+See [AFK Kick](features/afk-kick) and [AFK Kick Warnings](afk-kick-warnings) for full walkthroughs.
 
 - `enabled`: (bool) Enable kicking after being AFK too long.
 - `enabledWhenFull`: (bool) Enable kicking when server is full.
@@ -91,6 +97,8 @@ This document provides advanced documentation for every configuration option in 
 
 ## gui.yml
 
+See [In-Game GUI](features/gui) for a full walkthrough of these options.
+
 ### inventory-size
 
 - (int) Number of slots in the GUI. Must be a multiple of 9, between 9 and 54.
@@ -109,6 +117,8 @@ Each action is a named section (e.g., `kick`, `alert`, `teleport`).
 ---
 
 ## mysql.yml
+
+See [Storage / MySQL](mysql) for setup instructions.
 
 - `enabled`: (bool) Enable MySQL storage for AFK data.
 - `host`: (string) MySQL server address.
