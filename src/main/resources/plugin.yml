@@ -2,7 +2,7 @@ name: "EzAfk"
 description: "Manage your AFK players easily"
 main: com.gyvex.ezafk.EzAfk
 version: "${project.version}"
-api-version: 1.13
+api-version: 26.1
 commands:
   ezafk:
     description: "Manage AFK states and EzAfk configuration"
