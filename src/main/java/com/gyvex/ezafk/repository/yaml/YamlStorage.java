@@ -1,9 +1,10 @@
 package com.gyvex.ezafk.repository.yaml;
 
+import com.github.ezframework.jaloquent.model.Model;
+import com.github.ezframework.jaloquent.model.ModelRepository;
 import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.repository.AfkTimeModel;
 import com.gyvex.ezafk.repository.StorageRepository;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,91 +13,83 @@ import java.util.Map;
 import java.util.UUID;
 
 public class YamlStorage implements StorageRepository {
-    private File dataFile;
-    private FileConfiguration config;
-    private final Map<UUID, Long> cache = new HashMap<>();
+
+    private YamlDataStore store;
+    private ModelRepository<AfkTimeModel> repo;
 
     @Override
     public void init() throws Exception {
         File dataFolder = Registry.get().getPlugin().getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdirs();
-        dataFile = new File(dataFolder, "afk_times.yml");
-        if (!dataFile.exists()) {
-            try {
-                dataFile.createNewFile();
-            } catch (IOException e) {
-                throw new IOException("Unable to create afk_times.yml", e);
-            }
-        }
-        config = YamlConfiguration.loadConfiguration(dataFile);
-        loadIntoCache();
+        store = new YamlDataStore(new File(dataFolder, "afk_times.yml"));
+        repo = new ModelRepository<>(store, AfkTimeModel.TABLE_PREFIX, AfkTimeModel.FACTORY);
     }
 
     @Override
     public Map<UUID, Long> loadAll() {
-        return new java.util.HashMap<>(cache);
-    }
-
-    private void loadIntoCache() {
-        cache.clear();
-        if (config == null) return;
-        for (String key : config.getKeys(false)) {
-            try {
-                UUID id = UUID.fromString(key);
-                long v = config.getLong(key, 0L);
-                cache.put(id, v);
-            } catch (Exception ignored) {}
+        final Map<UUID, Long> result = new HashMap<>();
+        try {
+            for (final AfkTimeModel m : repo.query(Model.queryBuilder().build())) {
+                try {
+                    result.put(UUID.fromString(m.getId()), m.getSeconds());
+                } catch (IllegalArgumentException ignored) {}
+            }
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("Failed to load AFK times from YAML: " + e.getMessage());
         }
+        return result;
     }
 
     @Override
     public void savePlayerAfkTime(UUID player, long seconds) {
         if (player == null) return;
-        cache.put(player, seconds);
-        if (config != null) config.set(player.toString(), seconds);
+        final AfkTimeModel model = new AfkTimeModel(player.toString());
+        model.setSeconds(seconds);
+        try {
+            repo.save(model);
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("YAML save failed: " + e.getMessage());
+        }
     }
 
     @Override
     public void deletePlayer(UUID player) {
         if (player == null) return;
-        cache.remove(player);
-        if (config != null) {
-            config.set(player.toString(), null);
-            try {
-                config.save(dataFile);
-            } catch (IOException e) {
-                Registry.get().getLogger().warning("Failed to delete player from YamlStorage: " + e.getMessage());
-            }
+        try {
+            repo.delete(player.toString());
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("YAML delete failed: " + e.getMessage());
         }
     }
 
     @Override
     public long getPlayerAfkTime(UUID player) {
         if (player == null) return 0L;
-        Long v = cache.get(player);
-        return v != null ? v : 0L;
+        try {
+            return repo.find(player.toString())
+                    .map(AfkTimeModel::getSeconds)
+                    .orElse(0L);
+        } catch (Exception e) {
+            Registry.get().getLogger().warning("YAML read failed: " + e.getMessage());
+            return 0L;
+        }
     }
 
     @Override
     public void saveAll() throws Exception {
-        if (config == null || dataFile == null) return;
-        for (Map.Entry<UUID, Long> e : cache.entrySet()) {
-            config.set(e.getKey().toString(), e.getValue());
-        }
         try {
-            config.save(dataFile);
-        } catch (IOException ex) {
-            throw new IOException("Failed to save afk_times.yml", ex);
+            store.flush();
+        } catch (IOException e) {
+            throw new IOException("Failed to save afk_times.yml", e);
         }
     }
 
     @Override
     public void shutdown() {
         try {
-            saveAll();
+            store.flush();
         } catch (Exception e) {
-            Registry.get().getLogger().warning("Failed to save YamlStorage on shutdown: " + e.getMessage());
+            Registry.get().getLogger().warning("Failed to flush YAML storage on shutdown: " + e.getMessage());
         }
-        cache.clear();
     }
 }

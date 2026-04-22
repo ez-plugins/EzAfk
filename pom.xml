@@ -16,7 +16,8 @@
         <bstats.version>3.1.0</bstats.version>
         <worldguard.version>7.0.13</worldguard.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
-        <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
+        <maven.shade.plugin.version>3.6.2</maven.shade.plugin.version>
+        <jaloquent.version>1.1.0</jaloquent.version>
         <mockbukkit.groupId>org.mockbukkit.mockbukkit</mockbukkit.groupId>
         <mockbukkit.artifactId>mockbukkit-v26.1</mockbukkit.artifactId>
         <mockbukkit.version>dev-d245e0a</mockbukkit.version>
@@ -138,6 +139,12 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.EzFramework</groupId>
+            <artifactId>jaloquent</artifactId>
+            <version>${jaloquent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>
@@ -213,6 +220,8 @@
                                     <include>net.kyori:examination-api</include>
                                     <include>net.kyori:examination-string</include>
                                     <include>javazoom:jlayer</include>
+                                    <include>com.github.EzFramework:jaloquent</include>
+                                    <include>com.github.EzFramework:JavaQueryBuilder</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -227,6 +236,10 @@
                                 <relocation>
                                     <pattern>javazoom</pattern>
                                     <shadedPattern>com.gyvex.ezafk.libs.javazoom</shadedPattern>
+                                </relocation>
+                                <relocation>
+                                    <pattern>com.github.ezframework</pattern>
+                                    <shadedPattern>com.gyvex.ezafk.libs.ezframework</shadedPattern>
                                 </relocation>
                             </relocations>
                         </configuration>

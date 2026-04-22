@@ -1,61 +1,83 @@
 package com.gyvex.ezafk.repository.sqlite;
 
+import com.github.ezframework.jaloquent.exception.StorageException;
+import com.github.ezframework.jaloquent.model.Model;
+import com.github.ezframework.jaloquent.model.ModelRepository;
+import com.github.ezframework.jaloquent.model.TableRegistry;
+import com.github.ezframework.jaloquent.store.DataStore;
+import com.github.ezframework.jaloquent.store.sql.JdbcStore;
+import com.github.ezframework.javaquerybuilder.query.sql.SqlDialect;
 import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.repository.AfkTimeModel;
 import com.gyvex.ezafk.repository.StorageRepository;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
- * Minimal SQLite storage stub. Creates a simple table and stores per-player seconds.
- * This is intentionally small but functional for local file-based storage.
+ * SQLite storage backend using Jaloquent's ModelRepository with a JdbcStore
+ * backed by a DriverManager JDBC connection.
  */
-public class SQLiteStorage implements StorageRepository {
+public class SQLiteStorage implements StorageRepository, DataStore, JdbcStore {
+
+    private static final Map<String, String> TABLE_COLUMNS = Map.of(
+            "id",      "TEXT PRIMARY KEY",
+            "seconds", "INTEGER NOT NULL DEFAULT 0"
+    );
+
     private Connection connection;
+    private ModelRepository<AfkTimeModel> repo;
 
     @Override
     public void init() throws Exception {
         java.io.File dataFolder = Registry.get().getPlugin().getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdirs();
         java.io.File dbFile = new java.io.File(dataFolder, "ezafk.db");
-        String url = "jdbc:sqlite:" + dbFile.getAbsolutePath();
-        connection = DriverManager.getConnection(url);
+        connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile.getAbsolutePath());
+
         try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS afk_times (uuid TEXT PRIMARY KEY, seconds INTEGER)");
+            stmt.executeUpdate(
+                    "CREATE TABLE IF NOT EXISTS afk_times " +
+                    "(id TEXT PRIMARY KEY, seconds INTEGER NOT NULL DEFAULT 0)");
         }
+
+        TableRegistry.register(AfkTimeModel.TABLE_PREFIX, "afk_times", TABLE_COLUMNS);
+        repo = new ModelRepository<>(this, AfkTimeModel.TABLE_PREFIX, AfkTimeModel.FACTORY,
+                SqlDialect.SQLITE);
     }
 
     @Override
-    public java.util.Map<UUID, Long> loadAll() {
-        java.util.Map<UUID, Long> map = new java.util.HashMap<>();
-        if (connection == null) return map;
-        try (PreparedStatement ps = connection.prepareStatement("SELECT uuid, seconds FROM afk_times")) {
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    try {
-                        UUID id = UUID.fromString(rs.getString(1));
-                        long s = rs.getLong(2);
-                        map.put(id, s);
-                    } catch (Exception ignored) {}
-                }
+    public Map<UUID, Long> loadAll() {
+        final Map<UUID, Long> result = new java.util.HashMap<>();
+        try {
+            for (final AfkTimeModel m : repo.query(Model.queryBuilder().build())) {
+                try {
+                    result.put(UUID.fromString(m.getId()), m.getSeconds());
+                } catch (IllegalArgumentException ignored) {}
             }
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite loadAll failed: " + e.getMessage());
         }
-        return map;
+        return result;
     }
 
     @Override
     public void savePlayerAfkTime(UUID player, long seconds) {
         if (player == null) return;
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO afk_times(uuid, seconds) VALUES(?, ?) ON CONFLICT(uuid) DO UPDATE SET seconds=excluded.seconds")) {
-            ps.setString(1, player.toString());
-            ps.setLong(2, seconds);
-            ps.executeUpdate();
+        final AfkTimeModel model = new AfkTimeModel(player.toString());
+        model.setSeconds(seconds);
+        try {
+            repo.save(model);
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite save failed: " + e.getMessage());
         }
@@ -64,9 +86,8 @@ public class SQLiteStorage implements StorageRepository {
     @Override
     public void deletePlayer(UUID player) {
         if (player == null || connection == null) return;
-        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM afk_times WHERE uuid = ?")) {
-            ps.setString(1, player.toString());
-            ps.executeUpdate();
+        try {
+            repo.delete(player.toString());
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite delete failed: " + e.getMessage());
         }
@@ -75,20 +96,19 @@ public class SQLiteStorage implements StorageRepository {
     @Override
     public long getPlayerAfkTime(UUID player) {
         if (player == null) return 0L;
-        try (PreparedStatement ps = connection.prepareStatement("SELECT seconds FROM afk_times WHERE uuid = ?")) {
-            ps.setString(1, player.toString());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getLong(1);
-            }
+        try {
+            return repo.find(player.toString())
+                    .map(AfkTimeModel::getSeconds)
+                    .orElse(0L);
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite read failed: " + e.getMessage());
+            return 0L;
         }
-        return 0L;
     }
 
     @Override
-    public void saveAll() throws Exception {
-        // no-op; writes are immediate
+    public void saveAll() {
+        // Writes are immediate via repo.save(); nothing to flush.
     }
 
     @Override
@@ -96,5 +116,76 @@ public class SQLiteStorage implements StorageRepository {
         try {
             if (connection != null && !connection.isClosed()) connection.close();
         } catch (Exception ignored) {}
+    }
+
+    // =========================================================================
+    // JdbcStore — called by ModelRepository on the SQL path
+    // =========================================================================
+
+    @Override
+    public List<Map<String, Object>> query(String sql, List<Object> params) throws Exception {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            bindParams(stmt, params);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return mapResultSet(rs);
+            }
+        }
+    }
+
+    @Override
+    public int executeUpdate(String sql, List<Object> params) throws Exception {
+        try (PreparedStatement stmt = connection.prepareStatement(sql)) {
+            bindParams(stmt, params);
+            return stmt.executeUpdate();
+        }
+    }
+
+    // =========================================================================
+    // DataStore — flat-map path not used when TableRegistry entry exists
+    // =========================================================================
+
+    @Override
+    public void save(String path, Map<String, Object> data) throws Exception {
+        throw new StorageException("SQLiteStorage uses the SQL path via TableRegistry");
+    }
+
+    @Override
+    public Optional<Map<String, Object>> load(String path) throws Exception {
+        throw new StorageException("SQLiteStorage uses the SQL path via TableRegistry");
+    }
+
+    @Override
+    public void delete(String path) throws Exception {
+        throw new StorageException("SQLiteStorage uses the SQL path via TableRegistry");
+    }
+
+    @Override
+    public boolean exists(String path) throws Exception {
+        throw new StorageException("SQLiteStorage uses the SQL path via TableRegistry");
+    }
+
+    // =========================================================================
+    // Private helpers
+    // =========================================================================
+
+    private void bindParams(PreparedStatement stmt, List<Object> params) throws Exception {
+        if (params == null) return;
+        for (int i = 0; i < params.size(); i++) {
+            stmt.setObject(i + 1, params.get(i));
+        }
+    }
+
+    private List<Map<String, Object>> mapResultSet(ResultSet rs) throws Exception {
+        final ResultSetMetaData meta = rs.getMetaData();
+        final int count = meta.getColumnCount();
+        final List<Map<String, Object>> rows = new ArrayList<>();
+        while (rs.next()) {
+            final Map<String, Object> row = new LinkedHashMap<>();
+            for (int i = 1; i <= count; i++) {
+                row.put(meta.getColumnLabel(i).toLowerCase(), rs.getObject(i));
+            }
+            rows.add(row);
+        }
+        return rows;
     }
 }
