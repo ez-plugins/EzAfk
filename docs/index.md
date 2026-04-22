@@ -60,25 +60,14 @@ Grant `ezafk.*` to administrators or assign individual nodes — see the
 ## Documentation
 
 | Page | What it covers |
-
 |------|----------------|
-
 | [Getting Started](getting-started) | Install, first config, verify it works |
-
 | [Commands](commands) | All `/afk` commands, arguments, and permission nodes |
-
 | [Configuration](configuration) | Every config option explained |
-
 | [Configuration → AFK Kick Warnings](afk-kick-warnings) | Multi-stage kick warning system |
-
 | [Permissions](permissions) | Permission nodes and defaults |
-
 | [Messages](messages) | Customising plugin messages and language files |
-
 | [Storage](mysql) | YAML, SQLite, and MySQL storage backends |
-
 | [Integrations](integrations) | Economy, PlaceholderAPI, Tab, WorldGuard, and more |
-
 | [FAQ & Troubleshooting](faq) | Common questions and solutions |
-
 | [Developer API](api/) | Events and enums for plugin developers |
