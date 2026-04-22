@@ -1,9 +1,11 @@
 package com.gyvex.ezafk.repository;
 
+import com.github.ezframework.jaloquent.model.Factory;
+import com.github.ezframework.jaloquent.model.HasFactory;
 import com.github.ezframework.jaloquent.model.Model;
 import com.github.ezframework.jaloquent.model.ModelFactory;
 
-public final class AfkTimeModel extends Model {
+public final class AfkTimeModel extends Model implements HasFactory {
 
     public static final String TABLE_PREFIX = "afk_times";
 
@@ -15,6 +17,11 @@ public final class AfkTimeModel extends Model {
 
     public AfkTimeModel(String id) {
         super(id);
+        setFillable("seconds");
+    }
+
+    public static Factory<AfkTimeModel> factory() {
+        return Factory.discover(AfkTimeModel.class);
     }
 
     public long getSeconds() {

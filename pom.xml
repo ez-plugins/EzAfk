@@ -145,6 +145,18 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.EzFramework</groupId>
+            <artifactId>jaker</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.EzFramework.Jaker</groupId>
+            <artifactId>jaker-data-en-US</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>

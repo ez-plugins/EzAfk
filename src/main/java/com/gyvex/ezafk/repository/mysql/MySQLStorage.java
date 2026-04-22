@@ -11,12 +11,14 @@ import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.repository.AfkTimeModel;
 import com.gyvex.ezafk.repository.StorageRepository;
 
+import com.gyvex.ezafk.repository.migration.MigrationRunner;
+import com.gyvex.ezafk.repository.migration.SqlMigration;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,11 +54,11 @@ public class MySQLStorage implements StorageRepository, DataStore, JdbcStore {
                     "jdbc:mysql://%s:%d/%s?autoReconnect=true&useSSL=false", host, port, db);
             connection = DriverManager.getConnection(url, user, pass);
 
-            try (Statement stmt = connection.createStatement()) {
-                stmt.executeUpdate(
-                        "CREATE TABLE IF NOT EXISTS afk_times " +
-                        "(id VARCHAR(36) PRIMARY KEY, seconds BIGINT NOT NULL DEFAULT 0)");
-            }
+            new MigrationRunner(this,
+                    new SqlMigration(1, "Create afk_times table",
+                            "CREATE TABLE IF NOT EXISTS afk_times " +
+                            "(id VARCHAR(36) PRIMARY KEY, seconds BIGINT NOT NULL DEFAULT 0)")
+            ).run();
 
             TableRegistry.register(AfkTimeModel.TABLE_PREFIX, "afk_times", TABLE_COLUMNS);
             repo = new ModelRepository<>(this, AfkTimeModel.TABLE_PREFIX, AfkTimeModel.FACTORY,
