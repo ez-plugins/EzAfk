@@ -6,7 +6,7 @@ nav_order: 4
 # EzAfk Configuration Guide
 
 This page lists every configuration option in EzAfk's main files.
-For feature-level documentation — explained config options, behaviour walkthroughs, and examples — see the **[Features](features/)** section.
+For feature-level documentation, including explained config options, behaviour walkthroughs, and examples, see the **[Features](features/)** section.
 
 ---
 

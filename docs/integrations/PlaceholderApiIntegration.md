@@ -7,13 +7,13 @@ parent: Integrations
 # PlaceholderAPI Integration
 
 EzAfk registers a custom PlaceholderAPI expansion when the PlaceholderAPI plugin is detected.
-This makes all AFK data available to any plugin that supports PlaceholderAPI — scoreboards,
+This makes all AFK data available to any plugin that supports PlaceholderAPI: scoreboards,
 chat formatters, holograms, GUIs, and more.
 
 ## Setup
 
 1. Install [PlaceholderAPI](https://www.spigotmc.org/resources/placeholderapi.6245/) on your server.
-2. EzAfk detects it automatically — no extra configuration is required.
+2. EzAfk detects it automatically. No extra configuration is required.
 3. Use the placeholders below anywhere PlaceholderAPI syntax is accepted.
 
 ## Available Placeholders
@@ -29,7 +29,7 @@ chat formatters, holograms, GUIs, and more.
 | `%ezafk_total_formatted%` | Total AFK time in verbose format, e.g. `2 hours 15 minutes` |
 | `%ezafk_prefix%` | The configured AFK display name prefix (empty when not AFK) |
 | `%ezafk_suffix%` | The configured AFK display name suffix (empty when not AFK) |
-| `%ezafk_playtime_active_seconds%` | Active (non-AFK) playtime in seconds — requires Playtime integration |
+| `%ezafk_playtime_active_seconds%` | Active (non-AFK) playtime in seconds (requires Playtime integration) |
 | `%ezafk_playtime_active%` | Active playtime in `HH:MM:SS` format |
 | `%ezafk_playtime_active_formatted%` | Active playtime in verbose format |
 | `%ezafk_afk_count%` | Number of currently AFK players on the server |
@@ -41,7 +41,7 @@ Run `/papi list ezafk` in-game to confirm the expansion is loaded.
 
 ## Notes
 
-- Placeholders update in real time — there is no caching delay.
+- Placeholders update in real time, with no caching delay.
 - `%ezafk_since%` returns an empty string when the player is not AFK, making it safe to use in
   conditional display contexts.
 - `%ezafk_playtime_active_*` placeholders require the Playtime integration to be configured in
@@ -49,5 +49,5 @@ Run `/papi list ezafk` in-game to confirm the expansion is loaded.
 
 ## Related
 
-- [AFK Detection](../features/afk-detection) — AFK state and display-name prefix/suffix settings
-- [AFK Time & Leaderboard](../features/leaderboard) — total AFK time tracking
+- [AFK Detection](../features/afk-detection): AFK state and display-name prefix/suffix settings
+- [AFK Time & Leaderboard](../features/leaderboard): total AFK time tracking

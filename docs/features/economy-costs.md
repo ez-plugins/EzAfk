@@ -40,31 +40,30 @@ economy:
       kick-on-fail: false   # kick the player when they can no longer afford the recurring cost
 ```
 
-- **`economy.enabled`**: (bool) Master switch. When `false`, no economy activity occurs. Default: `false`.
-- **`economy.bypass-permission`**: (string) Permission node that exempts a player from all economy
-  costs. Default: `"ezafk.economy.bypass"`.
+- **`economy.enabled`**: Master switch. When `false`, no economy activity occurs. Default: `false`.
+- **`economy.bypass-permission`**: Permission node that exempts a player from all economy costs.
+  Default: `"ezafk.economy.bypass"`.
 
 ### Entry Cost (`cost.enter`)
 
-- **`cost.enter.enabled`**: (bool) Charge a one-time fee when the player is first marked AFK.
+- **`cost.enter.enabled`**: Charge a one-time fee when the player is first marked AFK.
   Default: `true`.
-- **`cost.enter.amount`**: (decimal) Amount to deduct. Uses the economy plugin's default currency.
-- **`cost.enter.require-funds`**: (bool) When `true`, EzAfk checks the player's balance before marking
+- **`cost.enter.amount`**: Amount to deduct. Uses the economy plugin's default currency.
+- **`cost.enter.require-funds`**: When `true`, EzAfk checks the player's balance before marking
   them AFK. If they cannot afford the fee, they are **not** marked AFK and receive an error message.
-- **`cost.enter.retry-delay`**: (integer, seconds) If `require-funds` blocked the AFK transition,
-  EzAfk waits this many seconds before trying again. This prevents the check from firing on every
-  movement event.
+- **`cost.enter.retry-delay`**: If `require-funds` blocked the AFK transition, EzAfk waits this many
+  seconds before trying again. This prevents the check from firing on every movement event.
 
 ### Recurring Cost (`cost.recurring`)
 
-- **`cost.recurring.enabled`**: (bool) Deduct currency periodically while the player remains AFK.
+- **`cost.recurring.enabled`**: Deduct currency periodically while the player remains AFK.
   Default: `false`.
-- **`cost.recurring.amount`**: (decimal) Amount deducted per interval.
-- **`cost.recurring.interval`**: (integer, seconds) How often the deduction fires.
-- **`cost.recurring.require-funds`**: (bool) When `true`, a failed deduction (insufficient balance)
+- **`cost.recurring.amount`**: Amount deducted per interval.
+- **`cost.recurring.interval`**: How often (in seconds) the deduction fires.
+- **`cost.recurring.require-funds`**: When `true`, a failed deduction (insufficient balance)
   triggers the `kick-on-fail` behaviour instead of silently skipping.
-- **`cost.recurring.kick-on-fail`**: (bool) When `true`, a player who can no longer afford the
-  recurring cost is kicked from the server. When `false`, the recurring deduction is simply skipped.
+- **`cost.recurring.kick-on-fail`**: When `true`, a player who can no longer afford the recurring
+  cost is kicked from the server. When `false`, the recurring deduction is simply skipped.
 
 ## Customising Messages
 
@@ -95,6 +94,6 @@ See the [Messages](../messages) page for the full reference.
 
 ## Related
 
-- [Economy / Vault Integration](../integrations/EconomyIntegration) — setup guide
-- [AFK Zones](afk-zones) — grant economy rewards for being AFK in specific areas
-- [Permissions](../permissions) — `ezafk.economy.bypass`
+- [Economy / Vault Integration](../integrations/EconomyIntegration): setup guide
+- [AFK Zones](afk-zones): grant economy rewards for being AFK in specific areas
+- [Permissions](../permissions): `ezafk.economy.bypass`

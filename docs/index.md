@@ -20,15 +20,15 @@ It provides advanced AFK detection, player management, and deep integration with
 
 ## Features
 
-- **Automatic AFK detection** — idle timeout with configurable thresholds
-- **AFK kick warnings** — multi-stage countdown messages before kicking inactive players
-- **GUI overview** — in-game panel to view and manage AFK players
-- **AFK zones** — WorldGuard-region-based AFK rules and overrides
-- **Multi-language support** — EN, ES, NL, RU, ZH, DE out of the box
-- **Storage backends** — YAML, SQLite, and MySQL with a unified repository API
-- **Anti-bypass detection** — catches water flow, vehicle, and bubble column movement
-- **Developer API** — cancellable `PlayerAfkStatusChangeEvent` and `AfkReason` enum
-- **Integrations** — Economy/Vault, PlaceholderAPI, Tab, WorldGuard, Simple Voice Chat
+- **Automatic AFK detection**: idle timeout with configurable thresholds
+- **AFK kick warnings**: multi-stage countdown messages before kicking inactive players
+- **GUI overview**: in-game panel to view and manage AFK players
+- **AFK zones**: region-based AFK rules and rewards
+- **Multi-language support**: EN, ES, NL, RU, ZH, DE out of the box
+- **Storage backends**: YAML, SQLite, and MySQL supported
+- **Anti-bypass detection**: catches water flow, vehicle, and bubble column tricks
+- **Developer API**: cancellable `PlayerAfkStatusChangeEvent` and `AfkReason` enum
+- **Integrations**: Economy/Vault, PlaceholderAPI, Tab, WorldGuard, Simple Voice Chat
 
 ---
 
@@ -44,15 +44,15 @@ and place it in your server's `plugins/` folder. Restart the server.
 Edit the files generated in `plugins/EzAfk/`:
 
 ```text
-config.yml   — main settings (AFK timeout, kick, zones, …)
-gui.yml      — GUI layout and item settings
-mysql.yml    — database connection (if using MySQL)
-messages/    — per-language message files
+config.yml    main settings (AFK timeout, kick, zones)
+gui.yml       GUI layout and item settings
+mysql.yml     database connection (only needed for MySQL)
+messages/     per-language message files
 ```
 
 **3. Set permissions:**
 
-Grant `ezafk.*` to administrators or assign individual nodes — see the
+Grant `ezafk.*` to administrators, or assign individual nodes. See the
 [Permissions](permissions) page for the full list.
 
 ---
@@ -64,7 +64,7 @@ Grant `ezafk.*` to administrators or assign individual nodes — see the
 | [Getting Started](getting-started) | Install, first config, verify it works |
 | [Commands](commands) | All `/afk` commands, arguments, and permission nodes |
 | [Configuration](configuration) | Every config option explained |
-| [Features](features/) | AFK detection, anti-bypass, kick, GUI, zones, economy, leaderboard — each with config |
+| [Features](features/) | AFK detection, anti-bypass, kick, GUI, zones, economy, leaderboard (each with config) |
 | [Permissions](permissions) | Permission nodes and defaults |
 | [Messages](messages) | Customising plugin messages and language files |
 | [Storage](mysql) | YAML, SQLite, and MySQL storage backends |

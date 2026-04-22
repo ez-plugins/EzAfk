@@ -56,6 +56,6 @@ in `zones.yml` with `reward.type: economy`. See [AFK Zones](../features/afk-zone
 
 ## Related
 
-- [Economy Costs](../features/economy-costs) — detailed config reference
-- [AFK Zones](../features/afk-zones) — reward economy currency in specific regions
-- [Permissions](../permissions) — `ezafk.economy.bypass`
+- [Economy Costs](../features/economy-costs): detailed config reference
+- [AFK Zones](../features/afk-zones): reward economy currency in specific regions
+- [Permissions](../permissions): `ezafk.economy.bypass`

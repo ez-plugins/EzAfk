@@ -72,30 +72,30 @@ regions:
 
 ### Global
 
-- **`enabled`**: (bool) Master switch. Must be `true` for any zone to function. Default: `false`.
+- **`enabled`**: Master switch. Must be `true` for any zone to function. Default: `false`.
 
 ### Per-Region Fields
 
-- **`name`**: (string) Unique identifier for the zone. Used in commands and logs.
-- **`world`**: (string) Bukkit world name where the zone exists.
-- **`x1` / `y1` / `z1`** and **`x2` / `y2` / `z2`**: (integer) Opposite corners of the cuboid.
-  The order of corners does not matter — EzAfk normalises min/max automatically.
+- **`name`**: Unique identifier for the zone. Used in commands and logs.
+- **`world`**: World name where the zone exists.
+- **`x1` / `y1` / `z1`** and **`x2` / `y2` / `z2`**: Opposite corners of the cuboid.
+  The order of corners does not matter. EzAfk normalises min/max automatically.
 
 ### Reward Fields
 
-- **`reward.enabled`**: (bool) Toggle rewards for this specific zone without removing its definition.
-- **`reward.interval-seconds`**: (integer) How often (in seconds) the reward is granted to each AFK
+- **`reward.enabled`**: Toggle rewards for this specific zone without removing its definition.
+- **`reward.interval-seconds`**: How often (in seconds) the reward is granted to each AFK
   player inside the zone.
-- **`reward.type`**: (string) Reward delivery method.
-  - `economy` — transfers `amount` currency via Vault. Requires a Vault-compatible economy plugin.
-  - `command` — runs `command` as the console once per interval. Use `%player%` for the player name.
-  - `item` — places the configured item directly into the player's inventory.
-- **`reward.amount`**: (decimal) Currency amount. Only used when `type: economy`.
-- **`reward.max-stack`**: (integer) Maximum number of reward intervals that can accumulate before the
-  reward stops. `0` means unlimited. Useful to prevent excessive overnight gains.
-- **`reward.command`**: (string) Console command template. Only used when `type: command`.
-- **`reward.item.material`**: (string) Bukkit material name. Only used when `type: item`.
-- **`reward.item.amount`**: (integer) Stack size of the item given per interval.
+- **`reward.type`**: Reward delivery method.
+  - `economy`: transfers `amount` currency via Vault. Requires a Vault-compatible economy plugin.
+  - `command`: runs `command` as the console once per interval. Use `%player%` for the player name.
+  - `item`: places the configured item directly into the player's inventory.
+- **`reward.amount`**: Currency amount. Only used when `type: economy`.
+- **`reward.max-stack`**: Maximum number of reward intervals that can accumulate before rewards
+  stop. `0` means unlimited. Useful to prevent excessive overnight gains.
+- **`reward.command`**: Console command template. Only used when `type: command`.
+- **`reward.item.material`**: Item material name. Only used when `type: item`.
+- **`reward.item.amount`**: Stack size of the item given per interval.
 
 ## In-Game Zone Management
 
@@ -123,7 +123,7 @@ See [WorldGuard Integration](../integrations/WorldGuardIntegration) for details.
 
 ## Related
 
-- [Economy Integration](../integrations/EconomyIntegration) — required for `type: economy` rewards
-- [WorldGuard Integration](../integrations/WorldGuardIntegration) — use WorldEdit selections for zones
-- [Commands](../commands) — full `/afk zone` command reference
-- [Permissions](../permissions) — `ezafk.zone.manage`, `ezafk.zone.list`
+- [Economy Integration](../integrations/EconomyIntegration): required for `type: economy` rewards
+- [WorldGuard Integration](../integrations/WorldGuardIntegration): use WorldEdit selections for zones
+- [Commands](../commands): full `/afk zone` command reference
+- [Permissions](../permissions): `ezafk.zone.manage`, `ezafk.zone.list`

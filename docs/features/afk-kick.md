@@ -7,7 +7,7 @@ parent: Features
 # AFK Kick
 
 EzAfk can automatically kick players that have been AFK for too long. You can choose to kick all AFK
-players after a fixed timer, or limit the kick to situations when the server is at capacity — freeing
+players after a fixed timer, or limit the kick to situations when the server is at capacity, freeing
 up slots for new players.
 
 Multi-stage warnings before the kick are configured separately; see
@@ -19,18 +19,18 @@ In your `config.yml`:
 
 ```yaml
 kick:
-  enabled: false         # master switch — enable AFK kicking
+  enabled: false         # enable AFK kicking
   enabledWhenFull: false # kick only when the server is at max player count
   timeout: 600           # seconds of AFK time before the kick is issued
 ```
 
-- **`kick.enabled`**: (bool) Master switch. When `false` no players are ever kicked by EzAfk,
+- **`kick.enabled`**: Master switch. When `false`, no players are ever kicked by EzAfk,
   regardless of other settings. Default: `false`.
-- **`kick.enabledWhenFull`**: (bool) When `true`, EzAfk will only kick AFK players when the server
-  player count equals `max-players` in `server.properties`. Useful for keeping AFK players around on
+- **`kick.enabledWhenFull`**: When `true`, EzAfk only kicks AFK players when the server player
+  count equals `max-players` in `server.properties`. Useful for keeping AFK players around on
   quieter servers while still freeing slots during peak times. Requires `kick.enabled: true`.
   Default: `false`.
-- **`kick.timeout`**: (integer, seconds) How long a player must be continuously AFK before EzAfk kicks
+- **`kick.timeout`**: How long (in seconds) a player must be continuously AFK before EzAfk kicks
   them. This timer starts from the moment the player was marked AFK (i.e. after the initial
   `afk.timeout` has already elapsed). Default: `600` (10 minutes).
 
@@ -49,7 +49,7 @@ See the [Messages](../messages) page for the full reference.
 
 1. When a player goes AFK, a kick countdown starts alongside the existing AFK state.
 2. The countdown runs for `kick.timeout` seconds.
-3. If the player remains AFK for the full duration, EzAfk calls `Player#kickPlayer()` with the
+3. If the player remains AFK for the full duration, EzAfk kicks the player with the
    configured kick message.
 4. If `enabledWhenFull` is `true`, EzAfk first checks whether `online players ≥ max players` before
    issuing the kick. If the server is not full, the kick is skipped even if the timer expired.
@@ -63,6 +63,6 @@ See the [Messages](../messages) page for the full reference.
 
 ## Related
 
-- [AFK Kick Warnings](../afk-kick-warnings) — send countdown messages before kicking
-- [AFK Detection](afk-detection) — the upstream idle detection that triggers the kick timer
-- [Permissions](../permissions) — `ezafk.kick.bypass`
+- [AFK Kick Warnings](../afk-kick-warnings): send countdown messages before kicking
+- [AFK Detection](afk-detection): the idle detection system that starts the kick timer
+- [Permissions](../permissions): `ezafk.kick.bypass`

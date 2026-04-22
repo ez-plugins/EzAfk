@@ -20,14 +20,14 @@ storage:
   flush-interval-seconds: 30   # how often in-memory totals are written to disk/database
 ```
 
-- **`storage.type`**: (string) Backend used to persist AFK time. All backends support the full
-  leaderboard feature.
-  - `yaml` — stores data in `plugins/EzAfk/data/` as per-player YAML files (no external dependencies).
-  - `sqlite` — stores data in a single `ezafk.db` SQLite database file.
-  - `mysql` — stores data in a remote MySQL database. See the [Storage / MySQL](../mysql) page for
+- **`storage.type`**: Backend used to persist AFK time. All backends support the full leaderboard
+  feature.
+  - `yaml`: stores data in `plugins/EzAfk/data/` as per-player YAML files (no external dependencies).
+  - `sqlite`: stores data in a single `ezafk.db` SQLite database file.
+  - `mysql`: stores data in a remote MySQL database. See the [Storage / MySQL](../mysql) page for
     additional MySQL connection settings.
-- **`storage.flush-interval-seconds`**: (integer) EzAfk accumulates AFK time in memory and writes it
-  to the storage backend on this interval (in seconds) to reduce I/O. Data is also flushed on plugin
+- **`storage.flush-interval-seconds`**: EzAfk accumulates AFK time in memory and writes it to the
+  storage backend on this interval (in seconds) to reduce I/O. Data is also flushed on plugin
   shutdown and on player disconnect. Default: `30`.
 
 ## Commands
@@ -68,7 +68,7 @@ If [PlaceholderAPI](../integrations/PlaceholderApiIntegration) is installed:
 
 ## Related
 
-- [Storage / MySQL](../mysql) — MySQL connection settings and schema
-- [PlaceholderAPI Integration](../integrations/PlaceholderApiIntegration) — all available placeholders
-- [Commands](../commands) — full command reference
-- [Permissions](../permissions) — `ezafk.time`, `ezafk.time.others`, `ezafk.top`, `ezafk.time.reset`
+- [Storage / MySQL](../mysql): MySQL connection settings and schema
+- [PlaceholderAPI Integration](../integrations/PlaceholderApiIntegration): all available placeholders
+- [Commands](../commands): full command reference
+- [Permissions](../permissions): `ezafk.time`, `ezafk.time.others`, `ezafk.top`, `ezafk.time.reset`

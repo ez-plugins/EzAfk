@@ -30,7 +30,7 @@ After first startup, EzAfk creates the following inside `plugins/EzAfk/`:
 
 | File | Purpose |
 |------|---------|
-| `config.yml` | Main settings — AFK timeout, kick, GUI, zones, anti-bypass |
+| `config.yml` | Main settings: AFK timeout, kick, GUI, zones, anti-bypass |
 | `gui.yml` | In-game GUI layout and item definitions |
 | `mysql.yml` | MySQL/SQLite database connection settings |
 | `messages/` | One YAML file per language (en, es, nl, ru, zh, de) |
@@ -66,9 +66,9 @@ See [Configuration](configuration) for every available option.
 The minimum set for an admin:
 
 ```text
-ezafk.reload      — reload config without restarting
-ezafk.gui         — open the AFK player overview GUI
-ezafk.afk.others  — toggle AFK for another player
+ezafk.reload      - reload config without restarting
+ezafk.gui         - open the AFK player overview GUI
+ezafk.afk.others  - toggle AFK for another player
 ```
 
 See [Permissions](permissions) for the full node list.

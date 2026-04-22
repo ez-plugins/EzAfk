@@ -36,40 +36,40 @@ This page lists all permission nodes, their defaults, and which feature each one
 
 ### [AFK Detection](features/afk-detection) & General
 
-- **`ezafk.bypass`** — Players with this node are never automatically marked AFK (requires
+- **`ezafk.bypass`**: Players with this node are never automatically marked AFK (requires
   `afk.bypass.enabled: true` in `config.yml`).
-- **`ezafk.bypass.manage`** — Required for `/afk bypass <player>`.
-- **`ezafk.toggle`** — Required for `/afk toggle <player>` to force-toggle another player's AFK state.
-- **`ezafk.info`** — Required for `/afk info <player>` to view another player's session details.
-- **`ezafk.reload`** — Required for `/afk reload`.
+- **`ezafk.bypass.manage`**: Required for `/afk bypass <player>`.
+- **`ezafk.toggle`**: Required for `/afk toggle <player>` to force-toggle another player's AFK state.
+- **`ezafk.info`**: Required for `/afk info <player>` to view another player's session details.
+- **`ezafk.reload`**: Required for `/afk reload`.
 
 ### [AFK Kick](features/afk-kick) & [Kick Warnings](features/afk-kick-warnings)
 
-- **`ezafk.kick.bypass`** — Players with this node are never kicked by the AFK kick system,
+- **`ezafk.kick.bypass`**: Players with this node are never kicked by the AFK kick system,
   even if kick warnings have fired.
 
 ### [In-Game GUI](features/gui)
 
-- **`ezafk.gui`** — Required to open `/afk gui`.
-- **`ezafk.gui.view-active`** — Allows viewing active (non-AFK) players in the GUI, not just AFK ones.
-- **`ezafk.gui.actions`** — Allows clicking action buttons (kick, message, teleport, command) in the GUI.
+- **`ezafk.gui`**: Required to open `/afk gui`.
+- **`ezafk.gui.view-active`**: Allows viewing active (non-AFK) players in the GUI, not just AFK ones.
+- **`ezafk.gui.actions`**: Allows clicking action buttons (kick, message, teleport, command) in the GUI.
 
 ### [AFK Time & Leaderboard](features/leaderboard)
 
-- **`ezafk.time`** — Allows `/afk time` to view your own total AFK time. Default: all players.
-- **`ezafk.time.others`** — Allows `/afk time <player>` to view another player's AFK time.
-- **`ezafk.time.reset`** — Allows `/afk time reset <player>`.
-- **`ezafk.top`** — Allows `/afk top` to view the full leaderboard.
+- **`ezafk.time`**: Allows `/afk time` to view your own total AFK time. Default: all players.
+- **`ezafk.time.others`**: Allows `/afk time <player>` to view another player's AFK time.
+- **`ezafk.time.reset`**: Allows `/afk time reset <player>`.
+- **`ezafk.top`**: Allows `/afk top` to view the full leaderboard.
 
 ### [Economy Costs](features/economy-costs)
 
-- **`ezafk.economy.bypass`** — Exempts the player from all economy enter and recurring costs.
+- **`ezafk.economy.bypass`**: Exempts the player from all economy enter and recurring costs.
   The permission node is configurable via `economy.bypass-permission` in `config.yml`.
 
 ### [AFK Zones](features/afk-zones)
 
-- **`ezafk.zone.list`** — Required for `/afk zone list` and `/afk zone players`.
-- **`ezafk.zone.manage`** — Required for `/afk zone add`, `remove`, `pos1`, `pos2`, `clearpos`, `reset`.
+- **`ezafk.zone.list`**: Required for `/afk zone list` and `/afk zone players`.
+- **`ezafk.zone.manage`**: Required for `/afk zone add`, `remove`, `pos1`, `pos2`, `clearpos`, `reset`.
 
 ---
 

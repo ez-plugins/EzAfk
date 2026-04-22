@@ -51,7 +51,7 @@ If your kick timeout is 600 seconds (10 minutes) and intervals are `[60, 30, 10]
 
 ## Related
 
-- [AFK Kick](afk-kick) — the underlying kick system this warning feature extends
-- [AFK Detection](afk-detection) — idle detection that starts the kick countdown
-- [Messages](../messages) — customise all warning message text
-- [Permissions](../permissions) — `ezafk.kick.bypass`
+- [AFK Kick](afk-kick): the underlying kick system this warning feature extends
+- [AFK Detection](afk-detection): idle detection that starts the kick countdown
+- [Messages](../messages): customise all warning message text
+- [Permissions](../permissions): `ezafk.kick.bypass`

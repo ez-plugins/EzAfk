@@ -4,7 +4,7 @@
 
 EzAfk is a modern, lightweight AFK management plugin for Paper and Spigot servers.
 It automates AFK detection, rewards or charges players based on idle state, gives staff
-a real-time overview panel, and integrates with the tools you already run — all without
+a real-time overview panel, and integrates with the tools you already run, all without
 sacrificing performance.
 
 > **v3.0.0** · Minecraft 26.1+ · Java 25 · Paper / Spigot / Bukkit / Purpur
@@ -24,7 +24,7 @@ sacrificing performance.
 | **Economy Costs** | Charge a one-time entry fee and/or a recurring fee while AFK via any Vault economy plugin |
 | **AFK Leaderboard** | Per-player cumulative AFK time, `/afk top` leaderboard, persisted across restarts |
 | **PlaceholderAPI** | 16 placeholders for status, session time, totals, counts, prefix/suffix, and playtime |
-| **Multi-language** | EN, ES, NL, RU, ZH, DE — fully overridable per server |
+| **Multi-language** | EN, ES, NL, RU, ZH, DE, fully overridable per server |
 | **Storage backends** | YAML (default), SQLite, or MySQL |
 | **Simple Voice Chat** | Play a custom MP3 sound when a player goes AFK |
 
@@ -44,7 +44,7 @@ sacrificing performance.
 
 | Command | Description | Permission |
 |---------|-------------|------------|
-| `/afk` | Toggle your own AFK status | — |
+| `/afk` | Toggle your own AFK status | (none) |
 | `/afk reload` | Reload all configuration files | `ezafk.reload` |
 | `/afk gui` | Open the AFK staff overview panel | `ezafk.gui` |
 | `/afk toggle <player>` | Force a player's AFK state | `ezafk.toggle` |
@@ -87,7 +87,7 @@ Aliases: `/ezafk`, `/ea`, `/afktime`, `/afktop`
 
 ## PlaceholderAPI Placeholders
 
-Requires [PlaceholderAPI](https://hangar.papermc.io/HelpChat/PlaceholderAPI). The expansion registers automatically — no extra setup needed.
+Requires [PlaceholderAPI](https://hangar.papermc.io/HelpChat/PlaceholderAPI). The expansion registers automatically. No extra setup needed.
 
 | Placeholder | Returns |
 |-------------|---------|
@@ -113,11 +113,11 @@ Requires [PlaceholderAPI](https://hangar.papermc.io/HelpChat/PlaceholderAPI). Th
 EzAfk's settings are spread across focused files for clarity:
 
 ```text
-config.yml   — AFK detection, kick, anti-bypass, economy, integrations
-gui.yml      — Staff GUI layout and action buttons
-zones.yml    — AFK zone definitions with coordinates and rewards
-mysql.yml    — Database connection (only when storage.type: mysql)
-messages/    — Language files: en.yml, es.yml, nl.yml, ru.yml, zh.yml, de.yml
+config.yml    AFK detection, kick, anti-bypass, economy, integrations
+gui.yml       Staff GUI layout and action buttons
+zones.yml     AFK zone definitions with coordinates and rewards
+mysql.yml     Database connection (only when storage.type: mysql)
+messages/     Language files: en.yml, es.yml, nl.yml, ru.yml, zh.yml, de.yml
 ```
 
 ### Core settings (`config.yml`)
@@ -173,7 +173,7 @@ storage:
 
 ## Links
 
-- [Documentation](https://ez-plugins.github.io/EzAfk/) — full configuration guide, feature pages, and API reference
-- [Discord](https://discord.gg/yWP95XfmBS) — support, bug reports, and feature requests
-- [GitHub](https://github.com/ez-plugins/EzAfk) — source code and issue tracker
-- [Developer API](https://ez-plugins.github.io/EzAfk/api/) — `PlayerAfkStatusChangeEvent` and `AfkReason` enum
+- [Documentation](https://ez-plugins.github.io/EzAfk/): full configuration guide, feature pages, and API reference
+- [Discord](https://discord.gg/yWP95XfmBS): support, bug reports, and feature requests
+- [GitHub](https://github.com/ez-plugins/EzAfk): source code and issue tracker
+- [Developer API](https://ez-plugins.github.io/EzAfk/api/): `PlayerAfkStatusChangeEvent` and `AfkReason` enum

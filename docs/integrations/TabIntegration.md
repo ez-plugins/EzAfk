@@ -38,7 +38,7 @@ Quick summary:
 - Enable EzAfk's TAB placeholder and prefix behavior in EzAfk's `config.yml`.
 - Insert `%afk%` into TAB's name / tablist templates where you want the AFK marker to appear.
 
-Steps — EzAfk configuration
+### EzAfk Configuration
 
 1. Open EzAfk's `config.yml` (located in `plugins/EzAfk/config.yml`).
 2. Under the `integration` section enable EzAfk's tab-prefix support:
@@ -58,20 +58,20 @@ integration:
 - `mode`: controls whether EzAfk prefers TAB (`tab`), always uses EzAfk's built-in list handling (`custom`), or auto-detects (`auto`).
 - `prefix` / `suffix` / `format`: control the text EzAfk returns via `%afk%` and how it composes player display names.
 
-Steps — TAB plugin configuration
+### TAB Plugin Configuration
 
 1. Open TAB's `config.yml` (usually `plugins/TAB/config.yml`).
-2. Find the section that controls player name formatting or the tablist layout. This depends on your TAB version and layout configuration — common places are `tablist`, `groups`, or `player-names`.
+2. Find the section that controls player name formatting or the tablist layout. This depends on your TAB version and layout configuration. Common places are `tablist`, `groups`, or `player-names`.
 3. Insert `%afk%` into the template where you want the AFK indicator to appear. Examples:
 
-Example A — add AFK prefix to the display name template:
+Example A: add AFK prefix to the display name template:
 
 ```yml
 # TAB example (conceptual)
 player-placeholder-format: "%afk%%displayname%"
 ```
 
-Example B — include AFK in a group format or global tablist format:
+Example B: include AFK in a group format or global tablist format:
 
 ```yml
 tablist-format: "%afk%%player%%suffix%"
@@ -80,14 +80,14 @@ tablist-format: "%afk%%player%%suffix%"
 Notes for TAB templates:
 
 - TAB configuration and template keys vary across TAB versions and setups (layouts, per-group templates, per-world templates). Search TAB's `config.yml` for `displayname`, `format`, or `tablist` to find the right template.
-- TAB uses its own placeholders and supports external placeholders registered by plugins — `%afk%` will appear in the same placeholder namespace.
+- TAB uses its own placeholders and supports external placeholders registered by plugins. `%afk%` will appear in the same placeholder namespace.
 
 Troubleshooting
 
 - No `%afk%` replacement shown:
   - Ensure EzAfk's `integration.tab-prefix.enabled: true` and `integration.tab: true`.
   - Make sure `integration.tab-prefix.prefix` is not empty (EzAfk will return an empty string if prefix is empty).
-  - Check server startup logs for EzAfk TAB diagnostics — EzAfk logs whether the TAB adapter and `%afk%` placeholder registered successfully.
+  - Check server startup logs for EzAfk TAB diagnostics. EzAfk logs whether the TAB adapter and `%afk%` placeholder registered successfully.
   - If EzAfk logs a `REFLECTION_ERROR` or `LINKAGE_ERROR`, update EzAfk to a build that matches your server and TAB versions (or check for shaded/class visibility issues). See EzAfk logs for a detailed stack trace.
 - `%afk%` sometimes appears late on player join:
   - TAB processes players asynchronously. Use TAB's events (PlayerLoadEvent / TabLoadEvent) if you need guaranteed ordering. EzAfk retries initialization on startup to handle plugin load ordering.
@@ -95,6 +95,5 @@ Troubleshooting
 Best practices
 
 - Keep AFK text and color configuration in EzAfk so a single plugin controls AFK formatting across chat, tab, and other integrations.
-- If you manage complex TAB layouts, test changes on a staging server — templates differ per TAB version.
+- If you manage complex TAB layouts, test changes on a staging server. Templates differ per TAB version.
 
-If you give me your `plugins/TAB/config.yml` (the formatting/layout section), I can provide the exact edit to insert `%afk%` in your current setup.
