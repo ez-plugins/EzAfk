@@ -40,7 +40,12 @@ public final class AfkBypassFlag {
      * Ensure registered via reflection-friendly registrar.
      */
     public static Object ensureRegistered(Object registry, Logger logger, String mode) {
-        Object active = FlagRegistrar.registerStateFlag(FLAG, registry, logger, mode);
+        // Ensure the FLAG instance exists (construct lazily if needed) before
+        // attempting registration. Previously this method used the raw
+        // `FLAG` field which could be null if `get()` was never called,
+        // causing registration to silently fail.
+        Object candidate = get();
+        Object active = FlagRegistrar.registerStateFlag(candidate, registry, logger, mode);
         if (active != null) set(active);
         return active;
     }
