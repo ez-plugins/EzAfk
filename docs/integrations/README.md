@@ -1,3 +1,10 @@
+---
+title: Integrations Overview
+nav_order: 1
+parent: Integrations
+nav_exclude: true
+---
+
 # Integrations Overview
 
 This folder contains documentation for all EzAfk integrations. Each integration has its own file describing its features and setup instructions.

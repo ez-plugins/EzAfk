@@ -1,4 +1,9 @@
-# MySQL Integration
+---
+title: Storage
+nav_order: 7
+---
+
+# Storage
 
 EzAfk supports MySQL for persistent storage of AFK data, player statistics, and plugin state. This allows for reliable data retention across server restarts and enables advanced features such as leaderboards and cross-server synchronization.
 

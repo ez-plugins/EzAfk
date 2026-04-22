@@ -1,3 +1,9 @@
+---
+title: AfkReasons
+nav_order: 2
+parent: Developer API
+---
+
 # AfkReasons
 
 EzAfk uses the `AfkReason` enum to describe why a player's AFK status changed. Below are all possible reasons:

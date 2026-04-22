@@ -1,3 +1,9 @@
+---
+title: Events
+nav_order: 1
+parent: Developer API
+---
+
 # EzAfk Custom Events
 
 EzAfk exposes custom events to allow other plugins to hook into AFK status changes and extend functionality.

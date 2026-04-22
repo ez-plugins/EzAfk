@@ -1,3 +1,8 @@
+---
+title: Commands
+nav_order: 3
+---
+
 # EzAfk Commands Documentation
 
 This document lists all commands provided by EzAfk, their arguments, permissions, and usage examples.

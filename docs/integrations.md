@@ -1,3 +1,10 @@
+---
+title: Integrations
+nav_order: 8
+has_children: true
+nav_fold: true
+---
+
 # EzAfk Integrations Guide
 EzAfk supports integration with several popular Minecraft plugins to enhance AFK detection and player management. This guide explains each integration, setup steps, and troubleshooting tips.
 

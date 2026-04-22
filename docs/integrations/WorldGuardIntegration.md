@@ -1,3 +1,9 @@
+---
+title: WorldGuard
+nav_order: 5
+parent: Integrations
+---
+
 # WorldGuardIntegration
 
 ## Features

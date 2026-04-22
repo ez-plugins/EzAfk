@@ -1,3 +1,9 @@
+---
+title: Configuration
+nav_order: 4
+has_children: true
+---
+
 # EzAfk Configuration Guide (Advanced)
 
 This document provides advanced documentation for every configuration option in EzAfk's main configuration files.

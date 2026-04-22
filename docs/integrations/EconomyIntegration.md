@@ -1,3 +1,9 @@
+---
+title: Economy / Vault
+nav_order: 2
+parent: Integrations
+---
+
 # EconomyIntegration
 
 ## Features

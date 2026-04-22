@@ -1,3 +1,8 @@
+---
+title: Permissions
+nav_order: 5
+---
+
 # EzAfk Permissions Documentation
 
 This document lists all permissions used by EzAfk, their effects, and recommended assignment.

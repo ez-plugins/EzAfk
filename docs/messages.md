@@ -1,3 +1,8 @@
+---
+title: Messages
+nav_order: 6
+---
+
 # EzAfk Messages & Localization Guide
 
 EzAfk supports full message customization and translation through YAML files in the `messages/` directory. This guide explains how to edit, translate, and use placeholders in message files.

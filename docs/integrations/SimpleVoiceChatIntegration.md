@@ -1,3 +1,9 @@
+---
+title: Simple Voice Chat
+nav_order: 6
+parent: Integrations
+---
+
 # Simple Voice Chat Integration
 
 EzAfk supports integration with the Simple Voice Chat plugin to play custom sounds when players go AFK.

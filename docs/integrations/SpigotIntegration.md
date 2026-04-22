@@ -1,3 +1,9 @@
+---
+title: Spigot
+nav_order: 7
+parent: Integrations
+---
+
 # SpigotIntegration
 
 ## Features
