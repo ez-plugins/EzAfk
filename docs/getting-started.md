@@ -18,7 +18,7 @@ This page walks you through installing EzAfk on your server and running it for t
 
 ## Installation
 
-1. Download the latest `EzAfk-x.x.x.jar` from [GitHub Releases](https://github.com/ez-plugins/EzAfk/releases).
+1. Download the latest `EzAfk-x.x.x.jar` from [Modrinth](https://modrinth.com/plugin/ezafk).
 2. Place the jar in your server's `plugins/` folder.
 3. Start or restart the server. EzAfk will generate all configuration files.
 
@@ -29,15 +29,10 @@ This page walks you through installing EzAfk on your server and running it for t
 After first startup, EzAfk creates the following inside `plugins/EzAfk/`:
 
 | File | Purpose |
-
 |------|---------|
-
 | `config.yml` | Main settings — AFK timeout, kick, GUI, zones, anti-bypass |
-
 | `gui.yml` | In-game GUI layout and item definitions |
-
 | `mysql.yml` | MySQL/SQLite database connection settings |
-
 | `messages/` | One YAML file per language (en, es, nl, ru, zh, de) |
 
 ---
@@ -99,15 +94,9 @@ Run `/afk reload` to hot-reload config changes at any time (requires `ezafk.relo
 ## Next steps
 
 | I want to… | Go to… |
-
 |---|---|
-
 | See all commands | [Commands](commands) |
-
 | Tune every config option | [Configuration](configuration) |
-
 | Set up MySQL for persistence | [Storage](mysql) |
-
 | Connect PlaceholderAPI / WorldGuard / Economy | [Integrations](integrations) |
-
 | Customise plugin messages | [Messages](messages) |

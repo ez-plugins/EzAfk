@@ -36,7 +36,7 @@ It provides advanced AFK detection, player management, and deep integration with
 
 **1. Download and install:**
 
-Download the latest EzAfk `.jar` from [GitHub Releases](https://github.com/ez-plugins/EzAfk/releases)
+Download the latest EzAfk `.jar` from [Modrinth](https://modrinth.com/plugin/ezafk)
 and place it in your server's `plugins/` folder. Restart the server.
 
 **2. Configure:**

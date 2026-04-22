@@ -39,30 +39,20 @@ EzAfk creates and manages the following tables:
 Stores AFK session data for each player.
 
 | Column         | Type         | Description                       |
-
 | -------------- | ------------ | --------------------------------- |
-
 | id             | INT          | Primary key                       |
-
 | uuid           | VARCHAR(36)  | Player UUID                       |
-
 | start_time     | BIGINT       | AFK session start timestamp (ms)  |
-
 | end_time       | BIGINT       | AFK session end timestamp (ms)    |
-
 | reason         | VARCHAR(32)  | AFK reason                        |
-
 | detail         | TEXT         | Additional details                |
 
 ### `afk_leaderboard`
 Stores total AFK time for leaderboard purposes.
 
 | Column         | Type         | Description                       |
-
 | -------------- | ------------ | --------------------------------- |
-
 | uuid           | VARCHAR(36)  | Player UUID                       |
-
 | total_afk_time | BIGINT       | Total AFK time in seconds         |
 
 ## Usage Notes
