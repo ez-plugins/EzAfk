@@ -50,7 +50,11 @@ public class EconomyServiceListener implements Listener {
     }
 
     private boolean isEconomyService(RegisteredServiceProvider<?> provider) {
-        return provider != null && Economy.class.equals(provider.getService());
+        try {
+            return provider != null && Economy.class.equals(provider.getService());
+        } catch (NoClassDefFoundError e) {
+            return false;
+        }
     }
 
     private com.gyvex.ezafk.integration.EconomyIntegration getEconomyIntegration() {
