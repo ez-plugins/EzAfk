@@ -96,4 +96,3 @@ Best practices
 
 - Keep AFK text and color configuration in EzAfk so a single plugin controls AFK formatting across chat, tab, and other integrations.
 - If you manage complex TAB layouts, test changes on a staging server. Templates differ per TAB version.
-

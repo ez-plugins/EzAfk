@@ -25,7 +25,7 @@ economy:
   enabled: true
 ```
 
-3. Restart the server. EzAfk will detect Vault automatically and activate economy integration.
+1. Restart the server. EzAfk will detect Vault automatically and activate economy integration.
 
 ## Configuration Summary
 
