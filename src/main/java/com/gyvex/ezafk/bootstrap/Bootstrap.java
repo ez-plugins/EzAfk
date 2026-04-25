@@ -84,11 +84,13 @@ public class Bootstrap {
         // Storage repository is initialized during Registry.init(); on reload the command will refresh it.
         AfkTimeManager.load(plugin);
 
-        economyServiceListener = new EconomyServiceListener();
-        try {
-            plugin.getServer().getPluginManager().registerEvents(economyServiceListener, plugin);
-        } catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
-            plugin.getLogger().warning("Failed to register EconomyServiceListener during enable: " + ex.getMessage());
+        if (plugin.getConfig().getBoolean("economy.enabled", false)) {
+            economyServiceListener = new EconomyServiceListener();
+            try {
+                plugin.getServer().getPluginManager().registerEvents(economyServiceListener, plugin);
+            } catch (org.bukkit.plugin.IllegalPluginAccessException ex) {
+                plugin.getLogger().warning("Failed to register EconomyServiceListener during enable: " + ex.getMessage());
+            }
         }
 
         registerListener(new MoveListener(plugin));
