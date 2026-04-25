@@ -17,7 +17,7 @@
         <worldguard.version>7.0.13</worldguard.version>
         <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.2</maven.shade.plugin.version>
-        <jaloquent.version>1.1.0</jaloquent.version>
+        <jaloquent.version>1.2.1</jaloquent.version>
         <mockbukkit.groupId>org.mockbukkit.mockbukkit</mockbukkit.groupId>
         <mockbukkit.artifactId>mockbukkit-v26.1</mockbukkit.artifactId>
         <mockbukkit.version>dev-d245e0a</mockbukkit.version>
