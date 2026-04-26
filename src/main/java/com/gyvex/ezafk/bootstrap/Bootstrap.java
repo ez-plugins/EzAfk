@@ -23,6 +23,7 @@ import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.listener.EconomyServiceListener;
 import com.gyvex.ezafk.manager.AfkTimeManager;
 import com.gyvex.ezafk.task.TaskManager;
+import com.github.ezframework.jaloquent.config.JaloquentConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
@@ -52,6 +53,7 @@ public class Bootstrap {
 
     public void onEnable() {
         Registry.get().getConfigManager().loadConfig();
+        JaloquentConfig.enableLogging(Registry.get().getConfigManager().isDebugEnabled());
         logStartupBanner();
         // Copy default AFK sound to the EzAfk plugin folder (plugins/EzAfk/mp3/ezafk-sound.mp3)
         String afkSoundPath = Registry.get().getConfigManager().getAfkSoundFile();
