@@ -6,20 +6,19 @@
 
     <groupId>com.gyvex</groupId>
     <artifactId>ezafk</artifactId>
-    <version>2.4.1</version>
+    <version>3.0.0</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <adventure.scope>provided</adventure.scope>
-        <maven.compiler.release>21</maven.compiler.release>
-        <paper.version>1.21.11-R0.1-SNAPSHOT</paper.version>
+        <maven.compiler.release>25</maven.compiler.release>
+        <paper.version>26.1.2.build.7-alpha</paper.version>
         <bstats.version>3.1.0</bstats.version>
         <worldguard.version>7.0.13</worldguard.version>
-        <maven.compiler.plugin.version>3.13.0</maven.compiler.plugin.version>
-        <maven.shade.plugin.version>3.6.0</maven.shade.plugin.version>
-        <mockbukkit.groupId>org.mockbukkit.mockbukkit</mockbukkit.groupId>
-        <mockbukkit.artifactId>mockbukkit-v1.21</mockbukkit.artifactId>
-        <mockbukkit.version>4.101.0</mockbukkit.version>
+        <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
+        <maven.shade.plugin.version>3.6.2</maven.shade.plugin.version>
+        <jaloquent.version>1.2.1</jaloquent.version>
+        <mockbukkit.version>dev-d245e0a</mockbukkit.version>
         <!-- GitHub repository used for publishing to GitHub Packages -->
         <github.repository>ez-plugins/ezafk</github.repository>
     </properties>
@@ -42,7 +41,7 @@
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
-        <!-- JitPack (used for MockBukkit coordinates) -->
+        <!-- JitPack -->
         <repository>
             <id>jitpack.io</id>
             <url>https://jitpack.io</url>
@@ -138,6 +137,24 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.github.EzFramework</groupId>
+            <artifactId>Jaloquent</artifactId>
+            <version>${jaloquent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.EzFramework</groupId>
+            <artifactId>jaker</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.EzFramework.Jaker</groupId>
+            <artifactId>jaker-data-en-US</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.2</version>
@@ -145,8 +162,8 @@
         </dependency>
         <!-- MockBukkit for plugin tests (mock server environment) -->
         <dependency>
-            <groupId>${mockbukkit.groupId}</groupId>
-            <artifactId>${mockbukkit.artifactId}</artifactId>
+            <groupId>org.mockbukkit.mockbukkit</groupId>
+            <artifactId>mockbukkit-v26.1</artifactId>
             <version>${mockbukkit.version}</version>
             <scope>test</scope>
         </dependency>
@@ -187,6 +204,7 @@
                 <version>${maven.compiler.plugin.version}</version>
                 <configuration>
                     <release>${maven.compiler.release}</release>
+                    <fork>true</fork>
                 </configuration>
             </plugin>
             <plugin>
@@ -212,6 +230,8 @@
                                     <include>net.kyori:examination-api</include>
                                     <include>net.kyori:examination-string</include>
                                     <include>javazoom:jlayer</include>
+                                    <include>com.github.EzFramework:Jaloquent</include>
+                                    <include>com.github.EzFramework:JavaQueryBuilder</include>
                                 </includes>
                             </artifactSet>
                             <relocations>
@@ -227,6 +247,10 @@
                                     <pattern>javazoom</pattern>
                                     <shadedPattern>com.gyvex.ezafk.libs.javazoom</shadedPattern>
                                 </relocation>
+                                <relocation>
+                                    <pattern>com.github.ezframework</pattern>
+                                    <shadedPattern>com.gyvex.ezafk.libs.ezframework</shadedPattern>
+                                </relocation>
                             </relocations>
                         </configuration>
                     </execution>
@@ -235,7 +259,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.2.5</version>
+                <version>3.5.5</version>
                 <configuration>
                     <useModulePath>false</useModulePath>
                 </configuration>

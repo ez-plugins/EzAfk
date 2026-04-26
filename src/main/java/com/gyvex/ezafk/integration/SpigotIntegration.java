@@ -16,7 +16,7 @@ public class SpigotIntegration extends Integration {
                 } else {
                     Registry.get().getLogger().info("A new version (" + version + ") of EzAfk is available.");
                     Registry.get().getLogger().info("Please visit the following link to download the latest update:");
-                    Registry.get().getLogger().info("https://www.spigotmc.org/resources/ezafk.117430/");
+                    Registry.get().getLogger().info("https://modrinth.com/plugin/ezafk");
                 }
             });
         }

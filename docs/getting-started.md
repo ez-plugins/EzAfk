@@ -11,8 +11,8 @@ This page walks you through installing EzAfk on your server and running it for t
 
 ## Requirements
 
-- Paper, Spigot, Bukkit, or Purpur **1.19+**
-- Java **17** or newer
+- Paper, Spigot, Bukkit, or Purpur **1.26+**
+- Java **25** or newer
 
 ---
 
@@ -30,7 +30,7 @@ After first startup, EzAfk creates the following inside `plugins/EzAfk/`:
 
 | File | Purpose |
 |------|---------|
-| `config.yml` | Main settings — AFK timeout, kick, GUI, zones, anti-bypass |
+| `config.yml` | Main settings: AFK timeout, kick, GUI, zones, anti-bypass |
 | `gui.yml` | In-game GUI layout and item definitions |
 | `mysql.yml` | MySQL/SQLite database connection settings |
 | `messages/` | One YAML file per language (en, es, nl, ru, zh, de) |
@@ -66,9 +66,9 @@ See [Configuration](configuration) for every available option.
 The minimum set for an admin:
 
 ```text
-ezafk.reload      — reload config without restarting
-ezafk.gui         — open the AFK player overview GUI
-ezafk.afk.others  — toggle AFK for another player
+ezafk.reload      - reload config without restarting
+ezafk.gui         - open the AFK player overview GUI
+ezafk.afk.others  - toggle AFK for another player
 ```
 
 See [Permissions](permissions) for the full node list.
@@ -97,6 +97,7 @@ Run `/afk reload` to hot-reload config changes at any time (requires `ezafk.relo
 |---|---|
 | See all commands | [Commands](commands) |
 | Tune every config option | [Configuration](configuration) |
+| Understand each feature in depth | [Features](features/) |
 | Set up MySQL for persistence | [Storage](mysql) |
 | Connect PlaceholderAPI / WorldGuard / Economy | [Integrations](integrations) |
 | Customise plugin messages | [Messages](messages) |

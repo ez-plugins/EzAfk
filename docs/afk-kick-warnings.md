@@ -1,10 +1,10 @@
 ---
 title: AFK Kick Warnings
-nav_order: 1
-parent: Configuration
+nav_order: 4
+parent: Features
 ---
 
-# AFK Kick Warnings Feature
+# AFK Kick Warnings
 
 EzAfk supports configurable warning messages before a player is kicked for being AFK. This helps notify players and gives them a chance to return before being removed from the server.
 
@@ -49,5 +49,9 @@ You can use `%seconds%` as a placeholder for the time remaining.
 
 If your kick timeout is 600 seconds (10 minutes) and intervals are `[60, 30, 10]`, players will be warned at 9:00, 9:30, and 9:50 of inactivity.
 
----
-For more, see the main documentation or contact the plugin author.
+## Related
+
+- [AFK Kick](afk-kick): the underlying kick system this warning feature extends
+- [AFK Detection](afk-detection): idle detection that starts the kick countdown
+- [Messages](../messages): customise all warning message text
+- [Permissions](../permissions): `ezafk.kick.bypass`

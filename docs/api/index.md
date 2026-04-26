@@ -11,5 +11,5 @@ EzAfk exposes a developer API for other plugins to integrate with AFK state chan
 
 | Page | What it covers |
 |------|----------------|
-| [Events](events) | `PlayerAfkStatusChangeEvent` — hook into AFK status changes |
-| [AfkReasons](AfkReasons) | `AfkReason` enum — reasons for AFK status changes |
+| [Events](events) | `PlayerAfkStatusChangeEvent`: hook into AFK status changes |
+| [AfkReasons](AfkReasons) | `AfkReason` enum: reasons for AFK status changes |

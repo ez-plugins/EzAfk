@@ -16,10 +16,10 @@ EzAfk exposes custom events to allow other plugins to hook into AFK status chang
 - **Fired:** When a player goes AFK or returns from AFK.
 - **Cancellable:** Yes. Plugins can cancel AFK status changes.
 - **Fields:**
-  - `Player getPlayer()` — The player whose status changed
-  - `boolean isAfk()` — `true` if now AFK, `false` if returned
-  - `AfkReason getReason()` — Reason for AFK status change (see [AfkReasons](./AfkReasons.md))
-  - `String getDetail()` — Additional details about the change
+  - `Player getPlayer()`: The player whose status changed
+  - `boolean isAfk()`: `true` if now AFK, `false` if returned
+  - `AfkReason getReason()`: Reason for AFK status change (see [AfkReasons](./AfkReasons.md))
+  - `String getDetail()`: Additional details about the change
 
 ### Example Listener
 

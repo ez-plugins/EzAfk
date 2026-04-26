@@ -1,61 +1,79 @@
 package com.gyvex.ezafk.repository.sqlite;
 
+import com.github.ezframework.jaloquent.config.DatabaseSettings;
+import com.github.ezframework.jaloquent.config.JaloquentConfig;
+import com.github.ezframework.jaloquent.migration.Migration;
+import com.github.ezframework.jaloquent.migration.MigrationRunner;
+import com.github.ezframework.jaloquent.migration.Schema;
+import com.github.ezframework.jaloquent.model.Model;
+import com.github.ezframework.jaloquent.model.ModelRepository;
+import com.github.ezframework.jaloquent.model.TableRegistry;
+import com.github.ezframework.jaloquent.store.sql.DataSourceJdbcStore;
+import com.github.ezframework.javaquerybuilder.query.sql.SqlDialect;
 import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.repository.AfkTimeModel;
 import com.gyvex.ezafk.repository.StorageRepository;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
- * Minimal SQLite storage stub. Creates a simple table and stores per-player seconds.
- * This is intentionally small but functional for local file-based storage.
+ * SQLite storage backend using Jaloquent's ModelRepository with a
+ * DataSourceJdbcStore backed by a DriverManager JDBC connection.
  */
 public class SQLiteStorage implements StorageRepository {
-    private Connection connection;
+
+    private static final Map<String, String> TABLE_COLUMNS = Map.of(
+            "id",      "TEXT PRIMARY KEY",
+            "seconds", "INTEGER NOT NULL DEFAULT 0"
+    );
+
+    private DataSourceJdbcStore store;
+    private ModelRepository<AfkTimeModel> repo;
 
     @Override
     public void init() throws Exception {
         java.io.File dataFolder = Registry.get().getPlugin().getDataFolder();
         if (!dataFolder.exists()) dataFolder.mkdirs();
         java.io.File dbFile = new java.io.File(dataFolder, "ezafk.db");
-        String url = "jdbc:sqlite:" + dbFile.getAbsolutePath();
-        connection = DriverManager.getConnection(url);
-        try (Statement stmt = connection.createStatement()) {
-            stmt.executeUpdate("CREATE TABLE IF NOT EXISTS afk_times (uuid TEXT PRIMARY KEY, seconds INTEGER)");
-        }
+
+        DatabaseSettings settings = DatabaseSettings.builder()
+                .url("jdbc:sqlite:" + dbFile.getAbsolutePath())
+                .build();
+        JaloquentConfig.setDatabaseSettings(settings);
+        store = JaloquentConfig.buildStore();
+
+        new MigrationRunner(store, SqlDialect.SQLITE, List.of(new CreateAfkTimesTable()))
+                .run();
+
+        TableRegistry.register(AfkTimeModel.TABLE_PREFIX, "afk_times", TABLE_COLUMNS);
+        repo = new ModelRepository<>(store, AfkTimeModel.TABLE_PREFIX, AfkTimeModel.FACTORY,
+                SqlDialect.SQLITE);
     }
 
     @Override
-    public java.util.Map<UUID, Long> loadAll() {
-        java.util.Map<UUID, Long> map = new java.util.HashMap<>();
-        if (connection == null) return map;
-        try (PreparedStatement ps = connection.prepareStatement("SELECT uuid, seconds FROM afk_times")) {
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    try {
-                        UUID id = UUID.fromString(rs.getString(1));
-                        long s = rs.getLong(2);
-                        map.put(id, s);
-                    } catch (Exception ignored) {}
-                }
+    public Map<UUID, Long> loadAll() {
+        final Map<UUID, Long> result = new java.util.HashMap<>();
+        try {
+            for (final AfkTimeModel m : repo.query(Model.queryBuilder().build())) {
+                try {
+                    result.put(UUID.fromString(m.getId()), m.getSeconds());
+                } catch (IllegalArgumentException ignored) {}
             }
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite loadAll failed: " + e.getMessage());
         }
-        return map;
+        return result;
     }
 
     @Override
     public void savePlayerAfkTime(UUID player, long seconds) {
         if (player == null) return;
-        try (PreparedStatement ps = connection.prepareStatement("INSERT INTO afk_times(uuid, seconds) VALUES(?, ?) ON CONFLICT(uuid) DO UPDATE SET seconds=excluded.seconds")) {
-            ps.setString(1, player.toString());
-            ps.setLong(2, seconds);
-            ps.executeUpdate();
+        final AfkTimeModel model = new AfkTimeModel(player.toString());
+        model.setSeconds(seconds);
+        try {
+            repo.save(model);
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite save failed: " + e.getMessage());
         }
@@ -63,10 +81,9 @@ public class SQLiteStorage implements StorageRepository {
 
     @Override
     public void deletePlayer(UUID player) {
-        if (player == null || connection == null) return;
-        try (PreparedStatement ps = connection.prepareStatement("DELETE FROM afk_times WHERE uuid = ?")) {
-            ps.setString(1, player.toString());
-            ps.executeUpdate();
+        if (player == null || store == null) return;
+        try {
+            repo.delete(player.toString());
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite delete failed: " + e.getMessage());
         }
@@ -75,26 +92,47 @@ public class SQLiteStorage implements StorageRepository {
     @Override
     public long getPlayerAfkTime(UUID player) {
         if (player == null) return 0L;
-        try (PreparedStatement ps = connection.prepareStatement("SELECT seconds FROM afk_times WHERE uuid = ?")) {
-            ps.setString(1, player.toString());
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getLong(1);
-            }
+        try {
+            return repo.find(player.toString())
+                    .map(AfkTimeModel::getSeconds)
+                    .orElse(0L);
         } catch (Exception e) {
             Registry.get().getLogger().warning("SQLite read failed: " + e.getMessage());
+            return 0L;
         }
-        return 0L;
     }
 
     @Override
-    public void saveAll() throws Exception {
-        // no-op; writes are immediate
+    public void saveAll() {
+        // Writes are immediate via repo.save(); nothing to flush.
     }
 
     @Override
     public void shutdown() {
-        try {
-            if (connection != null && !connection.isClosed()) connection.close();
-        } catch (Exception ignored) {}
+        // DataSourceJdbcStore closes connections on its own; no explicit shutdown needed.
+    }
+
+    // =========================================================================
+    // Inner migration class
+    // =========================================================================
+
+    private static final class CreateAfkTimesTable implements Migration {
+        @Override
+        public String getId() { return "2026_04_23_001_create_afk_times"; }
+
+        @Override
+        public void up(Schema schema) throws com.github.ezframework.jaloquent.exception.MigrationException {
+            schema.create("afk_times", t -> t
+                    .column("id", "TEXT NOT NULL")
+                    .primaryKey("id")
+                    .column("seconds", "INTEGER NOT NULL DEFAULT 0")
+                    .ifNotExists()
+            );
+        }
+
+        @Override
+        public void down(Schema schema) throws com.github.ezframework.jaloquent.exception.MigrationException {
+            schema.dropIfExists("afk_times");
+        }
     }
 }
