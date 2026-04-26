@@ -3,6 +3,9 @@
 # MySQL settings have moved to mysql.yml.
 # MySQL settings have moved to mysql.yml.
 
+# Enable debug logging (e.g. Jaloquent storage save/delete messages). Default: false
+debug: false
+
 # Storage backend selection for AFK persistence. Valid values: yaml, sqlite, mysql
 storage:
   type: yaml
