@@ -119,8 +119,8 @@ public class AfkState {
             boolean titleEnabled = plugin.getConfig().getBoolean("afk.title.enabled");
 
             if (titleEnabled) {
-                String title = MessageManager.getMessage("afk.title.title", "&eAFK");
-                String subtitle = MessageManager.getMessage("afk.title.subtitle", "&7You are now AFK");
+                String title = MessageManager.getMessage("titles.afk.title", "&eAFK");
+                String subtitle = MessageManager.getMessage("titles.afk.subtitle", "&7You are now AFK");
 
                 if (title == null) {
                     title = "";
@@ -226,8 +226,8 @@ public class AfkState {
 
         boolean titleEnabled = mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("unafk.title.enabled");
         if (titleEnabled) {
-            String title = MessageManager.getMessage("unafk.title.title", "&aWelcome back!");
-            String subtitle = MessageManager.getMessage("unafk.title.subtitle", "&7You are no longer AFK");
+            String title = MessageManager.getMessage("titles.unafk.title", "&aWelcome back!");
+            String subtitle = MessageManager.getMessage("titles.unafk.subtitle", "&7You are no longer AFK");
 
             if (title == null) {
                 title = "";
