@@ -27,13 +27,14 @@ See [AFK Detection](features/afk-detection) for a full walkthrough of these opti
   - `enabled`: (bool) Enable/disable AFK broadcast messages.
   - Placeholders: `%player%`, `%afk_count%`, `%active_count%`.
 - `title.enabled`: (bool) Show a title message when a player goes AFK.
-- `hide-screen.enabled`: (bool) Apply blindness effect to AFK players to hide their screen.
-- `animation.enabled`: (bool) Enable AFK animation effects.
+- `hide-screen.enabled`: (bool) Apply blindness effect to AFK players to hide their screen. Default: `false`.
+- `animation.enabled`: (bool) Enable AFK animation effects (particles + sounds). Default: `true`.
+  > Cherry Leaves particles require MC 1.20+; they are silently skipped on 1.19.x.
 - `storage.flush-interval-seconds`: (int) How often (in seconds) AFK time is saved to disk.
 - `anti`:
   - `infinite-waterflow`: (bool) Prevents water flow AFK bypass.
   - `infinite-vehicle`: (bool) Prevents vehicle AFK bypass.
-  - `bubble-column`: (bool) Prevents bubble column AFK bypass.
+  - `bubble-column`: (bool) Prevents bubble column AFK bypass. Requires MC 1.13+ (`BUBBLE_COLUMN` material); always available on 1.19+.
   - `flag-only`: (bool) If true, bypass attempts silently mark as AFK instead of alerting.
 - `tab-prefix`:
   - `enabled`: (bool) Enable AFK prefix in TAB list.
@@ -44,7 +45,7 @@ See [AFK Detection](features/afk-detection) for a full walkthrough of these opti
 - `display-name`:
   - `enabled`: (bool) Change in-game display name for AFK players.
   - `prefix`, `suffix`, `format`: As above, but for chat/display name.
-- `sound.enabled`: (bool) Enable playing a sound when going AFK (requires Simple Voice Chat integration).
+- `sound.enabled`: (bool) Enable playing an MP3 sound when going AFK. **Requires the [Simple Voice Chat](https://modrinth.com/plugin/simple-voice-chat) plugin** and `integration.voicechat: true/auto`. Default: `false`.
 - `sound.file`: (string) Path to the MP3 file to play (relative to the EzAfk plugin folder). Example: `afk-sound.mp3` for `EzAfk/afk-sound.mp3`. Must be a valid MP3 file, 48kHz recommended.
 
 ### unafk
@@ -79,6 +80,9 @@ See [AFK Kick](features/afk-kick) and [AFK Kick Warnings](afk-kick-warnings) for
 - `warnings.enabled`: (bool) Enable warnings before kick.
 - `warnings.intervals`: (list[int]) Seconds before kick to warn.
 - `warnings.mode`: (string) `chat`, `title`, or `both`.
+
+> **Note:** The kick reason passed to `PlayerKickEvent.Cause` requires MC 1.19.2+.
+> On MC 1.19.0–1.19.1 EzAfk automatically falls back to a plain kick message.
 
 ### integration
 

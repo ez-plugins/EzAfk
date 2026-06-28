@@ -15,7 +15,7 @@ This page lists all permission nodes, their defaults, and which feature each one
 |------------|-------------|---------|
 | `ezafk.reload` | Reload plugin configuration | OP |
 | `ezafk.bypass` | Never be marked AFK automatically | OP |
-| `ezafk.bypass.manage` | Toggle AFK bypass for other players | OP |
+| `ezafk.bypass.manage` | Toggle bypass (session) and manage whitelist / blacklist | OP |
 | `ezafk.toggle` | Toggle AFK status for other players | OP |
 | `ezafk.info` | View detailed AFK info for other players | OP |
 | `ezafk.kick.bypass` | Never be kicked by EzAfk's AFK kick | OP |
@@ -38,7 +38,8 @@ This page lists all permission nodes, their defaults, and which feature each one
 
 - **`ezafk.bypass`**: Players with this node are never automatically marked AFK (requires
   `afk.bypass.enabled: true` in `config.yml`).
-- **`ezafk.bypass.manage`**: Required for `/afk bypass <player>`.
+- **`ezafk.bypass.manage`**: Required for `/afk bypass <player>` (session toggle) and for
+  `/afk bypass whitelist|blacklist <add|remove|list>` (persistent list management).
 - **`ezafk.toggle`**: Required for `/afk toggle <player>` to force-toggle another player's AFK state.
 - **`ezafk.info`**: Required for `/afk info <player>` to view another player's session details.
 - **`ezafk.reload`**: Required for `/afk reload`.

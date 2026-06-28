@@ -1,7 +1,9 @@
 package com.gyvex.ezafk.listener;
 
+import com.gyvex.ezafk.manager.AfkZoneRewardManager;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.manager.AfkTimeManager;
+import com.gyvex.ezafk.manager.ZoneRewardStatsManager;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.zone.ZoneCache;
 
@@ -22,6 +24,11 @@ public class PlayerQuitListener implements Listener {
 
         // Ensure any stored zone positions are cleared when the player quits
         ZoneCache.clearPositions(playerId);
+        MoveListener.clearZoneState(playerId);
+
+        // Clean up zone reward countdowns and session stats
+        AfkZoneRewardManager.stopAllZoneCountdowns(playerId);
+        ZoneRewardStatsManager.clearPlayer(playerId);
 
         if (!AfkState.afkPlayers.contains(playerId)) {
             AfkState.forgetDisplayName(playerId);

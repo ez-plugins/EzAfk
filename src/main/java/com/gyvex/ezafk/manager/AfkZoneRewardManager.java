@@ -6,6 +6,7 @@ import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.integration.Integration;
 import com.gyvex.ezafk.integration.EconomyIntegration;
+import com.gyvex.ezafk.integration.ezcountdown.EzCountdownIntegration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -39,7 +40,10 @@ public final class AfkZoneRewardManager {
             if (zone == null || !zone.rewardEnabled || zone.rewardIntervalSeconds <= 0 || zone.rewardAmount <= 0.0) {
                 // clear any saved state for this player/zone
                 Map<String, RewardState> m = states.get(playerId);
-                if (m != null && zone != null) m.remove(zone.name);
+                if (m != null && zone != null) {
+                    m.remove(zone.name);
+                    stopZoneCountdown(playerId, zone);
+                }
                 continue;
             }
 
@@ -49,6 +53,8 @@ public final class AfkZoneRewardManager {
             if (rs == null) {
                 rs = new RewardState(now + zone.rewardIntervalSeconds * 1000L, 0, 0, 0L);
                 playerStates.put(zone.name, rs);
+                // Start initial countdown to first reward
+                startZoneCountdown(player, zone);
                 continue; // first interval scheduled
             }
 
@@ -120,8 +126,8 @@ public final class AfkZoneRewardManager {
             if (IntegrationManager.hasIntegration("economy")) {
                 try {
                     Integration integration = (Integration) IntegrationManager.getIntegration("economy");
-                    if (integration instanceof EconomyIntegration ei) {
-                        econ = ei.getEconomy();
+                    if (integration instanceof EconomyIntegration) {
+                        econ = ((EconomyIntegration) integration).getEconomy();
                     }
                 } catch (Throwable ignored) {}
             }
@@ -129,6 +135,7 @@ public final class AfkZoneRewardManager {
             boolean grantSuccess = false;
             String grantFailReason = null;
             String rewardType = zone.rewardType == null ? "economy" : zone.rewardType.toLowerCase();
+            double grantedAmount = 0.0;
 
             if ("economy".equals(rewardType)) {
                 double totalAmount = zone.rewardAmount * toGrant;
@@ -136,7 +143,9 @@ public final class AfkZoneRewardManager {
                     try {
                         net.milkbowl.vault.economy.EconomyResponse resp = econ.depositPlayer(player, totalAmount);
                         grantSuccess = resp.transactionSuccess();
-                        if (!grantSuccess) {
+                        if (grantSuccess) {
+                            grantedAmount = totalAmount;
+                        } else {
                             grantFailReason = resp.errorMessage == null ? "transaction-failed" : "transaction-failed: " + resp.errorMessage;
                         }
                     } catch (Throwable ex) {
@@ -149,7 +158,7 @@ public final class AfkZoneRewardManager {
                     grantFailReason = "no-economy-provider";
                 }
                 if (grantSuccess) {
-                    plugin.getLogger().log(Level.FINE, "Granted AFK zone economy reward to " + player.getName() + " zone=" + zone.name + " amount=" + (zone.rewardAmount * toGrant) + " (" + toGrant + ")");
+                    plugin.getLogger().log(Level.FINE, "Granted AFK zone economy reward to " + player.getName() + " zone=" + zone.name + " amount=" + grantedAmount + " (" + toGrant + ")");
                 }
             } else if ("command".equals(rewardType)) {
                 // Execute configured command as console, replacing %player% and %amount%
@@ -193,65 +202,122 @@ public final class AfkZoneRewardManager {
                 plugin.getLogger().log(Level.FINE, "Unknown reward type for AFK zone: " + rewardType);
             }
 
-                if (grantSuccess) {
-                    rs.stackCount += toGrant;
-                    rs.grantCount += toGrant;
-                    rs.nextScheduled = now + intervalMs;
+            if (grantSuccess) {
+                rs.stackCount += toGrant;
+                rs.grantCount += toGrant;
+                rs.nextScheduled = now + intervalMs;
 
-                    // If grant count reached limit, start cooldown and notify
-                    if (zone.rewardLimit > 0 && rs.grantCount >= zone.rewardLimit) {
-                        if (zone.rewardLimitCooldownSeconds > 0) {
-                            rs.limitCooldownUntil = now + zone.rewardLimitCooldownSeconds * 1000L;
-                        }
-                        try {
-                            Map<String, String> ph = new HashMap<>();
-                            ph.put("reward_limit", String.valueOf(zone.rewardLimit));
-                            ph.put("reward_name", zone.name == null ? "" : zone.name);
-                            ph.put("time_remaining", formatDurationMillis(Math.max(0, rs.limitCooldownUntil - now)));
-                            MessageManager.sendMessage(player, "afkzone.reward.limit.reached", "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%.", ph);
-                        } catch (Throwable ignored) {}
-                    }
+                // Track session stats
+                ZoneRewardStatsManager.recordGrant(playerId, zone.name, toGrant, grantedAmount);
 
-                    // Send localized player message about the reward
-                    try {
-                        Map<String, String> placeholders = new HashMap<>();
-                        placeholders.put("zone", zone.name == null || zone.name.isEmpty() ? "" : zone.name);
-                        if ("economy".equals(rewardType)) {
-                            DecimalFormat df = new DecimalFormat("0.##");
-                            String formatted = df.format(zone.rewardAmount * toGrant);
-                            placeholders.put("amount", formatted);
-                            MessageManager.sendMessage(player, "afkzone.reward.granted.economy", "&aYou received %amount% for staying AFK in %zone%.", placeholders);
-                        } else if ("command".equals(rewardType)) {
-                            placeholders.put("amount", String.valueOf(zone.rewardAmount));
-                            MessageManager.sendMessage(player, "afkzone.reward.granted.command", "&aYou received a command reward for staying AFK in %zone%.", placeholders);
-                        } else if ("item".equals(rewardType)) {
-                            placeholders.put("item", zone.rewardItemMaterial == null ? "" : zone.rewardItemMaterial);
-                            placeholders.put("count", String.valueOf(zone.rewardItemAmount * toGrant));
-                            MessageManager.sendMessage(player, "afkzone.reward.granted.item", "&aYou received %count%x %item% for staying AFK in %zone%.", placeholders);
-                        } else {
-                            MessageManager.sendMessage(player, "afkzone.reward.granted", "&aYou received a reward for staying AFK in %zone%.", placeholders);
-                        }
-                    } catch (Throwable ignored) {
+                // If grant count reached limit, start cooldown and notify
+                if (zone.rewardLimit > 0 && rs.grantCount >= zone.rewardLimit) {
+                    if (zone.rewardLimitCooldownSeconds > 0) {
+                        rs.limitCooldownUntil = now + zone.rewardLimitCooldownSeconds * 1000L;
                     }
-                } else {
-                    rs.nextScheduled = now + intervalMs; // schedule next attempt
-                    // If the player is an operator, notify them about the failure to aid debugging
                     try {
-                        if (player.isOp()) {
-                            Map<String, String> ph = new HashMap<>();
-                            ph.put("zone", zone.name == null ? "" : zone.name);
-                            ph.put("reason", grantFailReason == null ? "unknown" : grantFailReason);
-                            MessageManager.sendMessage(player, "afkzone.reward.failed", "&cAFK zone reward failed for %zone%: %reason%", ph);
-                        }
+                        Map<String, String> ph = new HashMap<>();
+                        ph.put("reward_limit", String.valueOf(zone.rewardLimit));
+                        ph.put("reward_name", zone.name == null ? "" : zone.name);
+                        ph.put("time_remaining", formatDurationMillis(Math.max(0, rs.limitCooldownUntil - now)));
+                        MessageManager.sendMessage(player, "afkzone.reward.limit.reached", "&cYou already reached the %reward_limit% for %reward_name%, come back in %time_remaining%.", ph);
                     } catch (Throwable ignored) {}
                 }
+
+                // Send localized player message about the reward
+                try {
+                    Map<String, String> placeholders = new HashMap<>();
+                    placeholders.put("zone", zone.name == null || zone.name.isEmpty() ? "" : zone.name);
+                    if ("economy".equals(rewardType)) {
+                        DecimalFormat df = new DecimalFormat("0.##");
+                        String formatted = df.format(grantedAmount);
+                        placeholders.put("amount", formatted);
+                        MessageManager.sendMessage(player, "afkzone.reward.granted.economy", "&aYou received %amount% for staying AFK in %zone%.", placeholders);
+                    } else if ("command".equals(rewardType)) {
+                        placeholders.put("amount", String.valueOf(zone.rewardAmount));
+                        MessageManager.sendMessage(player, "afkzone.reward.granted.command", "&aYou received a command reward for staying AFK in %zone%.", placeholders);
+                    } else if ("item".equals(rewardType)) {
+                        placeholders.put("item", zone.rewardItemMaterial == null ? "" : zone.rewardItemMaterial);
+                        placeholders.put("count", String.valueOf(zone.rewardItemAmount * toGrant));
+                        MessageManager.sendMessage(player, "afkzone.reward.granted.item", "&aYou received %count%x %item% for staying AFK in %zone%.", placeholders);
+                    } else {
+                        MessageManager.sendMessage(player, "afkzone.reward.granted", "&aYou received a reward for staying AFK in %zone%.", placeholders);
+                    }
+                } catch (Throwable ignored) {
+                }
+
+                // Restart EzCountdown zone reward countdown so the player sees
+                // the timer to their NEXT reward in real time.
+                startZoneCountdown(player, zone);
+
+            } else {
+                rs.nextScheduled = now + intervalMs; // schedule next attempt
+                // If the player is an operator, notify them about the failure to aid debugging
+                try {
+                    if (player.isOp()) {
+                        Map<String, String> ph = new HashMap<>();
+                        ph.put("zone", zone.name == null ? "" : zone.name);
+                        ph.put("reason", grantFailReason == null ? "unknown" : grantFailReason);
+                        MessageManager.sendMessage(player, "afkzone.reward.failed", "&cAFK zone reward failed for %zone%: %reason%", ph);
+                    }
+                } catch (Throwable ignored) {}
+            }
         }
+    }
+
+    /**
+     * Starts (or restarts) the EzCountdown zone-reward countdown for the given
+     * player/zone when EzCountdown is available and notification is configured.
+     * Silently ignored when EzCountdown is not installed or notification is
+     * disabled for the zone.
+     */
+    private static void startZoneCountdown(Player player, Zone zone) {
+        if (!zone.notificationEnabled || zone.notificationDisplays.isEmpty()) return;
+        if (!IntegrationManager.hasIntegration("ezcountdown")) return;
+        try {
+            Integration raw = IntegrationManager.getIntegration("ezcountdown");
+            if (!(raw instanceof EzCountdownIntegration)) return;
+            EzCountdownIntegration ezcd = (EzCountdownIntegration) raw;
+            int duration = zone.notificationDuration > 0
+                    ? zone.notificationDuration
+                    : (int) Math.min(zone.rewardIntervalSeconds, Integer.MAX_VALUE);
+            DecimalFormat df = new DecimalFormat("0.##");
+            String amountStr = df.format(zone.rewardAmount);
+            ezcd.sendZoneRewardCountdown(player, zone.name, zone.notificationMessage,
+                    duration, zone.notificationDisplays, zone.name, amountStr);
+        } catch (Throwable ignored) {}
+    }
+
+    /**
+     * Stops the active EzCountdown zone-reward countdown for the given player/zone.
+     * Silently ignored when EzCountdown is not installed.
+     */
+    private static void stopZoneCountdown(UUID playerId, Zone zone) {
+        if (!IntegrationManager.hasIntegration("ezcountdown")) return;
+        try {
+            Integration raw = IntegrationManager.getIntegration("ezcountdown");
+            if (!(raw instanceof EzCountdownIntegration)) return;
+            ((EzCountdownIntegration) raw).removeZoneRewardCountdown(playerId, zone.name);
+        } catch (Throwable ignored) {}
+    }
+
+    /**
+     * Stops all active EzCountdown zone-reward countdowns for the given player
+     * (e.g. on player quit or global unAFK).
+     */
+    public static void stopAllZoneCountdowns(UUID playerId) {
+        if (!IntegrationManager.hasIntegration("ezcountdown")) return;
+        try {
+            Integration raw = IntegrationManager.getIntegration("ezcountdown");
+            if (!(raw instanceof EzCountdownIntegration)) return;
+            ((EzCountdownIntegration) raw).removeAllZoneCountdowns(playerId);
+        } catch (Throwable ignored) {}
+        states.remove(playerId);
     }
 
     private static final class RewardState {
         long nextScheduled;
         int stackCount;
-
         int grantCount;
         long limitCooldownUntil;
 

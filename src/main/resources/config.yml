@@ -35,19 +35,27 @@ afk:
     enabled: true
   hide-screen:
     # Apply a blindness effect to AFK players to hide their screen until they return.
+    # Requires MC 1.13+ (PotionEffect icon parameter). Available from the minimum supported version.
     enabled: false
   animation:
+    # Spawns particles and plays sounds when a player goes/returns from AFK.
+    # Cherry Leaves particles are only available on MC 1.20+; they are silently skipped on older versions.
     enabled: true
   # Prevent players from bypassing AFK
   anti:
     # Toggle the infinite water flow protection
     infinite-waterflow: false
     infinite-vehicle: false
+    # Detects upward push from soul-sand bubble columns. Requires MC 1.13+ (BUBBLE_COLUMN material).
+    # Available from the minimum supported version.
     bubble-column: false
     # When true, bypass attempts silently mark the player as AFK instead of alerting them.
     flag-only: false
   sound:
-    enabled: true # Enable playing a sound when going AFK (requires Simple Voice Chat integration)
+    # Plays an MP3 file when a player goes AFK via Simple Voice Chat.
+    # Only active when the Simple Voice Chat plugin is present and integration.voicechat is true/auto.
+    # Disabled by default; enable only after installing Simple Voice Chat.
+    enabled: false
     # Path to the MP3 file to play (relative to plugin folder). Must be a valid MP3 file, 48kHz recommended.
     file: "mp3/ezafk-sound.mp3"
   # Change the in-game display name (e.g., chat) while the player is AFK.
@@ -69,7 +77,10 @@ unafk:
   animation:
     enabled: true
   sound:
-    enabled: true
+    # Plays an MP3 file when a player returns from AFK via Simple Voice Chat.
+    # Only active when the Simple Voice Chat plugin is present and integration.voicechat is true/auto.
+    # Disabled by default; enable only after installing Simple Voice Chat.
+    enabled: false
     # Path to the MP3 file to play when returning from AFK (relative to plugin folder)
     file: "mp3/ezafk-sound.mp3"
 economy:
@@ -114,10 +125,36 @@ kick:
     # List of warning intervals (in seconds before kick) to send warnings at.
     # Example: [60, 30, 10] will warn at 60s, 30s, and 10s before kick.
     intervals: [60, 30, 10]
-    # How to send warnings: 'chat', 'title', or 'both'.
-    # - chat: Sends a chat message only.
-    # - title: Sends a title/subtitle only.
-    # - both: Sends both chat and title/subtitle.
+    # How to send warnings. Use 'displays' (recommended) to choose one or more
+    # display types. When 'displays' is empty the legacy 'mode' value is used.
+    #
+    # Available display types (all servers):
+    #   CHAT       – chat message (always via EzAfk's MessageManager)
+    #   TITLE      – title / subtitle overlay
+    #   ACTION_BAR – action-bar text above the hotbar
+    #   BOSS_BAR   – boss-bar at the top of the screen
+    #
+    # Additional display types (requires EzCountdown plugin):
+    #   SCOREBOARD – sidebar scoreboard countdown
+    #   DIALOG     – in-game dialog popup
+    #
+    # https://modrinth.com/plugin/ezcountdown
+    # When EzCountdown is installed and its integration is active, all non-CHAT
+    # display types are delegated to EzCountdown so the countdown ticks in real
+    # time.  Without EzCountdown, TITLE / ACTION_BAR / BOSS_BAR use Bukkit APIs
+    # directly, and SCOREBOARD / DIALOG are ignored with a warning in the log.
+    # CHAT is always handled by EzAfk's own message system.
+    #
+    # Examples:
+    #   displays: [CHAT]                      # chat message only
+    #   displays: [TITLE]                     # title/subtitle only
+    #   displays: [CHAT, TITLE]               # equivalent to mode: both
+    #   displays: [ACTION_BAR]                # action-bar only
+    #   displays: [CHAT, ACTION_BAR, BOSS_BAR]  # three at once
+    #   displays: [BOSS_BAR, SCOREBOARD]      # EzCountdown required for SCOREBOARD
+    displays: []
+    # Legacy fallback when 'displays' is empty.
+    # Options: chat | title | both
     mode: both
     # Messages are configurable in messages.yml under kick.warning
     # Warnings are only sent once per interval per AFK session.
@@ -145,6 +182,10 @@ integration:
   spigot:
     check-for-update: true
   voicechat: auto # Options: true, false, auto. 'auto' will detect if Simple Voice Chat is available
+  # EzCountdown integration for richer kick-warning display types.
+  # When 'auto', EzAfk enables the integration if EzCountdown is installed.
+  # Options: true, false, auto
+  ezcountdown: auto
   # Controls automatic WorldGuard flag registration for AFK BYPASS.
   # Options:
   #   auto   - Try to register the flag during EzAfk load. If the WorldGuard registry

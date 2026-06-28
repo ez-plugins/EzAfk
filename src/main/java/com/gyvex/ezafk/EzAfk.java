@@ -30,6 +30,8 @@ public class EzAfk extends JavaPlugin {
             if (Registry.get().getBootstrap() != null) Registry.get().getBootstrap().onDisable();
         } catch (IllegalStateException ignored) {
             // Registry not initialized
+        } finally {
+            Registry.reset();
         }
     }
 }

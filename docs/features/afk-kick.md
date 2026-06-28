@@ -60,6 +60,8 @@ See the [Messages](../messages) page for the full reference.
 - The kick timer is separate from (and always longer than) the `afk.timeout` idle timer.
 - To warn players before the kick fires, enable the [AFK Kick Warnings](../afk-kick-warnings) system.
 - Players with the `ezafk.kick.bypass` permission are not kicked.
+- The kick reason passed to `PlayerKickEvent.Cause` requires MC 1.19.2+. On MC 1.19.0–1.19.1
+  EzAfk automatically falls back to a plain kick message.
 
 ## Related
 

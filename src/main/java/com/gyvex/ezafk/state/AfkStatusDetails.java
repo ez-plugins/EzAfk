@@ -3,11 +3,21 @@ package com.gyvex.ezafk.state;
 /**
  * Stores metadata for why a player is currently considered AFK.
  */
-public record AfkStatusDetails(AfkReason reason, String detail) {
-    public AfkStatusDetails {
-        if (reason == null) {
-            reason = AfkReason.OTHER;
-        }
+public final class AfkStatusDetails {
+    private final AfkReason reason;
+    private final String detail;
+
+    public AfkStatusDetails(AfkReason reason, String detail) {
+        this.reason = (reason == null) ? AfkReason.OTHER : reason;
+        this.detail = detail;
+    }
+
+    public AfkReason reason() {
+        return reason;
+    }
+
+    public String detail() {
+        return detail;
     }
 
     public String getReasonDisplayName() {

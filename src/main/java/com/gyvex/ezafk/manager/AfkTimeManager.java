@@ -20,8 +20,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
+import com.gyvex.ezafk.compatibility.scheduler.TaskHandle;
 
 public final class AfkTimeManager {
     private static final Map<UUID, Long> totalAfkSeconds = new ConcurrentHashMap<>();
@@ -37,7 +36,7 @@ public final class AfkTimeManager {
     });
     private static final Map<UUID, LeaderboardEntry> leaderboardEntries = new HashMap<>();
     
-    private static BukkitTask flushTask;
+    private static TaskHandle flushTask;
     private static long flushIntervalTicks = 20L * 30L;
     private static final long DEFAULT_FLUSH_INTERVAL_SECONDS = 30L;
     private static java.io.File timesDirectory = null;
@@ -303,12 +302,9 @@ public final class AfkTimeManager {
 
         flushIntervalTicks = Math.max(20L, intervalSeconds * 20L);
 
-        flushTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                flushPending(plugin, false);
-            }
-        }.runTaskTimerAsynchronously(plugin, flushIntervalTicks, flushIntervalTicks);
+        flushTask = Registry.get().getScheduler().runTaskTimerAsync(
+                () -> flushPending(plugin, false),
+                flushIntervalTicks, flushIntervalTicks);
     }
 
     private static void stopFlushTask() {
@@ -429,6 +425,13 @@ public final class AfkTimeManager {
         return true;
     }
 
-    private record LeaderboardEntry(UUID playerId, long totalSeconds) {
+    private static final class LeaderboardEntry {
+        private final UUID playerId;
+        private final long totalSeconds;
+
+        LeaderboardEntry(UUID playerId, long totalSeconds) {
+            this.playerId = playerId;
+            this.totalSeconds = totalSeconds;
+        }
     }
 }

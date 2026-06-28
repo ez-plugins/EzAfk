@@ -6,6 +6,7 @@ import com.gyvex.ezafk.listener.AfkPlayerActionsGUI;
 import com.gyvex.ezafk.listener.AfkPlayerOverviewGUI;
 import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.manager.AfkTimeManager;
+import com.gyvex.ezafk.manager.BypassListManager;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.state.AfkReason;
@@ -133,14 +134,16 @@ public class EzAfkCommand implements CommandExecutor {
             com.gyvex.ezafk.manager.AfkZoneManager.load(Registry.get().getPlugin());
         } catch (Exception ignored) {}
         AfkPlayerActionsGUI.reloadConfiguredActions();
+        BypassListManager.load(plugin);
         MessageManager.sendMessage(sender, "command.reload.success", "&aConfig reloaded.");
     }
 
     private void handleGui(CommandSender sender) {
-        if (!(sender instanceof Player player)) {
+        if (!(sender instanceof Player)) {
             MessageManager.sendMessage(sender, "command.gui.player-only", "&cOnly players can use this command.");
             return;
         }
+        Player player = (Player) sender;
         if (!player.hasPermission("ezafk.gui") && !player.isOp()) {
             MessageManager.sendMessage(sender, "command.gui.no-permission", "&cYou don't have permission to use this command.");
             return;
@@ -204,6 +207,13 @@ public class EzAfkCommand implements CommandExecutor {
             return;
         }
 
+        String subOrTarget = args[1].toLowerCase(Locale.ROOT);
+        if (subOrTarget.equals("whitelist") || subOrTarget.equals("blacklist")) {
+            handleBypassList(sender, args, subOrTarget.equals("whitelist"));
+            return;
+        }
+
+        // Legacy: /afk bypass <player> — session toggle
         Player target = Bukkit.getPlayer(args[1]);
         if (target == null) {
             MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
@@ -221,6 +231,113 @@ public class EzAfkCommand implements CommandExecutor {
             if (sender != target) {
                 MessageManager.sendMessage(target, "command.bypass.disabled-target", "&cYou will no longer bypass AFK detection.");
             }
+        }
+    }
+
+    private void handleBypassList(CommandSender sender, String[] args, boolean isWhitelist) {
+        String listName = isWhitelist ? "whitelist" : "blacklist";
+
+        if (args.length < 3) {
+            MessageManager.sendMessage(sender, "command.usage",
+                    "&cUsage: /afk bypass " + listName + " <add|remove|list> [player]");
+            return;
+        }
+
+        String action = args[2].toLowerCase(Locale.ROOT);
+
+        if (action.equals("list")) {
+            java.util.Set<UUID> list = isWhitelist ? BypassListManager.getWhitelist() : BypassListManager.getBlacklist();
+            if (list.isEmpty()) {
+                MessageManager.sendMessage(sender, "command.bypass." + listName + ".empty",
+                        "&eThe bypass " + listName + " is empty.");
+                return;
+            }
+            MessageManager.sendMessage(sender, "command.bypass." + listName + ".header",
+                    "&6Bypass " + listName + ":");
+            for (UUID id : list) {
+                String name = Bukkit.getOfflinePlayer(id).getName();
+                String display = name != null ? name : id.toString();
+                MessageManager.sendMessage(sender, "command.bypass." + listName + ".entry",
+                        "&e- &f%player%", Map.of("player", display));
+            }
+            return;
+        }
+
+        if (args.length < 4) {
+            MessageManager.sendMessage(sender, "command.usage",
+                    "&cUsage: /afk bypass " + listName + " <add|remove> <player>");
+            return;
+        }
+
+        OfflinePlayer target = CommandUtil.findPlayer(args[3]);
+        if (target.getName() == null && !target.hasPlayedBefore() && !target.isOnline()) {
+            MessageManager.sendMessage(sender, "command.player-not-found", "&cPlayer not found.");
+            return;
+        }
+        String targetName = target.getName() != null ? target.getName() : target.getUniqueId().toString();
+        UUID targetId = target.getUniqueId();
+
+        switch (action) {
+            case "add" -> {
+                if (isWhitelist) {
+                    if (BypassListManager.addToWhitelist(targetId)) {
+                        MessageManager.sendMessage(sender, "command.bypass.whitelist.added",
+                                "&a%player% has been added to the bypass whitelist.", Map.of("player", targetName));
+                        Player online = Bukkit.getPlayer(targetId);
+                        if (online != null && !sender.equals(online)) {
+                            MessageManager.sendMessage(online, "command.bypass.whitelist.added-target",
+                                    "&aYou have been added to the AFK bypass whitelist.");
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "command.bypass.whitelist.already",
+                                "&e%player% is already on the bypass whitelist.", Map.of("player", targetName));
+                    }
+                } else {
+                    if (BypassListManager.addToBlacklist(targetId)) {
+                        MessageManager.sendMessage(sender, "command.bypass.blacklist.added",
+                                "&a%player% has been added to the bypass blacklist.", Map.of("player", targetName));
+                        Player online = Bukkit.getPlayer(targetId);
+                        if (online != null && !sender.equals(online)) {
+                            MessageManager.sendMessage(online, "command.bypass.blacklist.added-target",
+                                    "&cYou have been added to the AFK bypass blacklist and will now be subject to AFK detection.");
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "command.bypass.blacklist.already",
+                                "&e%player% is already on the bypass blacklist.", Map.of("player", targetName));
+                    }
+                }
+            }
+            case "remove" -> {
+                if (isWhitelist) {
+                    if (BypassListManager.removeFromWhitelist(targetId)) {
+                        MessageManager.sendMessage(sender, "command.bypass.whitelist.removed",
+                                "&a%player% has been removed from the bypass whitelist.", Map.of("player", targetName));
+                        Player online = Bukkit.getPlayer(targetId);
+                        if (online != null && !sender.equals(online)) {
+                            MessageManager.sendMessage(online, "command.bypass.whitelist.removed-target",
+                                    "&cYou have been removed from the AFK bypass whitelist.");
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "command.bypass.whitelist.not-found",
+                                "&e%player% is not on the bypass whitelist.", Map.of("player", targetName));
+                    }
+                } else {
+                    if (BypassListManager.removeFromBlacklist(targetId)) {
+                        MessageManager.sendMessage(sender, "command.bypass.blacklist.removed",
+                                "&a%player% has been removed from the bypass blacklist.", Map.of("player", targetName));
+                        Player online = Bukkit.getPlayer(targetId);
+                        if (online != null && !sender.equals(online)) {
+                            MessageManager.sendMessage(online, "command.bypass.blacklist.removed-target",
+                                    "&aYou have been removed from the AFK bypass blacklist.");
+                        }
+                    } else {
+                        MessageManager.sendMessage(sender, "command.bypass.blacklist.not-found",
+                                "&e%player% is not on the bypass blacklist.", Map.of("player", targetName));
+                    }
+                }
+            }
+            default -> MessageManager.sendMessage(sender, "command.usage",
+                    "&cUsage: /afk bypass " + listName + " <add|remove|list> [player]");
         }
     }
 
@@ -361,7 +478,7 @@ public class EzAfkCommand implements CommandExecutor {
     }
 
     private String getUsageFallback() {
-        return "&cUsage: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top|zone <list|add|remove>]";
+        return "&cUsage: /afk [reload|gui|toggle <player>|bypass <whitelist|blacklist> <add|remove|list> [player]|bypass <player>|info <player>|time [player]|top|zone <list|add|remove>]";
     }
 
 }

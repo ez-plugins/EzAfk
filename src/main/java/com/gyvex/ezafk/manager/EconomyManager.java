@@ -377,7 +377,8 @@ public final class EconomyManager {
 
         Integration integration = IntegrationManager.getIntegration("economy");
 
-        if (integration instanceof EconomyIntegration economyIntegration) {
+        if (integration instanceof EconomyIntegration) {
+            EconomyIntegration economyIntegration = (EconomyIntegration) integration;
             return economyIntegration.getEconomy();
         }
 

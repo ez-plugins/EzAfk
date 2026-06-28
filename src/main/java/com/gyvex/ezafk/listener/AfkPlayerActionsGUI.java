@@ -2,7 +2,7 @@ package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
-import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.compatibility.inventory.InventoryCompat;
 import com.gyvex.ezafk.compatibility.LoreUtil;
 import com.gyvex.ezafk.gui.GuiAction;
 import com.gyvex.ezafk.gui.GuiActionFactory;
@@ -72,7 +72,7 @@ public class AfkPlayerActionsGUI implements Listener {
         returnListTypes.put(openerId, listType != null ? listType : PlayerListType.AFK);
 
         // Create inventory using compatibility utility for cross-version support
-        Inventory inventory = CompatibilityUtil.createInventory(null, inventorySize, GUI_TITLE);
+        Inventory inventory = InventoryCompat.createInventory(null, inventorySize, GUI_TITLE);
 
         // Filler item for empty slots
         FileConfiguration config = Registry.get().getConfigManager().getGuiConfig();
@@ -109,7 +109,7 @@ public class AfkPlayerActionsGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = CompatibilityUtil.getInventoryTitle(event);
+        String title = InventoryCompat.getInventoryTitle(event);
 
         if (!title.equals(GUI_TITLE)) {
             return;

@@ -2,6 +2,7 @@ package com.gyvex.ezafk.integration.placeholder;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.manager.ZoneRewardStatsManager;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.LastActiveState;
 import com.gyvex.ezafk.util.DurationFormatter;
@@ -11,6 +12,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 
+import java.text.DecimalFormat;
 import java.util.Locale;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -20,6 +22,7 @@ import java.util.regex.Pattern;
 public class EzAfkPlaceholderExpansion extends PlaceholderExpansion {
 
     private static final Pattern INTEGER_PATTERN = Pattern.compile("(-?\\d+)");
+    private static final DecimalFormat AMOUNT_FORMAT = new DecimalFormat("0.##");
 
     private final boolean playtimeIntegrationEnabled;
     private final String playtimePlaceholder;
@@ -77,21 +80,44 @@ public class EzAfkPlaceholderExpansion extends PlaceholderExpansion {
 
         UUID playerId = offlinePlayer.getUniqueId();
 
-        return switch (params) {
-            case "status" -> AfkState.isAfk(playerId) ? "AFK" : "ACTIVE";
-            case "status_colored" -> AfkState.isAfk(playerId) ? "&cAFK" : "&aACTIVE";
-            case "since" -> formatDurationSeconds(AfkState.getSecondsSinceAfk(playerId));
-            case "last_active" -> formatDurationSeconds(LastActiveState.getSecondsSinceLastActive(playerId));
-            case "total_seconds" -> formatDurationSeconds(AfkState.getTotalAfkSeconds(playerId));
-            case "total" -> formatDurationPretty(AfkState.getTotalAfkSeconds(playerId));
-            case "total_formatted" -> formatDurationPretty(AfkState.getTotalAfkSeconds(playerId));
-            case "prefix" -> getConfigValue("afk.display-name.prefix");
-            case "suffix" -> getConfigValue("afk.display-name.suffix");
-            case "playtime_active_seconds" -> formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), false);
-            case "playtime_active" -> formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), true);
-            case "playtime_active_formatted" -> formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), true);
-            default -> "";
-        };
+        switch (params) {
+            case "status": return AfkState.isAfk(playerId) ? "AFK" : "ACTIVE";
+            case "status_colored": return AfkState.isAfk(playerId) ? "&cAFK" : "&aACTIVE";
+            case "since": return formatDurationSeconds(AfkState.getSecondsSinceAfk(playerId));
+            case "last_active": return formatDurationSeconds(LastActiveState.getSecondsSinceLastActive(playerId));
+            case "total_seconds": return formatDurationSeconds(AfkState.getTotalAfkSeconds(playerId));
+            case "total": return formatDurationPretty(AfkState.getTotalAfkSeconds(playerId));
+            case "total_formatted": return formatDurationPretty(AfkState.getTotalAfkSeconds(playerId));
+            case "prefix": return getConfigValue("afk.display-name.prefix");
+            case "suffix": return getConfigValue("afk.display-name.suffix");
+            case "playtime_active_seconds": return formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), false);
+            case "playtime_active": return formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), true);
+            case "playtime_active_formatted": return formatOptionalSeconds(getActivePlaytimeSeconds(offlinePlayer, playerId), true);
+            case "zone_rewards_grants": return String.valueOf(ZoneRewardStatsManager.getTotalGrantsAllZones(playerId));
+            case "zone_rewards_amount": return AMOUNT_FORMAT.format(ZoneRewardStatsManager.getTotalAmountAllZones(playerId));
+            default: return handleZoneStatPlaceholder(playerId, params);
+        }
+    }
+
+    /**
+     * Handles per-zone stat placeholders of the form:
+     * <ul>
+     *   <li>{@code zone_reward_<zonename>_grants} – total grants in that zone</li>
+     *   <li>{@code zone_reward_<zonename>_amount} – total amount earned in that zone</li>
+     * </ul>
+     */
+    private String handleZoneStatPlaceholder(UUID playerId, String params) {
+        if (!params.startsWith("zone_reward_")) return "";
+        String rest = params.substring("zone_reward_".length());
+        if (rest.endsWith("_grants")) {
+            String zoneName = rest.substring(0, rest.length() - "_grants".length());
+            return String.valueOf(ZoneRewardStatsManager.getStat(playerId, zoneName).totalGrants);
+        }
+        if (rest.endsWith("_amount")) {
+            String zoneName = rest.substring(0, rest.length() - "_amount".length());
+            return AMOUNT_FORMAT.format(ZoneRewardStatsManager.getStat(playerId, zoneName).totalAmount);
+        }
+        return "";
     }
 
     private String getConfigValue(String path) {

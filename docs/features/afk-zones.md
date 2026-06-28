@@ -97,7 +97,78 @@ regions:
 - **`reward.item.material`**: Item material name. Only used when `type: item`.
 - **`reward.item.amount`**: Stack size of the item given per interval.
 
-## In-Game Zone Management
+- **`reward.limit`**: Maximum number of rewards a player can receive per cooldown
+  window (0 = unlimited).
+- **`reward.limit-cooldown-seconds`**: Cooldown in seconds after the limit is
+  reached before the counter resets (0 = no cooldown).
+
+### Notification Fields
+
+These fields configure a live countdown displayed to the player via
+[EzCountdown](https://modrinth.com/plugin/ezcountdown) (if installed).
+If EzCountdown is not present the notification is silently ignored.
+
+- **`reward.notification.enabled`**: Toggle the countdown for this zone (`true`
+  by default).
+- **`reward.notification.displays`**: List of EzCountdown display types. Valid
+  values: `ACTION_BAR`, `TITLE`, `BOSS_BAR`, `SCOREBOARD`, `DIALOG`.
+- **`reward.notification.message`**: Message template. Supports EzCountdown live
+  placeholders (`{seconds}`, `{formatted}`) and EzAfk placeholders (`%zone%`,
+  `%amount%`).
+- **`reward.notification.duration`**: How long the countdown runs (seconds).
+  `0` means "match the zone's `interval-seconds`" so the timer resets exactly on
+  each payout.
+
+## Global Defaults
+
+You can define fallback values for all zones in the top-level `defaults:` block
+of `zones.yml`. Individual zones can override any default value.
+
+```yaml
+defaults:
+  reward:
+    enabled: false          # set to true to enable rewards for all zones by default
+    interval-seconds: 300
+    amount: 1.0
+    type: economy
+    notification:
+      enabled: true
+      displays: [ACTION_BAR]
+      message: "&7Next reward in &e{seconds}s &7in &a%zone%"
+      duration: 0
+```
+
+This is especially useful when Vault is present and you want all zones to grant
+a small economy reward without configuring every zone individually.
+
+## Session Reward Stats
+
+EzAfk tracks how many rewards each player has received per zone during the
+current server session (resets on restart). These are available as PlaceholderAPI
+placeholders:
+
+| Placeholder | Description |
+|-------------|-------------|
+| `%ezafk_zone_rewards_grants%` | Total reward grants across all zones |
+| `%ezafk_zone_rewards_amount%` | Total currency earned across all zones |
+| `%ezafk_zone_reward_<zone>_grants%` | Grants in a specific zone |
+| `%ezafk_zone_reward_<zone>_amount%` | Currency earned in a specific zone |
+
+Replace `<zone>` with the zone name, e.g. `%ezafk_zone_reward_spawn_grants%`.
+
+## Entry / Exit Messages
+
+When a player enters or leaves an AFK zone, EzAfk sends them a chat message. The message text
+is configured in your language file under `messages/en.yml` (or the active locale):
+
+```yaml
+afkzone:
+  enter: "&aYou have entered the AFK zone &e%zone%&a."
+  exit:  "&7You have left the AFK zone &e%zone%&7."
+```
+
+Both messages support the `%zone%` placeholder, which is replaced with the zone's name.
+Set either value to an empty string (`""`) to suppress that notification.
 
 Zones can be created and managed with `/afk zone` without editing `zones.yml` directly:
 
@@ -120,10 +191,13 @@ See [WorldGuard Integration](../integrations/WorldGuardIntegration) for details.
    (or that `max-stack` is 0).
 3. The reward is delivered (economy transfer, console command, or item give).
 4. The stack counter increments. It resets when the player leaves the zone or returns from AFK.
+5. If EzCountdown is installed and `reward.notification.enabled` is `true`, a live countdown
+   timer is displayed to the player showing the time until their next reward.
 
 ## Related
 
 - [Economy Integration](../integrations/EconomyIntegration): required for `type: economy` rewards
+- [EzCountdown Integration](../integrations/SimpleVoiceChatIntegration): live countdown notifications
 - [WorldGuard Integration](../integrations/WorldGuardIntegration): use WorldEdit selections for zones
 - [Commands](../commands): full `/afk zone` command reference
 - [Permissions](../permissions): `ezafk.zone.manage`, `ezafk.zone.list`

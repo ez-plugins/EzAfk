@@ -12,7 +12,12 @@ import java.util.logging.Logger;
 
 /**
  * Utility class for handling item lore and display name formatting with MiniMessage support.
- * Provides compatibility between Paper (Component-based) and Spigot/Bukkit (legacy string-based) APIs.
+ *
+ * <p>Adventure/MiniMessage is bundled (shaded) into the plugin JAR, so it is always available
+ * regardless of whether the server is Paper or plain Spigot. All formatting is resolved to
+ * legacy §-prefixed color strings, which are then applied via the universal
+ * {@link ItemMeta#setLore}/{@link ItemMeta#setDisplayName} API. This avoids any class-type
+ * mismatch between the bundled Adventure classes and the server's own Adventure API.</p>
  */
 public final class LoreUtil {
 
@@ -21,108 +26,35 @@ public final class LoreUtil {
     }
 
     /**
-     * Sets the lore on the given ItemMeta, resolving placeholders and handling MiniMessage formatting.
-     * Uses reflection for Adventure classes so this code can run on servers without Adventure.
+     * Sets the lore on the given ItemMeta, resolving placeholders and applying MiniMessage
+     * (or legacy {@code &} color-code) formatting.
      */
     public static void setLore(ItemMeta meta, List<String> rawLore, Player player, Logger logger) {
         if (rawLore == null || rawLore.isEmpty()) {
             return;
         }
 
-        boolean hasComponentLoreMethod = hasMethodByName(meta.getClass(), "lore", 1);
-
-        if (hasComponentLoreMethod && isAdventureAvailable()) {
-            // Server supports Component-based lore; construct Components reflectively
-            try {
-                List<Object> lore = new ArrayList<>();
-                for (String line : rawLore) {
-                    String resolvedLine = PlaceholderUtil.resolvePlaceholders(player, line, logger);
-                    Object component = deserializeToComponent(resolvedLine);
-                    if (component != null) lore.add(component);
-                    else lore.add(deserializeToLegacyString(resolvedLine));
-                }
-                Method loreMethod = meta.getClass().getMethod("lore", List.class);
-                // ensure we can access the reflective method (avoid illegal-access warnings)
-                if (!loreMethod.canAccess(meta)) {
-                    if (logger != null) logger.fine("Component lore method not accessible; falling back to legacy lore.");
-                } else {
-                    loreMethod.invoke(meta, lore);
-                    return;
-                }
-                return;
-            } catch (Exception e) {
-                if (logger != null) logger.fine("Failed to set component lore reflectively: " + e.getMessage());
-                // fall through to legacy path
-            }
-        }
-
-        // Fallback / Spigot/Bukkit: convert to legacy strings
         List<String> resolvedLore = new ArrayList<>();
         for (String line : rawLore) {
             String resolvedLine = PlaceholderUtil.resolvePlaceholders(player, line, logger);
-            if (isAdventureAvailable()) {
-                try {
-                    Object component = deserializeToComponent(resolvedLine);
-                    String legacy = serializeComponentToLegacy(component);
-                    resolvedLore.add(legacy);
-                    continue;
-                } catch (Exception ignored) {
-                }
-            }
-            resolvedLore.add(deserializeToLegacyString(resolvedLine));
+            resolvedLore.add(toDisplayString(resolvedLine, logger));
         }
         meta.setLore(resolvedLore);
     }
 
     /**
-     * Sets the display name on the given ItemMeta, resolving placeholders and handling MiniMessage formatting.
-     * Compatible with both Paper and Spigot APIs.
-     *
-     * @param meta The ItemMeta to modify
-     * @param rawDisplayName The raw display name with MiniMessage formatting and placeholders
-     * @param player The player for placeholder resolution
-     * @param logger Logger for warnings
+     * Sets the display name on the given ItemMeta, resolving placeholders and applying
+     * MiniMessage (or legacy {@code &} color-code) formatting.
      */
     public static void setDisplayName(ItemMeta meta, String rawDisplayName, Player player, Logger logger) {
         if (rawDisplayName == null || rawDisplayName.isBlank()) return;
 
         String resolvedName = PlaceholderUtil.resolvePlaceholders(player, rawDisplayName, logger);
-
-        boolean hasComponentDisplayMethod = hasMethodByName(meta.getClass(), "displayName", 1);
-        if (hasComponentDisplayMethod && isAdventureAvailable()) {
-            try {
-                Object component = deserializeToComponent(resolvedName);
-                if (component != null) {
-                    // prefer the standard Adventure Component parameter type to avoid using component.getClass()
-                    Class<?> compCls = Class.forName("net.kyori.adventure.text.Component");
-                    Method displayMethod = meta.getClass().getMethod("displayName", compCls);
-                    if (!displayMethod.canAccess(meta)) {
-                        if (logger != null) logger.fine("Component displayName method not accessible; falling back to legacy display name.");
-                    } else {
-                        displayMethod.invoke(meta, component);
-                        return;
-                    }
-                } else {
-                    if (logger != null) logger.fine("MiniMessage deserialized to null; using legacy display name.");
-                }
-            } catch (Throwable e) {
-                if (logger != null) logger.fine("Failed to set displayName reflectively: " + e.getMessage());
-            }
-        }
-
-        // Fallback: legacy string
-        String legacy = deserializeToLegacyString(resolvedName);
-        meta.setDisplayName(legacy);
+        meta.setDisplayName(toDisplayString(resolvedName, logger));
     }
 
     /**
      * Validates a MiniMessage string by attempting to deserialize it.
-     * Logs a warning if invalid.
-     *
-     * @param miniMessageString The string to validate
-     * @param context Description of the context for logging
-     * @param logger Logger for warnings
-     * @return true if valid, false if invalid
      */
     public static boolean validateMiniMessage(String miniMessageString, String context, Logger logger) {
         if (miniMessageString == null || miniMessageString.isBlank()) return true;
@@ -135,20 +67,27 @@ public final class LoreUtil {
         }
     }
 
-    private static boolean hasMethodByName(Class<?> clazz, String methodName, int paramCount) {
-        for (Method m : clazz.getMethods()) {
-            if (m.getName().equals(methodName) && m.getParameterCount() == paramCount) return true;
-        }
-        return false;
-    }
-
-    private static boolean isAdventureAvailable() {
+    /**
+     * Converts a raw message string to a legacy §-color string suitable for
+     * {@link ItemMeta#setDisplayName} / {@link ItemMeta#setLore}.
+     *
+     * <p>When the bundled MiniMessage library is available (always, since it is shaded into the
+     * JAR), MiniMessage tags such as {@code <red>} are parsed and the result is serialized back
+     * to a legacy color string. Otherwise, {@code &}-color codes are translated directly.</p>
+     */
+    private static String toDisplayString(String text, Logger logger) {
         try {
-            Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
-            return true;
-        } catch (Throwable t) {
-            return false;
+            Object component = deserializeToComponent(text);
+            if (component != null) {
+                // Serialize MiniMessage component to §-prefixed legacy string, then
+                // also translate any &-codes that MiniMessage left as plain text
+                // (e.g. "&cRed" is not MiniMessage syntax, so it survives as-is).
+                return PlaceholderUtil.colorize(serializeComponentToLegacy(component));
+            }
+        } catch (Exception e) {
+            if (logger != null) logger.fine("MiniMessage parse failed, falling back to legacy colors: " + e.getMessage());
         }
+        return PlaceholderUtil.colorize(text);
     }
 
     private static Object deserializeToComponent(String miniMessage) {
@@ -156,7 +95,9 @@ public final class LoreUtil {
             Class<?> miniCls = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
             Method miniFactory = miniCls.getMethod("miniMessage");
             Object mini = miniFactory.invoke(null);
-            Method deserialize = miniCls.getMethod("deserialize", String.class);
+            // Adventure 4.26+ removed the single-arg deserialize(String); use the
+            // raw ComponentSerializer.deserialize(Object) bridge method instead.
+            Method deserialize = miniCls.getMethod("deserialize", Object.class);
             return deserialize.invoke(mini, miniMessage);
         } catch (Throwable t) {
             return null;
@@ -170,10 +111,5 @@ public final class LoreUtil {
         Object serializer = legacySection.invoke(null);
         Method serialize = legacyCls.getMethod("serialize", Class.forName("net.kyori.adventure.text.Component"));
         return (String) serialize.invoke(serializer, component);
-    }
-
-    private static String deserializeToLegacyString(String text) {
-        // Simple fallback: translate '&' color codes
-        return PlaceholderUtil.colorize(text);
     }
 }

@@ -7,16 +7,18 @@
 
 [B][SIZE=6]Keep AFK management simple[/SIZE][/B]
 
-[B]EzAfk[/B] is a modern, lightweight AFK management plugin that keeps your staff informed while gently nudging idle players back into the action. Built for Paper and Spigot servers (1.7 – 1.21.*), it automates AFK detection, provides configurable staff tools, and integrates with the systems you already use — all without sacrificing performance.
+[B]EzAfk[/B] is a modern, lightweight AFK management plugin that keeps your staff informed while gently nudging idle players back into the action. Built for Paper and Spigot servers (1.21+, Java 21+), it automates AFK detection, provides configurable staff tools, and integrates with the systems you already use — all without sacrificing performance.
 
-[IMG]https://img.shields.io/badge/Latest%20version-2.0.0-blue[/IMG]
-[IMG]https://img.shields.io/badge/Minecraft%20version-1.7%20to%201.21.*-blue[/IMG]
+[IMG]https://img.shields.io/badge/Latest%20version-3.1.0-blue[/IMG]
+[IMG]https://img.shields.io/badge/Minecraft-1.21%2B-green[/IMG]
+[IMG]https://img.shields.io/badge/Java-21%2B-orange[/IMG]
 
 [SIZE=5][B]Feature highlights[/B][/SIZE]
 [LIST]
 [*][B]Automatic AFK detection[/B]: Detect idle players after a configurable timeout, send chat or title messages, play optional animations, apply blindness, and broadcast status changes server-wide.
 [*][B]Staff workflow tools[/B]: Open the AFK player overview GUI and trigger customizable actions (kick, alert, teleport, run console commands) per-player from an intuitive menu.
 [*][B]Anti-bypass protections[/B]: Block common AFK bypass tricks with vehicle and water-flow checks, optionally gated behind the `ezafk.bypass` permission or WorldGuard regions.
+[*][B]Bypass whitelist & blacklist[/B]: Persistent admin-managed lists stored in `bypass-lists.yml`. Whitelist players always bypass detection; blacklisted players can never bypass (even with the `ezafk.bypass` permission). Blacklist takes precedence.
 [*][B]Automatic punishments[/B]: Kick AFK players after configurable grace periods or only when the server is full, with personalized kick reasons.
 [*][B]Economy-aware AFK[/B]: Optionally charge players using Vault-supported economies when they go or stay AFK, with recurring billing plus bypass permissions or WorldGuard regions.
 [*][B]Integrations that matter[/B]: Use the WorldGuard `afk-bypass` flag, track usage with bStats, receive console reminders when new releases are available, and surface AFK prefixes in the tab list without any external dependencies.
@@ -33,7 +35,9 @@
 [*][B]/afk reload[/B]: Reload the configuration and refresh integrations.
 [*][B]/afk gui[/B]: Open the AFK player overview GUI (includes pagination and quick actions).
 [*][B]/afk toggle <player>[/B]: Force another player's AFK state.
-[*][B]/afk bypass <player>[/B]: Toggle the bypass flag for a player when `afk.bypass.enabled` is active.
+[*][B]/afk bypass whitelist <add|remove|list> [player][/B]: Add/remove/list players on the persistent bypass whitelist.
+[*][B]/afk bypass blacklist <add|remove|list> [player][/B]: Add/remove/list players on the persistent bypass blacklist.
+[*][B]/afk bypass <player>[/B]: Toggle the bypass flag for a player.
 [*][B]/afk info <player>[/B]: Review why a player was flagged AFK, how long they've been idle, and their last activity.
 [*][B]/afk time [player][/B]: Show lifetime AFK totals for yourself or, with permission, another player.
 [*][B]/afk top[/B]: Display the cached AFK time leaderboard (also available via `/afktop`).
@@ -48,7 +52,7 @@
 [*][B]ezafk.gui.actions[/B]: Allows using the player action buttons in the GUI.
 [*][B]ezafk.toggle[/B]: Allows toggling other players' AFK state.
 [*][B]ezafk.bypass[/B]: Lets a player ignore the automatic AFK trigger when bypass checking is enabled.
-[*][B]ezafk.bypass.manage[/B]: Allows toggling bypass mode for other players via `/afk bypass`.
+[*][B]ezafk.bypass.manage[/B]: Allows toggling bypass mode for other players via `/afk bypass` and managing the persistent whitelist / blacklist.
 [*][B]ezafk.economy.bypass[/B]: Exempts a player from economy charges when AFK costs are enabled.
 [*][B]ezafk.info[/B]: Allows viewing AFK reports for other players via `/afk info`.
 [*][B]ezafk.time[/B]: Allows checking your own AFK total.

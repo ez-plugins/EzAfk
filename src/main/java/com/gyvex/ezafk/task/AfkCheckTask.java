@@ -2,8 +2,11 @@ package com.gyvex.ezafk.task;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
-import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.compatibility.player.PlayerDisplayCompat;
+import com.gyvex.ezafk.compatibility.player.PlayerKickCompat;
+import com.gyvex.ezafk.integration.Integration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
+import com.gyvex.ezafk.integration.ezcountdown.EzCountdownIntegration;
 import com.gyvex.ezafk.integration.worldguard.flag.AfkBypassFlag;
 import com.gyvex.ezafk.manager.AfkZoneManager;
 import com.gyvex.ezafk.zone.Zone;
@@ -21,6 +24,7 @@ import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
+import java.util.Locale;
 
 public class AfkCheckTask extends BukkitRunnable {
     // Tracks which warnings have been sent to each player: Map<UUID, Set<Integer>>
@@ -38,7 +42,7 @@ public class AfkCheckTask extends BukkitRunnable {
         // Warning configuration
         boolean warningsEnabled = plugin.getConfig().getBoolean("kick.warnings.enabled", true);
         List<Integer> warningIntervals = plugin.getConfig().getIntegerList("kick.warnings.intervals");
-        String warningMode = plugin.getConfig().getString("kick.warnings.mode", "both");
+        List<String> warningDisplays = resolveDisplays(plugin);
         boolean warningDebug = plugin.getConfig().getBoolean("kick.warnings.debug", false);
 
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -60,7 +64,7 @@ public class AfkCheckTask extends BukkitRunnable {
             }
 
                 handleWarnings(player, playerId, lastActive, currentTime, afkTimeoutMs, kickTimeoutMs,
-                    warningsEnabled, warningIntervals, warningMode, warningDebug);
+                    warningsEnabled, warningIntervals, warningDisplays, warningDebug);
 
             if (shouldKick(player, playerId, lastActive, currentTime, afkTimeoutMs, kickTimeoutMs, kickEnabled, kickEnabledWhenFull)) {
                 kickPlayer(player, playerId);
@@ -74,6 +78,11 @@ public class AfkCheckTask extends BukkitRunnable {
     }
 
     private boolean shouldBypassAfkCheck(Player player, UUID playerId) {
+        // Blacklist always wins — explicitly prevents bypass even for ops
+        if (com.gyvex.ezafk.manager.BypassListManager.isBlacklisted(playerId)) return false;
+        // Whitelist always grants bypass regardless of config/permission
+        if (com.gyvex.ezafk.manager.BypassListManager.isWhitelisted(playerId)) return true;
+        // Standard config-based bypass
         EzAfk plugin = Registry.get().getPlugin();
         return plugin.getConfig().getBoolean("afk.bypass.enabled")
                 && (player.hasPermission("ezafk.bypass") || AfkState.isBypassed(playerId));
@@ -122,9 +131,35 @@ public class AfkCheckTask extends BukkitRunnable {
         return false;
     }
 
+    /**
+     * Resolves the list of display types to use for kick warnings.
+     *
+     * <p>If {@code kick.warnings.displays} is set in the config it is used
+     * directly (upper-cased). Otherwise the legacy {@code kick.warnings.mode}
+     * value is translated: {@code chat} → [CHAT], {@code title} → [TITLE],
+     * {@code both} → [CHAT, TITLE].
+     */
+    private static List<String> resolveDisplays(EzAfk plugin) {
+        List<String> configured = plugin.getConfig().getStringList("kick.warnings.displays");
+        if (!configured.isEmpty()) {
+            List<String> result = new ArrayList<>(configured.size());
+            for (String d : configured) {
+                result.add(d.toUpperCase(Locale.ROOT));
+            }
+            return result;
+        }
+        // Backward-compat: translate legacy mode key
+        String mode = plugin.getConfig().getString("kick.warnings.mode", "both");
+        switch (mode.toLowerCase(Locale.ROOT)) {
+            case "chat":  return Collections.singletonList("CHAT");
+            case "title": return Collections.singletonList("TITLE");
+            default:      return Arrays.asList("CHAT", "TITLE");
+        }
+    }
+
     private void handleWarnings(Player player, UUID playerId, long lastActive, long currentTime,
                                 long afkTimeoutMs, long kickTimeoutMs, boolean warningsEnabled,
-                                List<Integer> warningIntervals, String warningMode, boolean warningDebug) {
+                                List<Integer> warningIntervals, List<String> warningDisplays, boolean warningDebug) {
         EzAfk plugin = Registry.get().getPlugin();
         boolean kickEnabled = plugin.getConfig().getBoolean("kick.enabled");
         if (!kickEnabled) {
@@ -148,24 +183,111 @@ public class AfkCheckTask extends BukkitRunnable {
                 if (warningDebug) {
                     Registry.get().getLogger().info("[EzAfk][Debug] Sending warning to " + player.getName() + " for interval " + interval + "s");
                 }
-                sendWarning(player, interval, warningMode);
+                sendWarning(player, interval, warningDisplays);
                 sent.add(interval);
             }
         }
     }
 
-    private void sendWarning(Player player, int seconds, String warningMode) {
+    private void sendWarning(Player player, int seconds, List<String> displays) {
         Map<String, String> placeholders = new HashMap<>();
         placeholders.put("seconds", String.valueOf(seconds));
-        if (warningMode.equalsIgnoreCase("chat") || warningMode.equalsIgnoreCase("both")) {
+
+        // CHAT is always sent directly through MessageManager regardless of whether
+        // EzCountdown is active, because EzCountdown's countdown format is not
+        // suitable for a localised one-shot chat sentence.
+        if (displays.contains("CHAT")) {
             MessageManager.sendMessage(player, "kick.warning.chat",
                     "&eYou will be kicked for being AFK in &c%seconds% &eseconds!", placeholders);
         }
-        if (warningMode.equalsIgnoreCase("title") || warningMode.equalsIgnoreCase("both")) {
-            String title = MessageManager.getMessage("kick.warning.title.title", "&cAFK Warning", placeholders);
-            String subtitle = MessageManager.getMessage("kick.warning.title.subtitle", "&eKicked in &c%seconds% &esec!", placeholders);
-            CompatibilityUtil.sendTitle(player, title, subtitle, 10, 40, 10);
+
+        // Non-CHAT displays: delegate to EzCountdown when available so the
+        // countdown ticks live and SCOREBOARD / DIALOG are supported.
+        // If EzCountdown is absent or disabled, fall back to native Bukkit APIs.
+        List<String> visualDisplays = new ArrayList<>(displays);
+        visualDisplays.remove("CHAT");
+        if (visualDisplays.isEmpty()) return;
+
+        EzCountdownIntegration ez = getEzCountdownIntegration();
+        if (ez != null) {
+            String msg = MessageManager.getMessage(
+                    "kick.warning.countdown",
+                    "&cAFK kick in &e{seconds}s",
+                    placeholders);
+            if (msg == null) msg = "&cAFK kick in &e{seconds}s";
+            if (!ez.sendKickWarning(player, msg, seconds, visualDisplays)) {
+                // EzCountdown rejected the request; fall back to native display.
+                sendWarningNative(player, seconds, visualDisplays, placeholders);
+            }
+        } else {
+            sendWarningNative(player, seconds, visualDisplays, placeholders);
         }
+    }
+
+    /**
+     * Native (non-EzCountdown) fallback for visual kick-warning displays.
+     * Handles TITLE, ACTION_BAR, and BOSS_BAR via {@link PlayerDisplayCompat}.
+     */
+    private void sendWarningNative(Player player, int seconds, List<String> displays,
+                                   Map<String, String> placeholders) {
+        for (String display : displays) {
+            switch (display) {
+                case "TITLE": {
+                    String title = MessageManager.getMessage("kick.warning.title.title", "&cAFK Warning", placeholders);
+                    String subtitle = MessageManager.getMessage("kick.warning.title.subtitle", "&eKicked in &c%seconds% &esec!", placeholders);
+                    PlayerDisplayCompat.sendTitle(player, title, subtitle, 10, 40, 10);
+                    break;
+                }
+                case "ACTION_BAR": {
+                    String msg = MessageManager.getMessage("kick.warning.action_bar",
+                            "&eKicked in &c%seconds%s &efor being AFK!", placeholders);
+                    PlayerDisplayCompat.sendActionBar(player, msg);
+                    break;
+                }
+                case "BOSS_BAR": {
+                    String msg = MessageManager.getMessage("kick.warning.boss_bar",
+                            "&cAFK Warning &e\u2014 kicked in &c%seconds%s", placeholders);
+                    PlayerDisplayCompat.showBossBarWarning(player, msg, seconds);
+                    break;
+                }
+                case "SCOREBOARD":
+                case "DIALOG":
+                    Registry.get().getLogger().warning(
+                            "[EzAfk] Display type '" + display + "' requires the EzCountdown plugin. "
+                            + "Install EzCountdown or remove this type from kick.warnings.displays.");
+                    break;
+                default:
+                    Registry.get().getLogger().warning(
+                            "[EzAfk] Unknown kick warning display type: '" + display + "'. "
+                            + "Supported without EzCountdown: CHAT, TITLE, ACTION_BAR, BOSS_BAR.");
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Removes any active kick-warning display for a player — both the native
+     * BossBar (if one was created via {@link PlayerDisplayCompat}) and any
+     * EzCountdown countdown that was delegated to this integration.
+     */
+    public static void removeBossBar(UUID playerId) {
+        PlayerDisplayCompat.removeWarningBossBar(playerId);
+        EzCountdownIntegration ez = getEzCountdownIntegration();
+        if (ez != null) {
+            ez.removeKickWarning(playerId);
+        }
+    }
+
+    /**
+     * Returns the active {@link EzCountdownIntegration} if it is set up,
+     * or {@code null} if EzCountdown is not available or disabled.
+     */
+    private static EzCountdownIntegration getEzCountdownIntegration() {
+        if (!IntegrationManager.hasIntegration("ezcountdown")) return null;
+        Integration integration = IntegrationManager.getIntegration("ezcountdown");
+        if (!(integration instanceof EzCountdownIntegration)) return null;
+        EzCountdownIntegration ez = (EzCountdownIntegration) integration;
+        return ez.isSetup ? ez : null;
     }
 
     private boolean shouldKick(Player player, UUID playerId, long lastActive, long currentTime,
@@ -185,9 +307,10 @@ public class AfkCheckTask extends BukkitRunnable {
         if (message == null) {
             message = "";
         }
-        CompatibilityUtil.kickPlayer(player, message);
+        PlayerKickCompat.kickPlayer(player, message);
         LastActiveState.lastActive.remove(playerId);
         warnedPlayers.remove(playerId); // Reset warnings after kick
+        removeBossBar(playerId);        // Remove any active boss bar
     }
 
     private boolean shouldMarkAfk(Player player, UUID playerId, long lastActive, long currentTime, long afkTimeoutMs) {
@@ -203,5 +326,6 @@ public class AfkCheckTask extends BukkitRunnable {
                 + " (threshold " + DurationFormatter.formatDuration(timeoutSeconds) + ")";
         AfkState.toggle(Registry.get().getPlugin(), player, false, AfkReason.INACTIVITY, detail);
         warnedPlayers.remove(playerId); // Reset warnings if player returns from AFK
+        removeBossBar(playerId);        // Remove any active boss bar
     }
 }

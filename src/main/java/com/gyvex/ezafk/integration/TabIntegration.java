@@ -262,7 +262,7 @@ public class TabIntegration extends Integration {
                         if (tabInitAttempts < MAX_TAB_INIT_ATTEMPTS) {
                             long delay = 40L * (1L << tabInitAttempts); // 1s,2s,4s,...
                             tabInitAttempts++;
-                            Bukkit.getScheduler().runTaskLater(Registry.get().getPlugin(), this::refreshTabApiAdapter, delay);
+                            Registry.get().getScheduler().runTaskLater(this::refreshTabApiAdapter, delay);
                         } else {
                             Registry.get().getLogger().log(Level.FINE, "Exceeded TAB adapter init retries; will not retry further.");
                         }

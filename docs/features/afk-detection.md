@@ -101,6 +101,14 @@ See the [Messages](../messages) page for the full reference.
    and the `unafk` feedback fires.
 5. Players with `ezafk.bypass` are skipped entirely unless `afk.bypass.enabled` is `false`.
 
+## Version compatibility
+
+| Sub-feature | Min MC | Notes |
+|-------------|--------|-------|
+| All detection, broadcast, title, display-name | 1.19 | Fully supported |
+| Cherry Leaves animation particle | 1.20 | Silently skipped on MC 1.19.x; other particles still play |
+| Simple Voice Chat sound | Any | Requires the Simple Voice Chat plugin; enabled only when `integration.voicechat` is active |
+
 ## Related
 
 - [Anti-Bypass Protection](anti-bypass): prevent waterflow/vehicle tricks from resetting idle time

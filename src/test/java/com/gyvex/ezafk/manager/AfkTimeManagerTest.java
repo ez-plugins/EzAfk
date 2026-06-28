@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -48,7 +49,7 @@ class AfkTimeManagerTest {
         List<Map.Entry<UUID, Long>> finalTop = AfkTimeManager.getTopPlayers(3);
         assertEquals(List.of(playerFour, playerOne, playerTwo), extractPlayerOrder(finalTop));
 
-        assertEquals(50L, finalTop.getFirst().getValue());
+        assertEquals(50L, finalTop.get(0).getValue());
         assertEquals(40L, finalTop.get(1).getValue());
         assertEquals(30L, finalTop.get(2).getValue());
     }
@@ -78,11 +79,11 @@ class AfkTimeManagerTest {
     }
 
     private List<UUID> extractPlayerOrder(List<Map.Entry<UUID, Long>> entries) {
-        return entries.stream().map(Map.Entry::getKey).toList();
+        return entries.stream().map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     private List<Long> extractTotals(List<Map.Entry<UUID, Long>> entries) {
-        return entries.stream().map(Map.Entry::getValue).toList();
+        return entries.stream().map(Map.Entry::getValue).collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")

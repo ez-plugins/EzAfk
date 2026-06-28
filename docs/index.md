@@ -8,10 +8,10 @@ permalink: /
 
 # EzAfk
 
-[![Build](https://github.com/ez-plugins/EzAfk/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ez-plugins/EzAfk/actions)
+[![Modrinth Version](https://img.shields.io/modrinth/v/ezafk)](https://modrinth.com/plugin/ezafk)
 [![Release](https://img.shields.io/github/v/release/ez-plugins/EzAfk)](https://github.com/ez-plugins/EzAfk/releases)
-[![Downloads](https://img.shields.io/github/downloads/ez-plugins/EzAfk/total)](https://github.com/ez-plugins/EzAfk/releases)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/ez-plugins/EzAfk/blob/main/LICENSE)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/ezafk)](https://modrinth.com/plugin/ezafk)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **EzAfk** is a powerful and flexible AFK management plugin for Spigot, Bukkit, Paper, and Purpur servers.
 It provides advanced AFK detection, player management, and deep integration with popular plugins and server systems.
@@ -24,7 +24,7 @@ It provides advanced AFK detection, player management, and deep integration with
 - **AFK kick warnings**: multi-stage countdown messages before kicking inactive players
 - **GUI overview**: in-game panel to view and manage AFK players
 - **AFK zones**: region-based AFK rules and rewards
-- **Multi-language support**: EN, ES, NL, RU, ZH, DE out of the box
+- **Multi-language support**: `EN`, `ES`, `NL`, `RU`, `ZH`, `DE` out of the box
 - **Storage backends**: YAML, SQLite, and MySQL supported
 - **Anti-bypass detection**: catches water flow, vehicle, and bubble column tricks
 - **Developer API**: cancellable `PlayerAfkStatusChangeEvent` and `AfkReason` enum

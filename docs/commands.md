@@ -33,11 +33,42 @@ This document lists all commands provided by EzAfk, their arguments, permissions
 - **Permission:** `ezafk.toggle`
 - **Usage:** `/afk toggle Notch`
 
-## /afk bypass <player>
+## /afk bypass
 
-- **Description:** Toggle AFK bypass for a player (exempt from AFK detection).
+EzAfk has two bypass mechanisms under the same command prefix:
+
+### /afk bypass \<player\> *(session toggle)*
+
+- **Description:** Toggle the per-session AFK bypass flag for a player. Requires
+  `afk.bypass.enabled: true` in `config.yml`.
 - **Permission:** `ezafk.bypass.manage`
 - **Usage:** `/afk bypass Steve`
+
+### /afk bypass whitelist \<add|remove|list\> [\<player\>]
+
+- **Description:** Manage the persistent **bypass whitelist**. Players on the whitelist
+  always bypass AFK detection, regardless of the `afk.bypass.enabled` setting or the
+  `ezafk.bypass` permission.
+- **Permission:** `ezafk.bypass.manage`
+- **Usage:**
+  - `/afk bypass whitelist add Steve` — add Steve to the whitelist
+  - `/afk bypass whitelist remove Steve` — remove Steve from the whitelist
+  - `/afk bypass whitelist list` — list all whitelisted players
+
+### /afk bypass blacklist \<add|remove|list\> [\<player\>]
+
+- **Description:** Manage the persistent **bypass blacklist**. Players on the blacklist
+  are *never* allowed to bypass AFK detection, even when they hold the `ezafk.bypass`
+  permission (useful for ops/admins who want to be subject to AFK detection for testing
+  or fairness). The blacklist takes precedence over the whitelist.
+- **Permission:** `ezafk.bypass.manage`
+- **Usage:**
+  - `/afk bypass blacklist add Steve` — add Steve to the blacklist
+  - `/afk bypass blacklist remove Steve` — remove Steve from the blacklist
+  - `/afk bypass blacklist list` — list all blacklisted players
+
+Both lists are stored in `plugins/EzAfk/bypass-lists.yml` and reloaded on `/afk reload`.
+Tab completion is provided for all three argument depths.
 
 ## /afk info <player>
 

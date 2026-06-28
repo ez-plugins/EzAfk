@@ -7,11 +7,11 @@
 
 [B][SIZE=6]Keep AFK management simple[/SIZE][/B]
 
-[B]EzAfk[/B] is a modern, lightweight AFK management plugin built for Paper and Spigot servers running Minecraft 26.1+ and Java 25. It automates AFK detection, rewards or charges players based on AFK state, provides staff overview tools, and integrates with the systems you already use, all without sacrificing performance.
+[B]EzAfk[/B] is a modern, lightweight AFK management plugin built for Paper and Spigot servers running Minecraft **1.21+** and Java **21+**. It automates AFK detection, rewards or charges players based on AFK state, provides staff overview tools, and integrates with the systems you already use, all without sacrificing performance.
 
-[IMG]https://img.shields.io/badge/version-3.0.0-blue[/IMG]
-[IMG]https://img.shields.io/badge/Minecraft-26.1-green[/IMG]
-[IMG]https://img.shields.io/badge/Java-25-orange[/IMG]
+[IMG]https://img.shields.io/badge/version-3.1.0-blue[/IMG]
+[IMG]https://img.shields.io/badge/Minecraft-1.21%2B-green[/IMG]
+[IMG]https://img.shields.io/badge/Java-21%2B-orange[/IMG]
 
 Download on [URL='https://modrinth.com/plugin/ezafk'][B]Modrinth[/B][/URL] · Found an issue or have a question? Join [URL='https://discord.gg/yWP95XfmBS']the EzPlugins Discord server[/URL].
 
@@ -21,6 +21,7 @@ Download on [URL='https://modrinth.com/plugin/ezafk'][B]Modrinth[/B][/URL] · Fo
 [LIST]
 [*][B]Automatic AFK detection[/B]: Detect idle players after a configurable timeout (default 5 min). Send chat or title messages, trigger animations, apply a blindness blur, and broadcast status changes server-wide.
 [*][B]Anti-bypass protections[/B]: Block common AFK farm tricks including infinite water flow, vehicle riding, and bubble columns, with individual toggle switches. Combine with the `ezafk.bypass` permission or WorldGuard regions for fine-grained control.
+[*][B]Bypass whitelist & blacklist[/B]: Persistent admin-managed lists stored in `bypass-lists.yml`. Whitelist players always bypass detection; blacklisted players can never bypass (even with the `ezafk.bypass` permission). Blacklist takes precedence.
 [*][B]AFK kick with warnings[/B]: Kick players after a configurable idle period (default 10 min). Send multi-stage chat and/or title warnings at custom intervals (e.g. 60 s, 30 s, 10 s) before the kick fires. Optionally kick only when the server is full to free up slots.
 [*][B]In-game staff GUI[/B]: Open `/afk gui` to see all AFK players at a glance. One-click buttons let staff kick, message, teleport to, or run console commands against any AFK player. Fully configurable layout in `gui.yml`.
 [*][B]AFK Zones with rewards[/B]: Define coordinate-based cuboid regions where players earn rewards for being AFK. Reward types: economy currency (Vault), console commands, or item drops. Each zone has its own interval and reward cap.
@@ -39,7 +40,9 @@ Download on [URL='https://modrinth.com/plugin/ezafk'][B]Modrinth[/B][/URL] · Fo
 [*][B]/afk reload[/B]: Reload all configuration files.
 [*][B]/afk gui[/B]: Open the AFK player overview GUI.
 [*][B]/afk toggle <player>[/B]: Force another player's AFK state.
-[*][B]/afk bypass <player>[/B]: Toggle the AFK bypass flag for a player.
+[*][B]/afk bypass whitelist <add|remove|list> [player][/B]: Add/remove/list players on the persistent bypass whitelist.
+[*][B]/afk bypass blacklist <add|remove|list> [player][/B]: Add/remove/list players on the persistent bypass blacklist.
+[*][B]/afk bypass <player>[/B]: Toggle the per-session AFK bypass flag for a player.
 [*][B]/afk info <player>[/B]: View a player's current AFK state, idle reason, and session info.
 [*][B]/afk time [player][/B]: View total AFK time for yourself or another player.
 [*][B]/afk time reset <player>[/B]: Reset a player's cumulative AFK time counter.

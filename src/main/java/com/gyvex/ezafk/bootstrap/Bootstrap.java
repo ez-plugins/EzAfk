@@ -17,11 +17,13 @@ import com.gyvex.ezafk.integration.TabIntegration;
 import com.gyvex.ezafk.integration.VoiceChatIntegration;
 import com.gyvex.ezafk.integration.WorldEditIntegration;
 import com.gyvex.ezafk.integration.WorldGuardIntegration;
+import com.gyvex.ezafk.integration.ezcountdown.EzCountdownIntegration;
 import com.gyvex.ezafk.manager.IntegrationManager;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.manager.EconomyManager;
 import com.gyvex.ezafk.listener.EconomyServiceListener;
 import com.gyvex.ezafk.manager.AfkTimeManager;
+import com.gyvex.ezafk.manager.BypassListManager;
 import com.gyvex.ezafk.task.TaskManager;
 import com.github.ezframework.jaloquent.config.JaloquentConfig;
 import org.bukkit.Bukkit;
@@ -79,12 +81,22 @@ public class Bootstrap {
         if (enableVoicechatIntegration) {
             IntegrationManager.addIntegration("voicechat", new VoiceChatIntegration(plugin));
         }
+
+        String ezcountdownConfig = plugin.getConfig().getString("integration.ezcountdown", "auto").trim().toLowerCase();
+        boolean ezcountdownAvailable = plugin.getServer().getPluginManager().getPlugin("EzCountdown") != null;
+        boolean enableEzCountdown = "true".equals(ezcountdownConfig)
+                || ("auto".equals(ezcountdownConfig) && ezcountdownAvailable);
+        if (enableEzCountdown) {
+            IntegrationManager.addIntegration("ezcountdown", new EzCountdownIntegration());
+        }
+
         IntegrationManager.load();
 
         String storageType = plugin.getConfig().getString("storage.type", "yaml").trim().toLowerCase();
         plugin.getLogger().fine("Storage type selected: " + storageType);
         // Storage repository is initialized during Registry.init(); on reload the command will refresh it.
         AfkTimeManager.load(plugin);
+        BypassListManager.load(plugin);
 
         if (plugin.getConfig().getBoolean("economy.enabled", false)) {
             economyServiceListener = new EconomyServiceListener();

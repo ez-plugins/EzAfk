@@ -2,7 +2,8 @@ name: "EzAfk"
 description: "Manage your AFK players easily"
 main: com.gyvex.ezafk.EzAfk
 version: "${project.version}"
-api-version: 26.1
+api-version: 1.13
+folia-supported: true
 commands:
   ezafk:
     description: "Manage AFK states and EzAfk configuration"
@@ -65,3 +66,4 @@ softdepend:
 - "voicechat"
 - "WorldGuard"
 - "WorldEdit"
+- "EzCountdown"

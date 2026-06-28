@@ -17,6 +17,7 @@ public class PlayerActivityListener implements Listener {
         LastActiveState.update(event.getPlayer());
     }
 
+    @SuppressWarnings("deprecation") // AsyncPlayerChatEvent deprecated in Paper 1.19+; still fires on all supported versions
     @EventHandler
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         LastActiveState.update(event.getPlayer());
@@ -31,9 +32,10 @@ public class PlayerActivityListener implements Listener {
     public void onInventoryClick(InventoryClickEvent event) {
         HumanEntity human = event.getWhoClicked();
 
-        if (!(human instanceof Player player)) {
+        if (!(human instanceof Player)) {
             return;
         }
+        Player player = (Player) human;
 
         if (event.getClickedInventory() == null) {
             return;

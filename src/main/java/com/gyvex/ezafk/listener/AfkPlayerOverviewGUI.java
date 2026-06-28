@@ -2,7 +2,9 @@ package com.gyvex.ezafk.listener;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
-import com.gyvex.ezafk.compatibility.CompatibilityUtil;
+import com.gyvex.ezafk.compatibility.inventory.InventoryCompat;
+import com.gyvex.ezafk.compatibility.item.HeadCompat;
+import com.gyvex.ezafk.compatibility.item.ItemMetaCompat;
 import com.gyvex.ezafk.manager.MessageManager;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.state.AfkStatusDetails;
@@ -144,7 +146,7 @@ public class AfkPlayerOverviewGUI implements Listener {
     }
 
     private ItemStack createPlayerHead(OfflinePlayer offlinePlayer) {
-        ItemStack head = CompatibilityUtil.createPlayerHead();
+        ItemStack head = HeadCompat.createPlayerHead();
         ItemMeta meta = head.getItemMeta();
 
         if (!(meta instanceof SkullMeta)) {
@@ -152,7 +154,7 @@ public class AfkPlayerOverviewGUI implements Listener {
         }
 
         SkullMeta skullMeta = (SkullMeta) meta;
-        CompatibilityUtil.setSkullOwner(skullMeta, offlinePlayer);
+        HeadCompat.setSkullOwner(skullMeta, offlinePlayer);
 
         String displayName = offlinePlayer.getName();
         if (displayName == null || displayName.isEmpty()) {
@@ -165,7 +167,7 @@ public class AfkPlayerOverviewGUI implements Listener {
             skullMeta.setLore(lore);
         }
 
-        CompatibilityUtil.setItemMetadata(skullMeta, PLAYER_UUID_KEY, offlinePlayer.getUniqueId().toString());
+        ItemMetaCompat.setItemMetadata(skullMeta, PLAYER_UUID_KEY, offlinePlayer.getUniqueId().toString());
 
         head.setItemMeta(skullMeta);
         return head;
@@ -238,7 +240,7 @@ public class AfkPlayerOverviewGUI implements Listener {
             lore.add(ChatColor.GRAY + "Switch to " + ChatColor.AQUA + currentType.getOpposite().getFriendlyName());
             meta.setLore(lore);
 
-            CompatibilityUtil.setItemMetadata(meta, LIST_TOGGLE_KEY, currentType.getOpposite().name());
+            ItemMetaCompat.setItemMetadata(meta, LIST_TOGGLE_KEY, currentType.getOpposite().name());
 
             item.setItemMeta(meta);
         }
@@ -248,7 +250,7 @@ public class AfkPlayerOverviewGUI implements Listener {
 
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
-        String title = CompatibilityUtil.getInventoryTitle(event);
+        String title = InventoryCompat.getInventoryTitle(event);
 
         PlayerListType listType = PlayerListType.fromTitle(title);
 
@@ -282,7 +284,7 @@ public class AfkPlayerOverviewGUI implements Listener {
         ItemMeta itemMeta = clickedItem.getItemMeta();
 
         if (itemMeta != null) {
-            String targetListTypeName = CompatibilityUtil.getItemMetadata(itemMeta, LIST_TOGGLE_KEY);
+            String targetListTypeName = ItemMetaCompat.getItemMetadata(itemMeta, LIST_TOGGLE_KEY);
 
             if (targetListTypeName != null) {
                 try {
@@ -302,7 +304,7 @@ public class AfkPlayerOverviewGUI implements Listener {
             }
         }
 
-        if (CompatibilityUtil.isPlayerHead(clickedItem)) {
+        if (HeadCompat.isPlayerHead(clickedItem)) {
             if (!player.hasPermission("ezafk.gui.actions") && !player.isOp()) {
                 MessageManager.sendMessage(player, "gui.actions.no-permission",
                         "&cYou don't have permission to use player actions.");
@@ -312,7 +314,7 @@ public class AfkPlayerOverviewGUI implements Listener {
                 return;
             }
 
-            String storedUuid = CompatibilityUtil.getItemMetadata(itemMeta, PLAYER_UUID_KEY);
+            String storedUuid = ItemMetaCompat.getItemMetadata(itemMeta, PLAYER_UUID_KEY);
 
             if (storedUuid == null) {
                 Registry.get().getLogger().warning("Player head missing AFK UUID metadata");

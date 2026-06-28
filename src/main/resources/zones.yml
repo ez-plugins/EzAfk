@@ -1,5 +1,5 @@
 # AFK zones configuration
-# Players inside these cuboids are exempt from AFK checks.
+# Players inside these cuboids are exempt from AFK checks (or can earn rewards).
 # Each region entry should include: world, x1, y1, z1, x2, y2, z2
 # Example:
 # - world: world
@@ -11,7 +11,50 @@
 #   z2: 120
 enabled: false
 regions: []
-# Example region with rewards:
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Global defaults for zone rewards and notifications.
+# These values apply to every zone that does not define its own override.
+# If a zone has its own "reward:" block, its values take precedence.
+# ─────────────────────────────────────────────────────────────────────────────
+defaults:
+  reward:
+    # Set to true to automatically enable economy rewards for all zones
+    # when a Vault-compatible economy plugin is present.
+    # Individual zones can override this with their own "reward.enabled" setting.
+    enabled: false
+    # Default interval in seconds between reward payouts.
+    interval-seconds: 300
+    # Default currency amount deposited per payout (economy type only).
+    amount: 1.0
+    # Default reward type: economy | command | item
+    type: economy
+    # ── EzCountdown notification defaults ───────────────────────────────────
+    # When EzCountdown is installed, a live countdown is shown to the player
+    # ticking down to their next reward.  Requires the EzCountdown integration
+    # to be enabled (integration.ezcountdown: auto|true in config.yml).
+    notification:
+      # Set to false to disable countdown notifications globally.
+      enabled: true
+      # EzCountdown display types.  Valid values:
+      #   ACTION_BAR, TITLE, BOSS_BAR, SCOREBOARD, DIALOG
+      # CHAT is always sent through EzAfk's own message system.
+      displays: [ACTION_BAR]
+      # Message shown in the countdown.  Supports EzCountdown live placeholders:
+      #   {seconds}   – current remaining seconds (live)
+      #   {formatted} – formatted duration (e.g. "1m 30s")
+      # and EzAfk placeholders:
+      #   %zone%      – zone name
+      #   %amount%    – reward amount per payout
+      message: "&7Next reward in &e{seconds}s &7in &a%zone%"
+      # How long the countdown runs in seconds.
+      # 0 means "use the zone's interval-seconds value" (the countdown ticks
+      # from the full interval down to 0, resetting on each reward).
+      duration: 0
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Example region with economy rewards and EzCountdown notification:
+# ─────────────────────────────────────────────────────────────────────────────
 # - name: spawn
 #   world: world
 #   x1: 100
@@ -23,10 +66,19 @@ regions: []
 #   reward:
 #     enabled: true
 #     interval-seconds: 60
-#     type: economy # economy|command|item
+#     type: economy  # economy|command|item
 #     amount: 5.0
-#     # max-stack: 0 (0 or omitted = no stacking allowed, positive = allowed queued intervals)
+#     # max-stack: 0 (0 or omitted = no stacking, positive = allow queued intervals)
 #     max-stack: 3
+#     # Reward limit per player per cooldown window (0 = unlimited)
+#     limit: 10
+#     limit-cooldown-seconds: 3600
+#     # EzCountdown notification (overrides defaults.reward.notification)
+#     notification:
+#       enabled: true
+#       displays: [ACTION_BAR, BOSS_BAR]
+#       message: "&6Earn &e%amount% &6in &e{seconds}s &6at &a%zone%!"
+#       duration: 0  # 0 = use interval-seconds
 
 # Example command reward:
 # - name: bonus

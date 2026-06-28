@@ -31,6 +31,26 @@ command:
     enabled-target: "&aAFK detection is now bypassed for you."
     disabled: "&a%target% will no longer bypass AFK detection."
     disabled-target: "&cAFK detection is no longer bypassed for you."
+    whitelist:
+      header: "&6Bypass Whitelist:"
+      entry: "&e- &f%player%"
+      empty: "&eThe bypass whitelist is empty."
+      added: "&a%player% has been added to the bypass whitelist."
+      added-target: "&aYou have been added to the AFK bypass whitelist."
+      removed: "&a%player% has been removed from the bypass whitelist."
+      removed-target: "&cYou have been removed from the AFK bypass whitelist."
+      already: "&e%player% is already on the bypass whitelist."
+      not-found: "&e%player% is not on the bypass whitelist."
+    blacklist:
+      header: "&6Bypass Blacklist:"
+      entry: "&e- &f%player%"
+      empty: "&eThe bypass blacklist is empty."
+      added: "&a%player% has been added to the bypass blacklist."
+      added-target: "&cYou have been added to the AFK bypass blacklist and will now be subject to AFK detection."
+      removed: "&a%player% has been removed from the bypass blacklist."
+      removed-target: "&aYou have been removed from the AFK bypass blacklist."
+      already: "&e%player% is already on the bypass blacklist."
+      not-found: "&e%player% is not on the bypass blacklist."
   info:
     no-permission: "&cYou don't have permission to view AFK reports."
     not-afk: "&e%target% is not currently marked as AFK."
@@ -86,17 +106,28 @@ kick:
     title:
       title: "&cAFK Warning"
       subtitle: "&eKicked in &c%seconds% &esec!"
+    action_bar: "&eKicked in &c%seconds%s &efor being AFK!"
+    boss_bar: "&cAFK Warning &e\u2014 kicked in &c%seconds%s"
+    # Message used when EzCountdown handles the countdown display (TITLE, ACTION_BAR,
+    # BOSS_BAR, SCOREBOARD, DIALOG).  Supports EzCountdown placeholders:
+    #   {seconds}   – live remaining seconds (updated every tick)
+    #   {minutes}   – remaining minutes
+    #   {formatted} – formatted duration (e.g. "1m 30s")
+    countdown: "&cAFK kick in &e{seconds}s"
 
 
 afkzone:
+  enter: "&aYou have entered the AFK zone &e%zone%&a."
+  exit: "&7You have left the AFK zone &e%zone%&7."
   reward:
     granted:
       economy: "&aYou received %amount% for staying AFK in %zone%."
       command: "&aYou received a command reward for staying AFK in %zone%."
       item: "&aYou received %count%x %item% for staying AFK in %zone%."
       default: "&aYou received a reward for staying AFK in %zone%."
-
-  reward:
+    limit:
+      reached: "&cYou have reached your reward limit for %reward_name%. Come back in %time_remaining%."
+      cooldown: "&cYou have reached your reward limit for %reward_name%. Come back in %time_remaining%."
     failed: "&cAFK zone reward failed for %zone%: %reason%"
 
   add:

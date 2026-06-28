@@ -249,10 +249,17 @@ public class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.
 
         Object argument;
         switch (targetMethods.valueType) {
-            case STRING -> argument = targetName;
-            case KYORI_COMPONENT -> argument = KyoriComponentBridge.deserialize(targetName);
-            case BUNGEE_COMPONENT_ARRAY -> argument = TextComponent.fromLegacyText(targetName);
-            default -> throw new IllegalStateException("Unsupported TAB temporary name argument type");
+            case STRING:
+                argument = targetName;
+                break;
+            case KYORI_COMPONENT:
+                argument = KyoriComponentBridge.deserialize(targetName);
+                break;
+            case BUNGEE_COMPONENT_ARRAY:
+                argument = TextComponent.fromLegacyText(targetName);
+                break;
+            default:
+                throw new IllegalStateException("Unsupported TAB temporary name argument type");
         }
 
         targetMethods.apply.invoke(invocationTarget, argument);
@@ -317,7 +324,15 @@ public class TabApiPlayerListNameAdapter implements com.gyvex.ezafk.integration.
             }
         }
 
-        private record LegacySerializer(Object instance, Method deserializeMethod) {
+        private static final class LegacySerializer {
+            private final Object instance;
+            private final Method deserializeMethod;
+
+            LegacySerializer(Object instance, Method deserializeMethod) {
+                this.instance = instance;
+                this.deserializeMethod = deserializeMethod;
+            }
+
             private Object deserialize(String value) {
                 try {
                     return deserializeMethod.invoke(instance, value);

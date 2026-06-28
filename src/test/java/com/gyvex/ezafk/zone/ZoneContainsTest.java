@@ -26,7 +26,8 @@ public class ZoneContainsTest {
         zone = new Zone(
             "TestZone", world.getName(),
             0, 60, 0, 10, 80, 10,
-            false, 60, -1, 0, "economy", null, null, 1, -1, 0
+            false, 60, -1, 0, "economy", null, null, 1, -1, 0,
+            false, java.util.List.of(), null, 0
         );
     }
 
@@ -83,7 +84,8 @@ public class ZoneContainsTest {
         Zone worldZone = new Zone(
             "WorldZone", "overworld",
             0, 60, 0, 10, 80, 10,
-            false, 60, -1, 0, "economy", null, null, 1, -1, 0
+            false, 60, -1, 0, "economy", null, null, 1, -1, 0,
+            false, java.util.List.of(), null, 0
         );
         Player p = server.addPlayer("OtherWorldPlayer");
         p.teleport(new Location(otherWorld, 5, 70, 5));

@@ -1,6 +1,6 @@
 package com.gyvex.ezafk.integration.spigot;
 
-import org.bukkit.Bukkit;
+import com.gyvex.ezafk.bootstrap.Registry;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
@@ -19,7 +19,7 @@ public class UpdateChecker {
     }
 
     public void getVersion(final Consumer<String> consumer) {
-        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+        Registry.get().getScheduler().runTaskAsync(() -> {
             try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId + "/~").openStream(); Scanner scann = new Scanner(is)) {
                 if (scann.hasNext()) {
                     consumer.accept(scann.next());

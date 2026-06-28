@@ -1,6 +1,8 @@
 package com.gyvex.ezafk.bootstrap;
 
 import com.gyvex.ezafk.EzAfk;
+import com.gyvex.ezafk.compatibility.scheduler.SchedulerAdapter;
+import com.gyvex.ezafk.compatibility.scheduler.SchedulerAdapterFactory;
 import com.gyvex.ezafk.config.ConfigManager;
 import com.gyvex.ezafk.repository.StorageFactory;
 import com.gyvex.ezafk.repository.StorageRepository;
@@ -25,6 +27,7 @@ public class Registry {
     private TaskManager taskManager = null;
     private Bootstrap bootstrap = null;
     private StorageRepository storageRepository;
+    private SchedulerAdapter scheduler;
     private final ArrayList<Listener> registeredListeners = new ArrayList<>();
 
     private Registry() {
@@ -39,12 +42,17 @@ public class Registry {
         instance.init();
     }
 
+    public static void reset() {
+        instance = null;
+    }
+
     public void init() {
         if (plugin == null) {
             throw new IllegalStateException("Registry plugin not set");
         }
 
         this.configManager = new ConfigManager(plugin);
+        this.scheduler = SchedulerAdapterFactory.create(plugin);
         this.bootstrap = new Bootstrap(plugin);
         
         // initialize storage after Registry is available
@@ -89,6 +97,10 @@ public class Registry {
 
     public com.gyvex.ezafk.repository.StorageRepository getStorageRepository() {
         return storageRepository;
+    }
+
+    public SchedulerAdapter getScheduler() {
+        return scheduler;
     }
 
     /**

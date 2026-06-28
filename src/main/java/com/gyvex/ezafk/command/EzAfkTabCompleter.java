@@ -23,6 +23,9 @@ public class EzAfkTabCompleter implements TabCompleter {
         "list", "add", "remove", "pos1", "pos2", "reset"
     );
 
+    private static final List<String> BYPASS_LIST_TYPES = Arrays.asList("whitelist", "blacklist");
+    private static final List<String> BYPASS_LIST_ACTIONS = Arrays.asList("add", "remove", "list");
+
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1) {
@@ -43,7 +46,21 @@ public class EzAfkTabCompleter implements TabCompleter {
                 sub = args.length > 0 ? args[0].toLowerCase(Locale.ROOT) : "";
             }
 
-            if (sub.equals("toggle") || sub.equals("bypass") || sub.equals("info") || (sub.equals("time") && sender.hasPermission("ezafk.time.others"))) {
+            if (sub.equals("bypass")) {
+                // Suggest whitelist/blacklist types AND online player names (for legacy /afk bypass <player>)
+                List<String> suggestions = new java.util.ArrayList<>();
+                BYPASS_LIST_TYPES.stream()
+                        .filter(t -> t.startsWith(prefix))
+                        .forEach(suggestions::add);
+                Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
+                        .sorted(String.CASE_INSENSITIVE_ORDER)
+                        .forEach(suggestions::add);
+                return suggestions;
+            }
+
+            if (sub.equals("toggle") || sub.equals("info") || (sub.equals("time") && sender.hasPermission("ezafk.time.others"))) {
                 List<String> playerNames = Bukkit.getOnlinePlayers().stream()
                         .map(Player::getName)
                         .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
@@ -80,6 +97,34 @@ public class EzAfkTabCompleter implements TabCompleter {
                         return zones;
                     }
                 } catch (Exception ignored) {}
+            }
+        }
+        // /afk bypass <whitelist|blacklist> <action>
+        if (args.length == 3) {
+            String sub = args[0].toLowerCase(Locale.ROOT);
+            String listType = args[1].toLowerCase(Locale.ROOT);
+            String prefix = args[2].toLowerCase(Locale.ROOT);
+            if (sub.equals("bypass") && (listType.equals("whitelist") || listType.equals("blacklist"))) {
+                return BYPASS_LIST_ACTIONS.stream()
+                        .filter(a -> a.startsWith(prefix))
+                        .collect(Collectors.toList());
+            }
+        }
+        // /afk bypass <whitelist|blacklist> <add|remove> <player>
+        if (args.length == 4) {
+            String sub = args[0].toLowerCase(Locale.ROOT);
+            String listType = args[1].toLowerCase(Locale.ROOT);
+            String action = args[2].toLowerCase(Locale.ROOT);
+            String prefix = args[3].toLowerCase(Locale.ROOT);
+            if (sub.equals("bypass")
+                    && (listType.equals("whitelist") || listType.equals("blacklist"))
+                    && (action.equals("add") || action.equals("remove"))) {
+                List<String> playerNames = Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .filter(name -> name.toLowerCase(Locale.ROOT).startsWith(prefix))
+                        .collect(Collectors.toList());
+                Collections.sort(playerNames, String.CASE_INSENSITIVE_ORDER);
+                return playerNames;
             }
         }
         return Collections.emptyList();

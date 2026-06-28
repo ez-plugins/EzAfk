@@ -1,16 +1,20 @@
 # EzAfk
 
-[![Build](https://github.com/ez-plugins/EzAfk/actions/workflows/maven-publish.yml/badge.svg)](https://github.com/ez-plugins/EzAfk/actions)
+[![Modrinth Version](https://img.shields.io/modrinth/v/ezafk)](https://modrinth.com/plugin/ezafk)
 [![Release](https://img.shields.io/github/v/release/ez-plugins/EzAfk)](https://github.com/ez-plugins/EzAfk/releases)
-[![Downloads](https://img.shields.io/github/downloads/ez-plugins/EzAfk/total)](https://github.com/ez-plugins/EzAfk/releases)
+[![Modrinth Downloads](https://img.shields.io/modrinth/dt/ezafk)](https://modrinth.com/plugin/ezafk)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 EzAfk is a powerful and flexible AFK (Away From Keyboard) management plugin for Minecraft servers. It provides advanced AFK detection, player management, and integration with popular plugins and server features.
+
+**Requirements:** Paper / Spigot / Bukkit / Purpur 1.21+ · Java 21+
 
 ## Features
 - Automatic AFK detection and management
 - AFK kick warnings and configurable actions
 - GUI for AFK player overview and actions
+- AFK zones with economy rewards, countdown notifications (EzCountdown), and entry/exit messages
+- Persistent bypass whitelist and blacklist (`bypass-lists.yml`)
 - Integration with Economy, Tab, PlaceholderAPI, WorldGuard, and more
 - Multi-language support (EN, ES, NL, RU, ZH)
 - MySQL support for persistent data
@@ -47,7 +51,9 @@ Refer to these documents for setup, customization, and advanced usage.
 - `/afk reload` — Reload configuration
 - `/afk gui` — Open AFK player overview GUI
 - `/afk toggle <player>` — Toggle AFK for another player
-- `/afk bypass <player>` — Toggle AFK bypass for a player
+- `/afk bypass whitelist <add|remove|list> [player]` — Add/remove/list players on the persistent bypass whitelist
+- `/afk bypass blacklist <add|remove|list> [player]` — Add/remove/list players on the persistent bypass blacklist
+- `/afk bypass <player>` — Toggle per-session AFK bypass for a player
 - `/afk info <player>` — Show AFK info for a player
 - `/afk time [player]` — Show total AFK time
 - `/afk time reset <player>` — Reset a player's total AFK time (admin)

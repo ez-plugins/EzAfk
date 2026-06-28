@@ -7,7 +7,7 @@ It automates AFK detection, rewards or charges players based on idle state, give
 a real-time overview panel, and integrates with the tools you already run, all without
 sacrificing performance.
 
-> **v3.0.0** · Minecraft 26.1+ · Java 25 · Paper / Spigot / Bukkit / Purpur
+> **v3.1.0** · Minecraft 1.21+ · Java 21+ · Paper / Spigot / Bukkit / Purpur
 
 ---
 
@@ -48,7 +48,9 @@ sacrificing performance.
 | `/afk reload` | Reload all configuration files | `ezafk.reload` |
 | `/afk gui` | Open the AFK staff overview panel | `ezafk.gui` |
 | `/afk toggle <player>` | Force a player's AFK state | `ezafk.toggle` |
-| `/afk bypass <player>` | Toggle AFK bypass for a player | `ezafk.bypass.manage` |
+| `/afk bypass whitelist <add\|remove\|list> [player]` | Manage the persistent bypass whitelist | `ezafk.bypass.manage` |
+| `/afk bypass blacklist <add\|remove\|list> [player]` | Manage the persistent bypass blacklist | `ezafk.bypass.manage` |
+| `/afk bypass <player>` | Toggle per-session bypass for a player | `ezafk.bypass.manage` |
 | `/afk info <player>` | View a player's AFK session details | `ezafk.info` |
 | `/afk time [player]` | View total AFK time | `ezafk.time` |
 | `/afk time reset <player>` | Reset a player's AFK time | `ezafk.time.reset` |
