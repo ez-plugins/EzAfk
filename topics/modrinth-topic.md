@@ -7,7 +7,7 @@ It automates AFK detection, rewards or charges players based on idle state, give
 a real-time overview panel, and integrates with the tools you already run, all without
 sacrificing performance.
 
-> **v3.1.0** · Minecraft 1.21+ · Java 21+ · Paper / Spigot / Bukkit / Purpur
+> **v3.1.1** · Minecraft 1.21+ · Java 21+ · Paper / Spigot / Bukkit / Purpur
 
 ---
 

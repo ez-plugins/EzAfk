@@ -3,8 +3,10 @@ package com.gyvex.ezafk.manager;
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
 import com.gyvex.ezafk.state.AfkState;
+import com.gyvex.ezafk.util.PlaceholderUtil;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 import java.util.Map;
 
@@ -18,11 +20,16 @@ public final class MessageManager {
     }
 
     public static void sendMessage(CommandSender sender, String path, String fallback, Map<String, String> placeholders) {
+        sendMessage(sender, path, fallback, placeholders, sender instanceof Player ? (Player) sender : null);
+    }
+
+    public static void sendMessage(CommandSender sender, String path, String fallback,
+                                   Map<String, String> placeholders, Player playerContext) {
         if (sender == null) {
             return;
         }
 
-        String message = getMessage(path, fallback, placeholders);
+        String message = getMessage(path, fallback, placeholders, playerContext);
 
         if (message != null && !message.isEmpty()) {
             sender.sendMessage(message);
@@ -34,6 +41,10 @@ public final class MessageManager {
     }
 
     public static String getMessage(String path, String fallback, Map<String, String> placeholders) {
+        return getMessage(path, fallback, placeholders, null);
+    }
+
+    public static String getMessage(String path, String fallback, Map<String, String> placeholders, Player playerContext) {
         String message = null;
         if (Registry.get().getConfigManager() != null && Registry.get().getConfigManager().getMessages() != null) {
             message = Registry.get().getConfigManager().getMessages().getString(path);
@@ -55,6 +66,10 @@ public final class MessageManager {
         }
 
         message = applyGlobalPlaceholders(message);
+
+        if (playerContext != null) {
+            message = PlaceholderUtil.resolvePlaceholderApiPlaceholders(playerContext, message, Registry.get().getLogger());
+        }
 
         return ChatColor.translateAlternateColorCodes('&', message);
     }

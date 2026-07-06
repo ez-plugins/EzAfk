@@ -119,8 +119,8 @@ public class AfkState {
             boolean titleEnabled = plugin.getConfig().getBoolean("afk.title.enabled");
 
             if (titleEnabled) {
-                String title = MessageManager.getMessage("afk.title.title", "&eAFK");
-                String subtitle = MessageManager.getMessage("afk.title.subtitle", "&7You are now AFK");
+                String title = MessageManager.getMessage("afk.title.title", "&eAFK", null, player);
+                String subtitle = MessageManager.getMessage("afk.title.subtitle", "&7You are now AFK", null, player);
 
                 if (title == null) {
                     title = "";
@@ -206,7 +206,7 @@ public class AfkState {
         }
 
         if (mode == AfkActivationMode.STANDARD) {
-            MessageManager.sendMessage(player, "afk.no-longer", "&aYou are no longer AFK!");
+            MessageManager.sendMessage(player, "afk.no-longer", "&aYou are no longer AFK!", null, player);
         }
 
         if (mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("unafk.broadcast.enabled")) {
@@ -226,8 +226,8 @@ public class AfkState {
 
         boolean titleEnabled = mode == AfkActivationMode.STANDARD && plugin.getConfig().getBoolean("unafk.title.enabled");
         if (titleEnabled) {
-            String title = MessageManager.getMessage("unafk.title.title", "&aWelcome back!");
-            String subtitle = MessageManager.getMessage("unafk.title.subtitle", "&7You are no longer AFK");
+            String title = MessageManager.getMessage("unafk.title.title", "&aWelcome back!", null, player);
+            String subtitle = MessageManager.getMessage("unafk.title.subtitle", "&7You are no longer AFK", null, player);
 
             if (title == null) {
                 title = "";
@@ -356,7 +356,7 @@ public class AfkState {
             placeholders.put("player", replacement);
         }
 
-        return MessageManager.getMessage(path, fallback, placeholders);
+        return MessageManager.getMessage(path, fallback, placeholders, player);
     }
 
     private static void applyAfkDisplayName(EzAfk plugin, Player player) {

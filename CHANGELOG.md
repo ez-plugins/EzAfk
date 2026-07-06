@@ -12,6 +12,18 @@ Release tags use the `v` prefix (e.g. `v3.0.0`).
 
 ---
 
+## [3.1.1] - 2026-07-06
+
+[Modrinth](https://modrinth.com/plugin/ezafk/version/3.1.1)
+
+### Fixed
+
+- AFK broadcast and return messages now resolve PlaceholderAPI placeholders
+  with the AFK player's context, so integrations like LuckPerms prefixes work
+  correctly in `messages.yml`.
+
+---
+
 ## [3.1.0] - 2026-05-23
 
 [Modrinth](https://modrinth.com/plugin/ezafk/version/3.1.0)
