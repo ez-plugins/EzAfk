@@ -9,7 +9,7 @@
 
 [B]EzAfk[/B] is a modern, lightweight AFK management plugin built for Paper and Spigot servers running Minecraft **1.21+** and Java **21+**. It automates AFK detection, rewards or charges players based on AFK state, provides staff overview tools, and integrates with the systems you already use, all without sacrificing performance.
 
-[IMG]https://img.shields.io/badge/version-3.1.0-blue[/IMG]
+[IMG]https://img.shields.io/badge/version-3.1.1-blue[/IMG]
 [IMG]https://img.shields.io/badge/Minecraft-1.21%2B-green[/IMG]
 [IMG]https://img.shields.io/badge/Java-21%2B-orange[/IMG]
 

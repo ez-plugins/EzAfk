@@ -101,6 +101,29 @@ public class PlaceholderUtil {
     }
 
     /**
+     * Resolves PlaceholderAPI placeholders using the provided player context without applying
+     * EzAfk's local %player% or %executor% substitutions.
+     */
+    public static String resolvePlaceholderApiPlaceholders(Player player, String text, Logger logger) {
+        if (text == null) {
+            return null;
+        }
+
+        if (!isPlaceholderAPIAvailable(logger)) {
+            return text;
+        }
+
+        try {
+            return me.clip.placeholderapi.PlaceholderAPI.setPlaceholders(player, text);
+        } catch (Exception e) {
+            if (logger != null) {
+                logger.warning("Failed to resolve placeholders via PlaceholderAPI: " + e.getMessage());
+            }
+            return text;
+        }
+    }
+
+    /**
      * Resolves placeholders without player context (server-wide/offline placeholders).
      */
     public static String resolvePlaceholders(String text, Logger logger) {
