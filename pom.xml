@@ -15,6 +15,9 @@
         <paper.version>26.1.2.build.57-stable</paper.version>
         <bstats.version>3.1.0</bstats.version>
         <worldguard.version>7.0.13</worldguard.version>
+        <jetbrains.annotations.version>26.0.2-1</jetbrains.annotations.version>
+        <errorprone.annotations.version>2.41.0</errorprone.annotations.version>
+        <log4j.api.version>2.25.2</log4j.api.version>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.shade.plugin.version>3.6.2</maven.shade.plugin.version>
         <jaloquent.version>1.3.2</jaloquent.version>
@@ -85,6 +88,42 @@
         </dependency>
         <!-- Note: `paper-api` is declared with `provided` scope above; do not duplicate it here -->
         <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.11.0</version>
+            <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.errorprone</groupId>
+                    <artifactId>error_prone_annotations</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
+            <version>${errorprone.annotations.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${jetbrains.annotations.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>${log4j.api.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.bstats</groupId>
             <artifactId>bstats-bukkit</artifactId>
             <version>${bstats.version}</version>
@@ -115,6 +154,10 @@
                 <exclusion>
                     <groupId>org.bstats</groupId>
                     <artifactId>bstats-bukkit</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-api</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -148,11 +191,23 @@
             <groupId>net.kyori</groupId>
             <artifactId>examination-api</artifactId>
             <version>1.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>net.kyori</groupId>
             <artifactId>examination-string</artifactId>
             <version>1.3.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.jetbrains</groupId>
+                    <artifactId>annotations</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javazoom</groupId>
