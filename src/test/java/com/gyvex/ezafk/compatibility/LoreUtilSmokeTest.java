@@ -1,13 +1,17 @@
 package com.gyvex.ezafk.compatibility;
 
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * Smoke tests for {@link LoreUtil}, verifying that:
@@ -18,27 +22,42 @@ import static org.mockito.Mockito.*;
  *   <li>Null / blank inputs are handled gracefully.</li>
  * </ul>
  *
- * These tests run without a live Bukkit server; {@link ItemMeta} is mocked with
- * Mockito and {@link org.bukkit.ChatColor#translateAlternateColorCodes} is pure
- * string manipulation that requires no server instance.
+ * These tests use a MockBukkit server to obtain real {@link ItemMeta} instances,
+ * which avoids JVM agent constraints around inline mocking on newer JDKs.
  */
-@SuppressWarnings("unchecked")
 class LoreUtilSmokeTest {
 
     // §c is the section-sign + 'c' color code for red (U+00A7 + 'c')
     private static final char SECTION = '\u00a7';
 
+    private ServerMock server;
+
+    @BeforeEach
+    void setUp() {
+        server = MockBukkit.mock();
+    }
+
+    @AfterEach
+    void tearDown() {
+        MockBukkit.unmock();
+    }
+
+    private static ItemMeta newMeta() {
+        ItemStack stack = new ItemStack(Material.STONE);
+        ItemMeta meta = stack.getItemMeta();
+        assertNotNull(meta);
+        return meta;
+    }
+
     // ── setLore ──────────────────────────────────────────────────────────────
 
     @Test
     void setLore_translates_legacy_amp_color_codes() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
         LoreUtil.setLore(meta, List.of("&cRed line", "&aGreen line"), null, null);
 
-        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
-        verify(meta).setLore(captor.capture());
-
-        List<String> lore = captor.getValue();
+        List<String> lore = meta.getLore();
+        assertNotNull(lore);
         assertEquals(2, lore.size());
         assertTrue(lore.get(0).startsWith(SECTION + "c"), "§c prefix expected for &c");
         assertTrue(lore.get(1).startsWith(SECTION + "a"), "§a prefix expected for &a");
@@ -46,76 +65,79 @@ class LoreUtilSmokeTest {
 
     @Test
     void setLore_parses_minimessage_tags() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
         LoreUtil.setLore(meta, List.of("<red>hello</red>"), null, null);
 
-        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
-        verify(meta).setLore(captor.capture());
-
-        String line = captor.getValue().get(0);
+        List<String> lore = meta.getLore();
+        assertNotNull(lore);
+        String line = lore.get(0);
         // LegacyComponentSerializer should emit §c for <red>
         assertTrue(line.contains(SECTION + "c"), "expected §c from <red> tag, got: " + line);
     }
 
     @Test
     void setLore_handles_null_lore_list_without_interacting_with_meta() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
+        meta.setLore(List.of("existing"));
         LoreUtil.setLore(meta, null, null, null);
-        verifyNoInteractions(meta);
+        assertEquals(List.of("existing"), meta.getLore());
     }
 
     @Test
     void setLore_handles_empty_lore_list_without_interacting_with_meta() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
+        meta.setLore(List.of("existing"));
         LoreUtil.setLore(meta, List.of(), null, null);
-        verifyNoInteractions(meta);
+        assertEquals(List.of("existing"), meta.getLore());
     }
 
     @Test
     void setLore_preserves_plain_text_without_color_codes() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
         LoreUtil.setLore(meta, List.of("Plain text line"), null, null);
 
-        ArgumentCaptor<List<String>> captor = ArgumentCaptor.forClass(List.class);
-        verify(meta).setLore(captor.capture());
-        assertEquals("Plain text line", captor.getValue().get(0));
+        List<String> lore = meta.getLore();
+        assertNotNull(lore);
+        assertEquals("Plain text line", lore.get(0));
     }
 
     // ── setDisplayName ───────────────────────────────────────────────────────
 
     @Test
     void setDisplayName_translates_legacy_amp_color_codes() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
         LoreUtil.setDisplayName(meta, "&6Gold Name", null, null);
 
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(meta).setDisplayName(captor.capture());
-        assertTrue(captor.getValue().startsWith(SECTION + "6"), "§6 prefix expected");
+        String displayName = meta.getDisplayName();
+        assertNotNull(displayName);
+        assertTrue(displayName.startsWith(SECTION + "6"), "§6 prefix expected");
     }
 
     @Test
     void setDisplayName_parses_minimessage_tags() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
         LoreUtil.setDisplayName(meta, "<bold>Title</bold>", null, null);
 
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
-        verify(meta).setDisplayName(captor.capture());
+        String displayName = meta.getDisplayName();
+        assertNotNull(displayName);
         // §l is the bold code
-        assertTrue(captor.getValue().contains(SECTION + "l"), "§l expected for <bold>");
+        assertTrue(displayName.contains(SECTION + "l"), "§l expected for <bold>");
     }
 
     @Test
     void setDisplayName_handles_blank_without_interacting_with_meta() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
+        meta.setDisplayName("existing");
         LoreUtil.setDisplayName(meta, "   ", null, null);
-        verifyNoInteractions(meta);
+        assertEquals("existing", meta.getDisplayName());
     }
 
     @Test
     void setDisplayName_handles_null_without_interacting_with_meta() {
-        ItemMeta meta = mock(ItemMeta.class);
+        ItemMeta meta = newMeta();
+        meta.setDisplayName("existing");
         LoreUtil.setDisplayName(meta, null, null, null);
-        verifyNoInteractions(meta);
+        assertEquals("existing", meta.getDisplayName());
     }
 
     // ── validateMiniMessage ──────────────────────────────────────────────────
