@@ -163,6 +163,16 @@ jobs:
             fi
           done
           kill $SERVER_PID 2>/dev/null || true
+          for _ in $(seq 1 15); do
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if kill -0 $SERVER_PID 2>/dev/null; then
+            echo "Server did not stop after SIGTERM; forcing shutdown"
+            kill -9 $SERVER_PID 2>/dev/null || true
+          fi
           wait $SERVER_PID 2>/dev/null || true
 
       - name: Assert no EzAfk errors
@@ -255,6 +265,16 @@ jobs:
             fi
           done
           kill $SERVER_PID 2>/dev/null || true
+          for _ in $(seq 1 15); do
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if kill -0 $SERVER_PID 2>/dev/null; then
+            echo "Server did not stop after SIGTERM; forcing shutdown"
+            kill -9 $SERVER_PID 2>/dev/null || true
+          fi
           wait $SERVER_PID 2>/dev/null || true
 
       - name: Assert no EzAfk errors
@@ -347,6 +367,16 @@ jobs:
             fi
           done
           kill $SERVER_PID 2>/dev/null || true
+          for _ in $(seq 1 15); do
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if kill -0 $SERVER_PID 2>/dev/null; then
+            echo "Server did not stop after SIGTERM; forcing shutdown"
+            kill -9 $SERVER_PID 2>/dev/null || true
+          fi
           wait $SERVER_PID 2>/dev/null || true
 
       - name: Assert no EzAfk errors
