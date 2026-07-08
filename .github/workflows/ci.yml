@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ v2.x, v3.x ]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   unit-tests:
     name: Unit tests
@@ -28,7 +32,15 @@ jobs:
           cd /tmp/MockBukkit && ./gradlew publishToMavenLocal -xtest -xjavadoc
 
       - name: Run unit tests
-        run: mvn -B -ntp -Dmockbukkit.version="$MOCKBUKKIT_VERSION" test
+        run: mvn -B -ntp -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report
+
+      - name: Upload unit test coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: ./target/site/jacoco/jacoco.xml
+          flags: unit
+          name: unit-tests
 
   feature-tests:
     name: Feature tests
@@ -54,7 +66,15 @@ jobs:
           cd /tmp/MockBukkit && ./gradlew publishToMavenLocal -xtest -xjavadoc
 
       - name: Run feature tests
-        run: mvn -B -ntp -Pfeature-tests -Dtest=*FeatureTest -Dmockbukkit.version="$MOCKBUKKIT_VERSION" test
+        run: mvn -B -ntp -Pfeature-tests -Dtest=*FeatureTest -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report
+
+      - name: Upload feature test coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: ./target/site/jacoco/jacoco.xml
+          flags: feature
+          name: feature-tests
 
   # ──────────────────────────────────────────────────────────────────────────
   # SMOKE TESTS — verify EzAfk loads without errors on each server platform.
