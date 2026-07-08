@@ -189,19 +189,21 @@ jobs:
       - name: Resolve latest Paper 1.21.11 build
         id: paper
         run: |
-          BUILD=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/1.21.11/builds" | \
-            python3 -c "import sys,json; builds=json.load(sys.stdin)['builds']; print(builds[-1]['build'])")
-          JAR_NAME=$(curl -fsSL "https://api.papermc.io/v2/projects/paper/versions/1.21.11/builds/${BUILD}" | \
-            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['downloads']['application']['name'])")
-          echo "build=${BUILD}"       >> "$GITHUB_OUTPUT"
-          echo "jar_name=${JAR_NAME}" >> "$GITHUB_OUTPUT"
-          echo "Resolved: Paper 1.21.11 build ${BUILD} (${JAR_NAME})"
+          USER_AGENT="EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)"
+          BUILDS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/paper/versions/1.21.11/builds")
+          BUILD=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No Paper builds returned'; print(chosen['id'])")
+          DOWNLOAD_URL=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No Paper builds returned'; print(chosen['downloads']['server:default']['url'])")
+          echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+          echo "download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: Paper 1.21.11 build ${BUILD}"
 
       - name: Download Paper 1.21.11 server JAR
         run: |
           mkdir -p smoke-server/plugins
-          curl -fsSL \
-            "https://api.papermc.io/v2/projects/paper/versions/1.21.11/builds/${{ steps.paper.outputs.build }}/downloads/${{ steps.paper.outputs.jar_name }}" \
+          curl -fsSL -H "User-Agent: EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)" \
+            "${{ steps.paper.outputs.download_url }}" \
             -o smoke-server/paper.jar
 
       - name: Copy plugin JAR
@@ -279,19 +281,21 @@ jobs:
       - name: Resolve latest Folia 1.21.11 build
         id: folia
         run: |
-          BUILD=$(curl -fsSL "https://api.papermc.io/v2/projects/folia/versions/1.21.11/builds" | \
-            python3 -c "import sys,json; builds=json.load(sys.stdin)['builds']; print(builds[-1]['build'])")
-          JAR_NAME=$(curl -fsSL "https://api.papermc.io/v2/projects/folia/versions/1.21.11/builds/${BUILD}" | \
-            python3 -c "import sys,json; d=json.load(sys.stdin); print(d['downloads']['application']['name'])")
-          echo "build=${BUILD}"       >> "$GITHUB_OUTPUT"
-          echo "jar_name=${JAR_NAME}" >> "$GITHUB_OUTPUT"
-          echo "Resolved: Folia 1.21.11 build ${BUILD} (${JAR_NAME})"
+          USER_AGENT="EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)"
+          BUILDS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/folia/versions/1.21.11/builds")
+          BUILD=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No Folia builds returned'; print(chosen['id'])")
+          DOWNLOAD_URL=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No Folia builds returned'; print(chosen['downloads']['server:default']['url'])")
+          echo "build=${BUILD}" >> "$GITHUB_OUTPUT"
+          echo "download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: Folia 1.21.11 build ${BUILD}"
 
       - name: Download Folia 1.21.11 server JAR
         run: |
           mkdir -p smoke-server/plugins
-          curl -fsSL \
-            "https://api.papermc.io/v2/projects/folia/versions/1.21.11/builds/${{ steps.folia.outputs.build }}/downloads/${{ steps.folia.outputs.jar_name }}" \
+          curl -fsSL -H "User-Agent: EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)" \
+            "${{ steps.folia.outputs.download_url }}" \
             -o smoke-server/folia.jar
 
       - name: Copy plugin JAR
