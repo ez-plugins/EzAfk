@@ -69,13 +69,13 @@ public final class LoreUtil {
 
     /**
      * Converts a raw message string to a legacy §-color string suitable for
-     * {@link ItemMeta#setDisplayName} / {@link ItemMeta#setLore}.
+     * {@link ItemMeta#setDisplayName} / {@link ItemMeta#setLore} and chat messages.
      *
      * <p>When the bundled MiniMessage library is available (always, since it is shaded into the
      * JAR), MiniMessage tags such as {@code <red>} are parsed and the result is serialized back
      * to a legacy color string. Otherwise, {@code &}-color codes are translated directly.</p>
      */
-    private static String toDisplayString(String text, Logger logger) {
+    public static String toDisplayString(String text, Logger logger) {
         try {
             Object component = deserializeToComponent(text);
             if (component != null) {

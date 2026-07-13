@@ -2,9 +2,9 @@ package com.gyvex.ezafk.manager;
 
 import com.gyvex.ezafk.EzAfk;
 import com.gyvex.ezafk.bootstrap.Registry;
+import com.gyvex.ezafk.compatibility.LoreUtil;
 import com.gyvex.ezafk.state.AfkState;
 import com.gyvex.ezafk.util.PlaceholderUtil;
-import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -71,7 +71,7 @@ public final class MessageManager {
             message = PlaceholderUtil.resolvePlaceholderApiPlaceholders(playerContext, message, Registry.get().getLogger());
         }
 
-        return ChatColor.translateAlternateColorCodes('&', message);
+        return LoreUtil.toDisplayString(message, Registry.get().getLogger());
     }
 
     public static String applyGlobalPlaceholders(String message) {
