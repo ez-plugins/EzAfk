@@ -155,7 +155,7 @@
                     <groupId>org.bstats</groupId>
                     <artifactId>bstats-bukkit</artifactId>
                 </exclusion>
-<exclusion>
+                <exclusion>
                     <groupId>org.apache.logging.log4j</groupId>
                     <artifactId>log4j-api</artifactId>
                 </exclusion>
@@ -436,13 +436,14 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.5</version>
                 <configuration>
+                    <skip>${maven.test.skip}</skip>
                     <useModulePath>false</useModulePath>
-                    <argLine>${argLine} -Dnet.bytebuddy.experimental=true</argLine>
+                    <argLine>-Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
         </plugins>
