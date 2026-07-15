@@ -1,0 +1,48 @@
+package com.gyvex.ezafk.listener;
+
+import com.gyvex.ezafk.state.LastActiveState;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+
+public class PlayerActivityListener implements Listener {
+
+    @EventHandler
+    public void onPlayerInteract(PlayerInteractEvent event) {
+        LastActiveState.update(event.getPlayer());
+    }
+
+    @SuppressWarnings("deprecation") // AsyncPlayerChatEvent deprecated in Paper 1.19+; still fires on all supported versions
+    @EventHandler
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
+        LastActiveState.update(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onPlayerCommand(PlayerCommandPreprocessEvent event) {
+        LastActiveState.update(event.getPlayer());
+    }
+
+    @EventHandler
+    public void onInventoryClick(InventoryClickEvent event) {
+        HumanEntity human = event.getWhoClicked();
+
+        if (!(human instanceof Player)) {
+            return;
+        }
+        Player player = (Player) human;
+
+        if (event.getClickedInventory() == null) {
+            return;
+        }
+
+        if (event.getView().getTopInventory().equals(event.getClickedInventory())) {
+            LastActiveState.update(player);
+        }
+    }
+}

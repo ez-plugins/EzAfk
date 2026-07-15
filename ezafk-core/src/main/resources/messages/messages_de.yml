@@ -1,0 +1,108 @@
+anti:
+  vehicle: "&cDu kannst AFK nicht umschalten, während du in einem Fahrzeug sitzt."
+  infinite-waterflow: "&cWasserfluss-Tricks umgehen die AFK-Erkennung nicht."
+  bubble-column: "&cDu kannst Blasen-Säulen nicht verwenden, um die AFK-Erkennung zu umgehen."
+afk:
+  now: "&eDu bist jetzt als AFK markiert. Bewege dich, um aktiv zu bleiben!"
+  broadcast: "&cSpieler&a %player% &cist jetzt AFK"
+  no-longer: "&aWillkommen zurück! Du bist nicht mehr AFK."
+  title:
+    title: "&eAFK"
+    subtitle: "&7Du bist jetzt AFK"
+command:
+  usage: "&cVerwendung: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&cNur Spieler im Spiel können ihren eigenen AFK-Status verwalten."
+    no-permission: "&cDu hast keine Berechtigung, den AFK-Status eines anderen Spielers zu ändern."
+    now-afk: "&a%target% ist jetzt als AFK markiert."
+    no-longer-afk: "&a%target% ist nicht mehr AFK."
+  reload:
+    no-permission: "&cDu hast keine Berechtigung, die Konfiguration neu zu laden."
+    success: "&aKonfiguration erfolgreich neu geladen."
+  gui:
+    players-only: "&cNur Spieler können das AFK-GUI öffnen."
+    no-permission: "&cDu hast keine Berechtigung, das AFK-GUI zu öffnen."
+  bypass:
+    no-permission: "&cDu hast keine Berechtigung, den AFK-Bypass zu ändern."
+    enabled: "&a%target% wird jetzt die AFK-Erkennung umgehen."
+    enabled-target: "&aDu wirst jetzt die AFK-Erkennung umgehen."
+    disabled: "&a%target% umgeht die AFK-Erkennung nun nicht mehr."
+    disabled-target: "&cDu umgehst die AFK-Erkennung nicht mehr."
+  info:
+    no-permission: "&cDu hast keine Berechtigung, AFK-Berichte anzusehen."
+    not-afk: "&e%target% ist derzeit nicht als AFK markiert."
+    header: "&6AFK-Bericht für &e%player%&6:"
+    reason: "&7Grund: &f%reason%"
+    detail: "&7Details: &f%detail%"
+    no-detail: "&7Details: &fEs wurden keine zusätzlichen Details aufgezeichnet."
+    duration: "&7AFK-Dauer: &f%duration%"
+    last-activity: "&7Letzte Aktivität: &fvor %last%"
+  time:
+    players-only: "&cNur Spieler können ihre eigene AFK-Zeit ansehen."
+    no-permission: "&cDu hast keine Berechtigung, deine AFK-Zeit anzusehen."
+    others-no-permission: "&cDu hast keine Berechtigung, die AFK-Zeit anderer Spieler anzusehen."
+    self: "&aDu warst insgesamt %duration% AFK."
+    other: "&a%player% war insgesamt %duration% AFK."
+  top:
+    no-permission: "&cDu hast keine Berechtigung, die AFK-Rangliste anzusehen."
+    empty: "&eEs wurde noch keine AFK-Zeit aufgezeichnet."
+    header: "&6Top AFK-Spieler:"
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cDer Spieler konnte nicht gefunden werden."
+economy:
+  enter:
+    charged: "&eDu hast %amount% bezahlt, um AFK zu gehen."
+    insufficient: "&cDu musst mindestens %amount% haben, um AFK zu gehen."
+    failed: "&cWir konnten dein Konto nicht belasten, um AFK zu gehen."
+    skipped: "&eDie Gebühr für das AFK-Gehen wurde übersprungen, da dein Konto nicht belastet werden konnte."
+  recurring:
+    charged: "&eDir wurden %amount% berechnet, um AFK zu bleiben."
+    revoked-insufficient: "&cDu hast nicht genug Geld, um AFK zu bleiben. Dein AFK-Status wurde entfernt."
+    revoked-failed: "&cDie Belastung schlug fehl, dein AFK-Status wurde entfernt."
+    skipped: "&eDie wiederkehrende Gebühr wurde übersprungen. Wir versuchen es später erneut."
+    failed: "&cWir konnten dein Konto nicht belasten. Wir versuchen es später erneut."
+gui:
+  overview:
+    active:
+      no-permission: "&cDu hast keine Berechtigung, aktive Spieler anzuzeigen."
+  actions:
+    no-permission: "&cDu hast keine Berechtigung, Spieleraktionen zu verwenden."
+    error:
+      player-not-found: "&cWir konnten den mit dieser Aktion verknüpften Spieler nicht finden."
+      no-command: "&cFür diese Aktion wurde kein Befehl konfiguriert."
+    default-kick-message: "&cDu wurdest gekickt, weil du zu lange AFK warst."
+unafk:
+  broadcast: "&aSpieler&7 %player% &aist nicht mehr AFK"
+  title:
+    title: "&aWillkommen zurück!"
+    subtitle: "&7Du bist nicht mehr AFK"
+kick:
+  message: "&cDu wurdest wegen zu langer AFK-Zeit vom Server gekickt!"
+
+afkzone:
+  reward:
+    granted:
+      economy: "&aDu hast %amount% erhalten, weil du in %zone% AFK warst."
+      command: "&aDu hast einen Befehl als Belohnung erhalten, weil du in %zone% AFK warst."
+      item: "&aDu hast %count%x %item% erhalten, weil du in %zone% AFK warst."
+      default: "&aDu hast eine Belohnung erhalten, weil du in %zone% AFK warst."
+    limit:
+      reached: "&cDu hast das Limit von %reward_limit% für %reward_name% erreicht. Komm in %time_remaining% wieder."
+      cooldown: "&cDu hast das Limit von %reward_limit% für %reward_name% erreicht. Komm in %time_remaining% wieder."
+
+  add:
+    selection-missing: "&cKeine WorldEdit-Auswahl gefunden - wähle eine Region oder gib Koordinaten an."
+    coords-required: "&cWorldEdit ist nicht verfügbar. Gib Koordinaten an: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&cUngültige Koordinaten. Verwende Zahlen."
+    pos1:
+      set: "&aPosition 1 gesetzt. Verwende /afk zone pos2, um die zweite Ecke zu setzen."
+    pos2:
+      set: "&aPosition 2 gesetzt. Verwende /afk zone add <name>, um die Zone zu erstellen."
+    pos-cleared-self: "&aDeine gespeicherten Positionen wurden gelöscht."
+    pos-cleared-target: "&aGespeicherte Positionen für %player% wurden gelöscht."
+
+  reset:
+    success: "&aBelohnungszähler für %player% zurückgesetzt."
+    zone:
+      success: "&aBelohnungszähler für %player% in Zone %zone% zurückgesetzt."

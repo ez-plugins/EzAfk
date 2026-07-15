@@ -1,0 +1,109 @@
+anti:
+  vehicle: "&c乗り物に乗っている間はAFKを切り替えることはできません。"
+  infinite-waterflow: "&c水流トリックはAFK検出を回避できません。"
+  bubble-column: "&cバブルカラムを使ってAFK検出を回避することはできません。"
+afk:
+  now: "&eあなたはAFKとしてマークされました。移動してアクティブを保持してください！"
+  broadcast: "&cプレイヤー&a %player% &cがAFKになりました"
+  no-longer: "&aおかえりなさい！あなたはもはやAFKではありません。"
+  title:
+    title: "&eAFK"
+    subtitle: "&7あなたは現在AFKです"
+command:
+  usage: "&c使い方: /afk [reload|gui|toggle <player>|bypass <player>|info <player>|time [player]|top]"
+  toggle:
+    self:
+      only-players: "&c自分のAFK状態を管理できるのはゲーム内のプレイヤーのみです。"
+    no-permission: "&c他のプレイヤーのAFKを切り替える権限がありません。"
+    now-afk: "&a%target% はAFKとしてマークされました。"
+    no-longer-afk: "&a%target% はもはやAFKではありません。"
+  reload:
+    no-permission: "&c設定をリロードする権限がありません。"
+    success: "&a設定を正常にリロードしました。"
+  gui:
+    players-only: "&cAFK GUIを開けるのはゲーム内のプレイヤーのみです。"
+    no-permission: "&cAFK GUIを開く権限がありません。"
+  bypass:
+    no-permission: "&cAFKバイパスを変更する権限がありません。"
+    enabled: "&a%target% はこれからAFK検出をバイパスします。"
+    enabled-target: "&aあなたはこれからAFK検出をバイパスします。"
+    disabled: "&a%target% はこれからAFK検出をバイパスしません。"
+    disabled-target: "&cあなたはもはやAFK検出をバイパスしていません。"
+  info:
+    no-permission: "&cAFKレポートを見る権限がありません。"
+    not-afk: "&e%target% は現在AFKではありません。"
+    header: "&6%player% のAFKレポート &6:"
+    reason: "&7理由: &f%reason%"
+    detail: "&7詳細: &f%detail%"
+    no-detail: "&7詳細: &f追加の詳細は記録されていません。"
+    duration: "&7AFK時間: &f%duration%"
+    last-activity: "&7最終アクティビティ: &f%last% 前"
+  time:
+    players-only: "&c自分のAFK時間を確認できるのはプレイヤーのみです。"
+    no-permission: "&c自分のAFK時間を見る権限がありません。"
+    others-no-permission: "&c他のプレイヤーのAFK時間を見る権限がありません。"
+    self: "&aあなたの合計AFK時間: %duration%。"
+    other: "&a%player% の合計AFK時間: %duration%。"
+  top:
+    no-permission: "&cAFKランキングを見る権限がありません。"
+    empty: "&eまだ記録されたAFK時間はありません。"
+    header: "&6AFKランキング:" 
+    entry: "&e#%position% &7%player% - &f%duration%"
+  player-not-found: "&cそのプレイヤーは見つかりませんでした。"
+economy:
+  enter:
+    charged: "&eAFKになるために %amount% を支払いました。"
+    insufficient: "&cAFKになるには少なくとも %amount% が必要です。"
+    failed: "&cアカウントからの課金に失敗したためAFKになれませんでした。"
+    skipped: "&eアカウントの課金ができなかったため、AFKエントリー料金はスキップされました。"
+  recurring:
+    charged: "&eAFK状態を維持するために %amount% を支払いました。"
+    revoked-insufficient: "&c残高不足のためAFKが解除されました。"
+    revoked-failed: "&c課金に失敗したためAFKが解除されました。"
+    skipped: "&e定期料金の課金ができなかったためスキップされました。後で再試行します。"
+    failed: "&c定期課金に失敗しました。後で再試行します。"
+gui:
+  overview:
+    active:
+      no-permission: "&cアクティブなプレイヤーを表示する権限がありません。"
+  actions:
+    no-permission: "&cプレイヤーアクションを使用する権限がありません。"
+    error:
+      player-not-found: "&cそのアクションに紐づくプレイヤーが見つかりませんでした。"
+      no-command: "&cこのアクションに設定されたコマンドがありません。"
+    default-kick-message: "&c長時間AFKだったためキックされました。"
+unafk:
+  broadcast: "&aプレイヤー&7 %player% &aはもはやAFKではありません"
+  title:
+    title: "&aおかえりなさい！"
+    subtitle: "&7あなたはもはやAFKではありません"
+kick:
+  message: "&c長時間AFKだったためサーバーからキックされました！"
+
+
+afkzone:
+  reward:
+    granted:
+      economy: "&a%zone% に滞在して %amount% を受け取りました。"
+      command: "&a%zone% に滞在してコマンド報酬を受け取りました。"
+      item: "&a%zone% に滞在して %count%x %item% を受け取りました。"
+      default: "&a%zone% に滞在して報酬を受け取りました。"
+    limit:
+      reached: "&c%reward_name% の上限 (%reward_limit%) に達しました。%time_remaining% 後に再試行してください。"
+      cooldown: "&c%reward_name% の上限 (%reward_limit%) に達しました。%time_remaining% 後に再試行してください。"
+
+  add:
+    selection-missing: "&cWorldEditの選択が見つかりません - 領域を選択するか座標を指定してください。"
+    coords-required: "&cWorldEditが利用できません。座標を指定してください: /afk zone add <name> <x1> <y1> <z1> <x2> <y2> <z2>"
+    coords-invalid: "&c無効な座標です。数値を使用してください。"
+    pos1:
+      set: "&a位置1を設定しました。位置2は /afk zone pos2 で設定してください。"
+    pos2:
+      set: "&a位置2を設定しました。/afk zone add <name> でゾーンを作成してください。"
+    pos-cleared-self: "&a保存された位置をクリアしました。"
+    pos-cleared-target: "&a%player% の保存された位置をクリアしました。"
+
+  reset:
+    success: "&a%player% の報酬回数をリセットしました。"
+    zone:
+      success: "&a%player% の %zone% における報酬回数をリセットしました。"
