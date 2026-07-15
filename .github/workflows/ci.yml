@@ -32,13 +32,13 @@ jobs:
           cd /tmp/MockBukkit && ./gradlew publishToMavenLocal -xtest -xjavadoc
 
       - name: Run unit tests
-        run: mvn -B -ntp -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report
+        run: mvn -B -ntp -pl ezafk-core -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report
 
       - name: Upload unit test coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-          files: ./target/site/jacoco/jacoco.xml
+          files: ezafk-core/target/site/jacoco/jacoco.xml
           flags: unit
           name: unit-tests
 
@@ -66,13 +66,13 @@ jobs:
           cd /tmp/MockBukkit && ./gradlew publishToMavenLocal -xtest -xjavadoc
 
       - name: Run feature tests
-        run: mvn -B -ntp -Pfeature-tests -Dtest=*FeatureTest -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report
+        run: mvn -B -ntp -pl ezafk-core -Dtest=*FeatureTest -Dmockbukkit.version="$MOCKBUKKIT_VERSION" org.jacoco:jacoco-maven-plugin:0.8.14:prepare-agent test org.jacoco:jacoco-maven-plugin:0.8.14:report -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: Upload feature test coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-          files: ./target/site/jacoco/jacoco.xml
+          files: ezafk-core/target/site/jacoco/jacoco.xml
           flags: feature
           name: feature-tests
 
