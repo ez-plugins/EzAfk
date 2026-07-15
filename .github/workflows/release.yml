@@ -80,7 +80,7 @@ jobs:
             -DgenerateBackupPoms=false
 
       - name: Build
-        run: mvn -B -ntp -DskipTests package
+        run: mvn -B -ntp -f pom.xml -DskipTests package
 
       # ──────────────────────────────────────────────────────────────────────
       #  5. EXTRACT CHANGELOG
@@ -119,7 +119,7 @@ jobs:
           gh release create "${{ steps.meta.outputs.ref }}" \
             --title "EzAfk ${{ steps.meta.outputs.version }}" \
             --notes-file release-notes.md \
-            "target/ezafk-${{ steps.meta.outputs.version }}.jar"
+            "ezafk/target/ezafk-${{ steps.meta.outputs.version }}.jar"
 
       # ──────────────────────────────────────────────────────────────────────
       #  7. MODRINTH RELEASE
@@ -133,7 +133,7 @@ jobs:
           name: "EzAfk ${{ steps.meta.outputs.version }}"
           version: "${{ steps.meta.outputs.version }}"
           version-type: release
-          files: target/ezafk-${{ steps.meta.outputs.version }}.jar
+          files: ezafk/target/ezafk-${{ steps.meta.outputs.version }}.jar
           game-versions: ">=1.19"
           game-versions-filter: release
           loaders: |
