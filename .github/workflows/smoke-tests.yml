@@ -127,18 +127,29 @@ jobs:
           cp artifacts/ezafk-*.jar smoke-server/plugins/EzAfk.jar
 
       # ── Paper / Folia: resolve and download a prebuilt server jar ──
+      #
+      # fill.papermc.io's /versions/{version}/builds endpoint requires a
+      # concrete version (e.g. "26.1.2"), not a version *group* key like
+      # "26.1" — that 404s. So first resolve matrix.version against the
+      # project's version groups: if it's already a concrete version, use
+      # it as-is; otherwise treat it as a group and pick the newest
+      # concrete version listed for that group.
       - name: Resolve latest ${{ matrix.platform }} ${{ matrix.version }} build
         if: matrix.family == 'paper-api'
         id: resolve
         run: |
           USER_AGENT="EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)"
-          BUILDS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/${{ matrix.platform }}/versions/${{ matrix.version }}/builds")
+          VERSIONS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/${{ matrix.platform }}")
+          RESOLVED_VERSION=$(printf '%s' "$VERSIONS_JSON" | \
+            python3 -c "import sys,json; groups=json.load(sys.stdin)['versions']; target='${{ matrix.version }}'; all_versions={v for vs in groups.values() for v in vs}; print(target if target in all_versions else groups[target][0] if target in groups else sys.exit(f'Version {target!r} not found for ${{ matrix.platform }}'))")
+          echo "Resolved matrix version '${{ matrix.version }}' -> concrete version '${RESOLVED_VERSION}'"
+          BUILDS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/${{ matrix.platform }}/versions/${RESOLVED_VERSION}/builds")
           BUILD=$(printf '%s' "$BUILDS_JSON" | \
             python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No builds returned'; print(chosen['id'])")
           DOWNLOAD_URL=$(printf '%s' "$BUILDS_JSON" | \
             python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No builds returned'; print(chosen['downloads']['server:default']['url'])")
           echo "download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
-          echo "Resolved: ${{ matrix.platform }} ${{ matrix.version }} build ${BUILD}"
+          echo "Resolved: ${{ matrix.platform }} ${RESOLVED_VERSION} build ${BUILD}"
 
       - name: Download ${{ matrix.platform }} server jar
         if: matrix.family == 'paper-api'
