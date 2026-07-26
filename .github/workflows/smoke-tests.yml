@@ -12,7 +12,7 @@ permissions:
 # supported Minecraft server platforms and versions:
 #   Paper:  1.21.11, 26.1.x, 26.2.x
 #   Spigot: 1.21.11, 26.1.x, 26.2.x
-#   Folia:  1.21.11, 26.1.x, 26.2.x
+#   Folia:  1.21.11, 26.1.x
 #
 # The plugin JAR is built once (JDK 25, tests skipped) and shared as an
 # artifact across all matrix jobs to avoid rebuilding it 9 times.
@@ -26,9 +26,9 @@ permissions:
 #   1.21.11        → Java 21
 #   26.1.x / 26.2.x → Java 25
 #
-# NOTE: Folia 26.2 has no published build yet upstream (only Paper does
-# at time of writing). That matrix entry is marked allow-failure so it
-# doesn't block CI; remove `allow-failure` once Folia 26.2 ships.
+# NOTE: Folia has no published 26.2 build yet upstream (only Paper does
+# at time of writing), so that matrix entry is omitted entirely; add it
+# back once Folia 26.2 ships.
 # ──────────────────────────────────────────────────────────────────────────
 
 jobs:
@@ -87,11 +87,6 @@ jobs:
             platform: folia
             version: "26.1"
             java-version: "25"
-          - family: paper-api
-            platform: folia
-            version: "26.2"
-            java-version: "25"
-            allow-failure: true
           - family: spigot
             platform: spigot
             version: "1.21.11"
@@ -159,12 +154,17 @@ jobs:
             -o smoke-server/server.jar
 
       # ── Spigot: compile via BuildTools (cached per version) ──
+      # BuildTools names the output jar after the *concrete* Minecraft
+      # version it resolves --rev to (e.g. --rev 26.1 may resolve to
+      # 26.1.2, producing spigot-26.1.2.jar) rather than the literal
+      # --rev value, so cache path and copy step glob for it instead of
+      # assuming the filename matches matrix.version.
       - name: Cache Spigot ${{ matrix.version }} JAR
         if: matrix.family == 'spigot'
         id: spigot-cache
         uses: actions/cache@v4
         with:
-          path: spigot-${{ matrix.version }}.jar
+          path: spigot-*.jar
           key: spigot-${{ matrix.version }}-buildtools-v1
 
       - name: Build Spigot ${{ matrix.version }} via BuildTools
@@ -179,7 +179,10 @@ jobs:
 
       - name: Copy Spigot server jar
         if: matrix.family == 'spigot'
-        run: cp "spigot-${{ matrix.version }}.jar" smoke-server/server.jar
+        run: |
+          SPIGOT_JAR=$(ls spigot-*.jar | head -n1)
+          echo "Using Spigot jar: ${SPIGOT_JAR}"
+          cp "${SPIGOT_JAR}" smoke-server/server.jar
 
       - name: Configure server
         run: |
