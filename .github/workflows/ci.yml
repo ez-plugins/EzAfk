@@ -178,9 +178,17 @@ jobs:
       - name: Assert no EzAfk errors
         run: |
           LOG=smoke-server/server.log
+          FAILED=0
+          if ! grep -q "Done (" "$LOG"; then
+            echo "::error::Server did not reach 'Done (' — startup failed or timed out"
+            FAILED=1
+          fi
           if grep -qE "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"; then
             echo "::error::EzAfk logged errors on Spigot 1.21.4 / Java 21 startup:"
             grep -E "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"
+            FAILED=1
+          fi
+          if [ $FAILED -eq 1 ]; then
             exit 1
           fi
           if grep -qiE "Enabling EzAfk" "$LOG"; then
@@ -280,9 +288,17 @@ jobs:
       - name: Assert no EzAfk errors
         run: |
           LOG=smoke-server/server.log
+          FAILED=0
+          if ! grep -q "Done (" "$LOG"; then
+            echo "::error::Server did not reach 'Done (' — startup failed or timed out"
+            FAILED=1
+          fi
           if grep -qE "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"; then
             echo "::error::EzAfk logged errors on Paper 1.21.11 / Java 25 startup:"
             grep -E "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"
+            FAILED=1
+          fi
+          if [ $FAILED -eq 1 ]; then
             exit 1
           fi
           if grep -qiE "Enabling EzAfk" "$LOG"; then
@@ -382,9 +398,17 @@ jobs:
       - name: Assert no EzAfk errors
         run: |
           LOG=smoke-server/server.log
+          FAILED=0
+          if ! grep -q "Done (" "$LOG"; then
+            echo "::error::Server did not reach 'Done (' — startup failed or timed out"
+            FAILED=1
+          fi
           if grep -qE "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"; then
             echo "::error::EzAfk logged errors on Folia 1.21.11 / Java 25 startup:"
             grep -E "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"
+            FAILED=1
+          fi
+          if [ $FAILED -eq 1 ]; then
             exit 1
           fi
           if grep -qiE "Enabling EzAfk" "$LOG"; then
