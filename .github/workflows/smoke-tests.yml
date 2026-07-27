@@ -1,0 +1,253 @@
+name: Smoke Tests
+
+on:
+  pull_request:
+    branches: [ v2.x, v3.x ]
+
+permissions:
+  contents: read
+
+# ──────────────────────────────────────────────────────────────────────────
+# SMOKE TESTS — verify EzAfk starts the server without errors across
+# supported Minecraft server platforms and versions:
+#   Paper:  1.21.11, 26.1.x, 26.2.x
+#   Spigot: 1.21.11, 26.1.x, 26.2.x
+#   Folia:  1.21.11, 26.1.x
+#
+# The plugin JAR is built once (JDK 25, tests skipped) and shared as an
+# artifact across all matrix jobs to avoid rebuilding it 9 times.
+#
+# Paper/Folia builds are resolved dynamically from fill.papermc.io.
+# Spigot builds are compiled locally via BuildTools (cached per version)
+# since Spigot has no prebuilt binary distribution.
+#
+# Each matrix entry runs (and, for Spigot, compiles) on the JDK matching
+# what that server version actually supports:
+#   1.21.11        → Java 21
+#   26.1.x / 26.2.x → Java 25
+#
+# NOTE: Folia has no published 26.2 build yet upstream (only Paper does
+# at time of writing), so that matrix entry is omitted entirely; add it
+# back once Folia 26.2 ships.
+# ──────────────────────────────────────────────────────────────────────────
+
+jobs:
+  build-plugin:
+    name: Build plugin JAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+
+      - name: Build plugin JAR
+        run: mvn -B -ntp -f pom.xml -Dmaven.test.skip=true package
+
+      - name: Upload plugin JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: ezafk-plugin
+          path: ezafk/target/ezafk-*.jar
+          retention-days: 1
+
+  smoke-test:
+    name: ${{ matrix.platform }} ${{ matrix.version }}
+    runs-on: ubuntu-latest
+    needs: build-plugin
+    continue-on-error: ${{ matrix.allow-failure || false }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - family: paper-api
+            platform: paper
+            version: "1.21.11"
+            java-version: "21"
+          - family: paper-api
+            platform: paper
+            version: "26.1"
+            java-version: "25"
+          - family: paper-api
+            platform: paper
+            version: "26.2"
+            java-version: "25"
+          - family: paper-api
+            platform: folia
+            version: "1.21.11"
+            java-version: "21"
+          - family: paper-api
+            platform: folia
+            version: "26.1"
+            java-version: "25"
+          - family: spigot
+            platform: spigot
+            version: "1.21.11"
+            java-version: "21"
+          - family: spigot
+            platform: spigot
+            version: "26.1"
+            java-version: "25"
+          - family: spigot
+            platform: spigot
+            version: "26.2"
+            java-version: "25"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java-version }}
+
+      - name: Download plugin JAR
+        uses: actions/download-artifact@v4
+        with:
+          name: ezafk-plugin
+          path: artifacts
+
+      - name: Copy plugin JAR into server
+        run: |
+          mkdir -p smoke-server/plugins
+          cp artifacts/ezafk-*.jar smoke-server/plugins/EzAfk.jar
+
+      # ── Paper / Folia: resolve and download a prebuilt server jar ──
+      #
+      # fill.papermc.io's /versions/{version}/builds endpoint requires a
+      # concrete version (e.g. "26.1.2"), not a version *group* key like
+      # "26.1" — that 404s. So first resolve matrix.version against the
+      # project's version groups: if it's already a concrete version, use
+      # it as-is; otherwise treat it as a group and pick the newest
+      # concrete version listed for that group.
+      - name: Resolve latest ${{ matrix.platform }} ${{ matrix.version }} build
+        if: matrix.family == 'paper-api'
+        id: resolve
+        run: |
+          USER_AGENT="EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)"
+          VERSIONS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/${{ matrix.platform }}")
+          RESOLVED_VERSION=$(printf '%s' "$VERSIONS_JSON" | \
+            python3 -c "import sys,json; groups=json.load(sys.stdin)['versions']; target='${{ matrix.version }}'; all_versions={v for vs in groups.values() for v in vs}; print(target if target in all_versions else groups[target][0] if target in groups else sys.exit(f'Version {target!r} not found for ${{ matrix.platform }}'))")
+          echo "Resolved matrix version '${{ matrix.version }}' -> concrete version '${RESOLVED_VERSION}'"
+          BUILDS_JSON=$(curl -fsSL -H "User-Agent: ${USER_AGENT}" "https://fill.papermc.io/v3/projects/${{ matrix.platform }}/versions/${RESOLVED_VERSION}/builds")
+          BUILD=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No builds returned'; print(chosen['id'])")
+          DOWNLOAD_URL=$(printf '%s' "$BUILDS_JSON" | \
+            python3 -c "import sys,json; builds=json.load(sys.stdin); chosen=next((b for b in builds if b.get('channel')=='STABLE'), None) or (builds[0] if builds else None); assert chosen, 'No builds returned'; print(chosen['downloads']['server:default']['url'])")
+          echo "download_url=${DOWNLOAD_URL}" >> "$GITHUB_OUTPUT"
+          echo "Resolved: ${{ matrix.platform }} ${RESOLVED_VERSION} build ${BUILD}"
+
+      - name: Download ${{ matrix.platform }} server jar
+        if: matrix.family == 'paper-api'
+        run: |
+          curl -fsSL -H "User-Agent: EzAfk-CI/1.0 (https://github.com/ez-plugins/EzAfk)" \
+            "${{ steps.resolve.outputs.download_url }}" \
+            -o smoke-server/server.jar
+
+      # ── Spigot: compile via BuildTools (cached per version) ──
+      # BuildTools names the output jar after the *concrete* Minecraft
+      # version it resolves --rev to (e.g. --rev 26.1 may resolve to
+      # 26.1.2, producing spigot-26.1.2.jar) rather than the literal
+      # --rev value, so cache path and copy step glob for it instead of
+      # assuming the filename matches matrix.version.
+      - name: Cache Spigot ${{ matrix.version }} JAR
+        if: matrix.family == 'spigot'
+        id: spigot-cache
+        uses: actions/cache@v4
+        with:
+          path: spigot-*.jar
+          key: spigot-${{ matrix.version }}-buildtools-v1
+
+      - name: Build Spigot ${{ matrix.version }} via BuildTools
+        if: matrix.family == 'spigot' && steps.spigot-cache.outputs.cache-hit != 'true'
+        run: |
+          git config --global user.email "ci@ci.local"
+          git config --global user.name "CI"
+          curl -fsSL \
+            https://hub.spigotmc.org/jenkins/job/BuildTools/lastSuccessfulBuild/artifact/target/BuildTools.jar \
+            -o BuildTools.jar
+          java -jar BuildTools.jar --rev ${{ matrix.version }} --compile SPIGOT
+
+      - name: Copy Spigot server jar
+        if: matrix.family == 'spigot'
+        run: |
+          SPIGOT_JAR=$(ls spigot-*.jar | head -n1)
+          echo "Using Spigot jar: ${SPIGOT_JAR}"
+          cp "${SPIGOT_JAR}" smoke-server/server.jar
+
+      - name: Configure server
+        run: |
+          echo "eula=true" > smoke-server/eula.txt
+          printf '%s\n' \
+            "online-mode=false" \
+            "level-type=flat" \
+            "generate-structures=false" \
+            "max-players=0" \
+            > smoke-server/server.properties
+
+      - name: Run server and wait for ready
+        run: |
+          cd smoke-server
+          java -Xms512m -Xmx1g -jar server.jar --nogui > server.log 2>&1 &
+          SERVER_PID=$!
+          ELAPSED=0
+          while [ $ELAPSED -lt 120 ]; do
+            sleep 2; ELAPSED=$((ELAPSED + 2))
+            if grep -q "Done (" server.log 2>/dev/null; then
+              echo "Server ready after ${ELAPSED}s"; break
+            fi
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              echo "Server process exited after ${ELAPSED}s"; break
+            fi
+          done
+          kill $SERVER_PID 2>/dev/null || true
+          for _ in $(seq 1 15); do
+            if ! kill -0 $SERVER_PID 2>/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          if kill -0 $SERVER_PID 2>/dev/null; then
+            echo "Server did not stop after SIGTERM; forcing shutdown"
+            kill -9 $SERVER_PID 2>/dev/null || true
+          fi
+          wait $SERVER_PID 2>/dev/null || true
+
+      - name: Assert no EzAfk errors
+        run: |
+          LOG=smoke-server/server.log
+          FAILED=0
+          if ! grep -q "Done (" "$LOG"; then
+            echo "::error::Server did not reach 'Done (' — startup failed or timed out"
+            FAILED=1
+          fi
+          if grep -qE "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"; then
+            echo "::error::EzAfk logged errors on ${{ matrix.platform }} ${{ matrix.version }} startup:"
+            grep -E "(SEVERE|ERROR).*EzAfk|Could not load.*EzAfk" "$LOG"
+            FAILED=1
+          fi
+          if [ $FAILED -eq 1 ]; then
+            exit 1
+          fi
+          if grep -qiE "Enabling EzAfk" "$LOG"; then
+            echo "${{ matrix.platform }} ${{ matrix.version }} smoke test passed."
+          else
+            echo "::warning::EzAfk 'Enabling EzAfk' not found in log — plugin may not have loaded within the timeout"
+          fi
+
+      - name: Upload server log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-log-${{ matrix.platform }}-${{ matrix.version }}
+          path: smoke-server/server.log
+          retention-days: 7
